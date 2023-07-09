@@ -15,6 +15,11 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+
+/**
+ * Сервис для управления пользователями.
+ * Предоставляет методы для сохранения, обновления и получения пользователей.
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -22,43 +27,32 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    public static final int SECONDS_PER_DAY = 86400;
 
     /**
-     * Updates user information in the database.
-     * If the user already exists in the database and more than a day has passed since the last update,
-     * updates the user information.
-     * If the user does not exist in the database, adds them.
-     *
-     * @param user An instance of User containing information about the user.
-     * @return An instance of UserInDataBase containing the updated user information.
+     * Сохраняет или обновляет информацию о пользователе.
+     * @param user пользователь для сохранения или обновления.
+     * @return сохраненный или обновленный пользователь.
      */
     public UserEntity saveOrUpdateUser(User user) {
-        log.debug("Updating user info for user with ID: {}", user.getId());
+        log.debug("Обновление информации о пользователе с ID: {}", user.getId());
 
         return userRepository.findByTelegramChatId(user.getId()).map(existingUserEntity -> {
-            Duration duration = Duration.between(existingUserEntity.getUpdatedAt(), LocalDateTime.now());
-            if (duration.toSeconds() > SECONDS_PER_DAY) {
-                log.debug("User with ID: {} was last updated more than a day ago, updating...", user.getId());
-                updateUserInDataBase(user, existingUserEntity);
-            } else {
-                log.debug("User with ID: {} was last updated less than a day ago, no update needed", user.getId());
-            }
-            return existingUserEntity;
+            log.debug("Пользователь с ID: {} найден в базе данных, обновление...", user.getId());
+            updateUserInDataBase(user, existingUserEntity);
+            return userRepository.save(existingUserEntity);
         }).orElseGet(() -> {
-            log.debug("User with ID: {} not found in database, creating new user...", user.getId());
+            log.debug("Пользователь с ID: {} не найден в базе данных, создание нового пользователя...", user.getId());
             return saveUserInDataBase(user);
         });
     }
 
     /**
-     * Saves or updates user information in the database.
-     *
-     * @param user An instance of User containing information about the user.
-     * @return An instance of UserInDataBase containing the updated user information.
+     * Сохраняет нового пользователя в базу данных.
+     * @param user пользователь для сохранения.
+     * @return сохраненный пользователь.
      */
     private UserEntity saveUserInDataBase(User user) {
-        log.debug("Saving user with ID: {}", user.getId());
+        log.debug("Сохранение пользователя с ID: {}", user.getId());
 
         UserEntity userEntity = userMapper.mapNewUserToUserEntity(user);
 
@@ -68,11 +62,10 @@ public class UserService {
     }
 
     /**
-     * Updates an existing user entity with information from a Telegram user.
-     *
-     * @param user        An instance of User containing information about the user.
-     * @param userEntity  An instance of UserEntity containing the existing user information.
-     * @return An instance of UserEntity containing the updated user information.
+     * Обновляет существующего пользователя в базе данных.
+     * @param user пользователь для обновления.
+     * @param userEntity сущность пользователя для обновления.
+     * @return обновленный пользователь.
      */
     private UserEntity updateUserInDataBase(User user, UserEntity userEntity){
         userMapper.updateExistingUserEntityFromTelegramUser(user, userEntity);
@@ -80,13 +73,12 @@ public class UserService {
     }
 
     /**
-     * Changes the user state for the given chat ID to the specified user status.
-     *
-     * @param newUserState   The new user state.
-     * @param botEvent An instance of TelegramObject containing information about the user.
+     * Изменяет состояние пользователя.
+     * @param newUserState новое состояние пользователя.
+     * @param botEvent событие бота.
      */
     public void changeUserState(UserStateEnum newUserState, BotEvent botEvent) {
-        log.debug("Updating user state for chat ID: {}", botEvent.getId());
+        log.debug("Обновление состояния пользователя для чата с ID: {}", botEvent.getId());
 
         UserEntity userEntity = userRepository
                 .findByTelegramChatId(botEvent.getId())
@@ -95,14 +87,13 @@ public class UserService {
         userMapper.updateUserState(userEntity, newUserState);
 
         userRepository.save(userEntity);
-        log.debug("User state for chat ID: {} successfully updated to {}", botEvent.getId(), newUserState);
+        log.debug("Состояние пользователя для чата с ID: {} успешно обновлено на {}", botEvent.getId(), newUserState);
     }
 
     /**
-     * Gets the user state for the given chat ID. If the user does not have a state, sets it to "main".
-     *
-     * @param botEvent An instance of TelegramObject containing information about the user.
-     * @return The user state.
+     * Получает состояние пользователя.
+     * @param botEvent событие бота.
+     * @return состояние пользователя.
      */
     public UserStateEnum getUserState(BotEvent botEvent) {
         UserEntity userEntity = getUserEntityFromDataBase(botEvent);
@@ -110,6 +101,11 @@ public class UserService {
         return userEntity.getUserState();
     }
 
+    /**
+     * Получает состояние пользователя по ID чата.
+     * @param chatId ID чата.
+     * @return состояние пользователя.
+     */
     public UserStateEnum getUserState(Long chatId) {
         var userEntity = getUserEntityFromDataBase(chatId);
 
@@ -120,20 +116,50 @@ public class UserService {
         }
     }
 
+    /**
+     * Получает роль пользователя.
+     * @param botEvent событие бота.
+     * @return роль пользователя.
+     */
     public UserRoleEnum getUserRole (BotEvent botEvent) {
         UserEntity userEntity = getUserEntityFromDataBase(botEvent);
 
         return userEntity.getRole();
     }
 
+    /**
+     * Получает сущность пользователя из базы данных.
+     * @param botEvent событие бота.
+     * @return сущность пользователя.
+     */
     public UserEntity getUserEntityFromDataBase (BotEvent botEvent) {
         return userRepository
                 .findByTelegramChatId(botEvent.getId())
                 .orElseGet(() -> userMapper.mapNewUserToUserEntity(botEvent.getFrom()));
     }
 
+    /**
+     * Получает сущность пользователя из базы данных по ID чата.
+     * @param chatId ID чата.
+     * @return сущность пользователя.
+     */
     public Optional<UserEntity> getUserEntityFromDataBase (Long chatId) {
         return userRepository
                 .findByTelegramChatId(chatId);
+    }
+
+    /**
+     * Деактивирует пользователя.
+     * @param botEvent событие бота.
+     */
+    public void deactivateUser (BotEvent botEvent) {
+        var userEntityOpt = userRepository.findByTelegramChatId(botEvent.getId());
+
+        if (userEntityOpt.isPresent()) {
+            UserEntity user = userEntityOpt.get();
+            userMapper.deactivateUser(user);
+            userRepository.save(user);
+            log.debug("Пользователь с чатом ID: {} деактивирован", botEvent.getId());
+        }
     }
 }
