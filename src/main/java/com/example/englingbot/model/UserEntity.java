@@ -3,8 +3,6 @@ package com.example.englingbot.model;
 import com.example.englingbot.model.enums.UserRoleEnum;
 import com.example.englingbot.model.enums.UserStateEnum;
 import jakarta.persistence.*;
-import jdk.jfr.DataAmount;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -18,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @Data
 @NoArgsConstructor
 @SuperBuilder
-public class User extends TimestampWithId {
+public class UserEntity extends TimestampWithId {
 
     @Column(name = "telegram_chat_id")
     private Long telegramChatId;

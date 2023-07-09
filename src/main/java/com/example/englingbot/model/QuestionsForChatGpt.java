@@ -18,7 +18,7 @@ public class QuestionsForChatGpt extends TimestampWithId {
     @ManyToOne
     @NotNull
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    private UserEntity user;
 
     @Column (name = "question")
     private String question;

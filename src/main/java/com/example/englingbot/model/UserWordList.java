@@ -1,6 +1,5 @@
 package com.example.englingbot.model;
 
-import com.example.englingbot.model.enums.UserRoleEnum;
 import com.example.englingbot.model.enums.WordListTypeEnum;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -27,7 +26,7 @@ public class UserWordList extends TimestampWithId {
     @ManyToOne
     @NotNull
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    private UserEntity user;
 
     @ManyToOne
     @NotNull

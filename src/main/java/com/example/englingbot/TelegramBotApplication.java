@@ -1,5 +1,7 @@
 package com.example.englingbot;
 
+import com.example.englingbot.service.handlers.UpdateHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -8,32 +10,31 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Component
+@Slf4j
 public class TelegramBotApplication extends TelegramLongPollingBot {
 
     private final String botUsername;
+    private final UpdateHandler updateHandler;
 
     public TelegramBotApplication(@Value("${bot.token}") String botToken,
-                                  @Value("${bot.username}") String botUsername) {
+                                  @Value("${bot.username}") String botUsername, UpdateHandler updateHandler) {
         super(botToken);
         this.botUsername = botUsername;
+        this.updateHandler = updateHandler;
     }
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            String message_text = update.getMessage().getText();
-            long chat_id = update.getMessage().getChatId();
+        var botEvent = BotEvent.getTelegramObject(update);
 
-            SendMessage message = new SendMessage();
-            message.setChatId(chat_id);
-            message.setText("Вы написали: " + message_text);
-            try {
-                execute(message);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
+        try {
+            updateHandler.handle(botEvent);
+        } catch (Exception e) {
+            log.error("An error occurred: ", e);
+            e.printStackTrace();
         }
     }
+
 
 
     @Override
