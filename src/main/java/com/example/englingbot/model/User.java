@@ -12,13 +12,15 @@ import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "telegram_chat_id", name = "telegram_chat_id_unique")
+})
 @Data
 @NoArgsConstructor
 @SuperBuilder
 public class User extends TimestampWithId {
 
-    @Column(name = "telegram_chat_id", unique = true)
+    @Column(name = "telegram_chat_id")
     private Long telegramChatId;
 
     @Column(name = "first_name")
