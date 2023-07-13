@@ -1,6 +1,10 @@
 package com.example.englingbot.service.handlers;
 
 import com.example.englingbot.BotEvent;
+import com.example.englingbot.model.enums.UserStateEnum;
+import com.example.englingbot.model.enums.WordListTypeEnum;
+import com.example.englingbot.service.UserService;
+import com.example.englingbot.service.UserWordListService;
 import com.example.englingbot.service.enums.TextCommandsEnum;
 import com.example.englingbot.service.sendmessage.SendMessageForUserFactory;
 import jakarta.annotation.PostConstruct;
@@ -14,11 +18,15 @@ import java.util.function.Consumer;
 class MessageHandler implements Handler {
 
     private final SendMessageForUserFactory sendMessageForUserFactory;
+    private final UserService userService;
+    private final UserWordListService userWordListService;
 
     private final Map<TextCommandsEnum, Consumer<BotEvent>> textCommandsHandler;
 
-    MessageHandler(SendMessageForUserFactory sendMessageForUserFactory) {
+    MessageHandler(SendMessageForUserFactory sendMessageForUserFactory, UserService userService, UserWordListService userWordListService) {
         this.sendMessageForUserFactory = sendMessageForUserFactory;
+        this.userService = userService;
+        this.userWordListService = userWordListService;
         textCommandsHandler = new HashMap<>();
     }
 
@@ -32,8 +40,8 @@ class MessageHandler implements Handler {
 
     @PostConstruct
     private void init() {
-        textCommandsHandler.put(TextCommandsEnum.START, this::handleStart);
-        textCommandsHandler.put(TextCommandsEnum.HELP, this::handleHelp);
+        textCommandsHandler.put(TextCommandsEnum.START, this::handleStartAndHelp);
+        textCommandsHandler.put(TextCommandsEnum.HELP, this::handleStartAndHelp);
         textCommandsHandler.put(TextCommandsEnum.ANSWER, this::handleAnswer);
         textCommandsHandler.put(TextCommandsEnum.ADD_WORD, this::handleAddWord);
         textCommandsHandler.put(TextCommandsEnum.LEARN_WORD, this::handleLearnWord);
@@ -79,22 +87,44 @@ class MessageHandler implements Handler {
 
 
     private void handleLearnWord(BotEvent botEvent) {
+        var messageSender = sendMessageForUserFactory.createMessageSender();
+        var user = userService.getUserEntityFromDataBase(botEvent);
+        var userWord = userWordListService.getRandomUserWordList(user, WordListTypeEnum.LEARNING);
+
+        if (userWord == null) {
+            messageSender.sendMessage(botEvent.getId(), "У вас нет слов для изучения в данный момент. Пожалуйста, " +
+                    "добавьте новые слова, или воспользуйтесь нашим банком слов.");
+        } else {
+            //НАПИСАТЬ МЕТОДЫ ДЛЯ РАБОТЫ С ПРОИЗНОШЕНИЯМИ
+            String messageText = userWordListService.getUserWordListString(userWord);
+            messageSender.sendMessage(botEvent.getId(), messageText);
+        }
     }
 
     private void handleAddWord(BotEvent botEvent) {
+        userService.changeUserState(UserStateEnum.ADD_MENU, botEvent);
+        sendMessageForUserFactory
+                .createMessageSender()
+                .sendMessage(botEvent.getId(), """
+                        Можете отправлять слова, которые хотите добавить в свою коллекцию.\s
+
+                        Если нужно добавить несколько слов, можете отправлять их по очереди.
+
+                        Можете отправлять также словосочетания
+
+                        Учтите, что слова переводятся автоматически, с помощью сервисов онлайн перевода и никак не проходят дополнительные проверки орфографии. Поэтому даже при небольших ошибках, перевод также будет ошибочный.""");
 
     }
 
     private void handleAnswer(BotEvent botEvent) {
-
+        userService.changeUserState(UserStateEnum.ANSWER, botEvent);
+        sendMessageForUserFactory
+                .createMessageSender()
+                .sendMessage(botEvent.getId(), "Пришлите пожалуйста ваш вопрос. \n\nПримечание: получение ответа может занять некоторое время");
     }
 
-    private void handleHelp(BotEvent botEvent) {
 
-    }
-
-
-    private void handleStart(BotEvent botEvent) {
+    private void handleStartAndHelp(BotEvent botEvent) {
         String startAndHelpMessage = """
                 Привет! Я - Word Learning Bot, и я помогу тебе учить английские слова. Вот список доступных команд и функций, которые ты можешь использовать:
 
