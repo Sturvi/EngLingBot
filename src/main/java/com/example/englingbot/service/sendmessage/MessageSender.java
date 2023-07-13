@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 
 /**
  * Класс MessageSender обеспечивает функциональность отправки сообщений пользователю.
@@ -13,7 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 @Slf4j
 @Component
 @Scope("prototype")
-public class MessageSender {
+public abstract class MessageSender {
 
     private final TelegramBotApplication telegramBotApplication;
     private SendMessage sendMessage;
@@ -23,7 +24,7 @@ public class MessageSender {
      *
      * @param telegramBotApplication Экземпляр приложения TelegramBot.
      */
-    public MessageSender(TelegramBotApplication telegramBotApplication) {
+    protected MessageSender(TelegramBotApplication telegramBotApplication) {
         this.telegramBotApplication = telegramBotApplication;
         this.sendMessage = new SendMessage();
     }
@@ -33,7 +34,7 @@ public class MessageSender {
      *
      * @return Этот объект MessageSender.
      */
-    public MessageSender newMessage() {
+    protected MessageSender newMessage() {
         this.sendMessage = new SendMessage();
         log.debug("Создано новое сообщение");
         return this;
@@ -45,7 +46,7 @@ public class MessageSender {
      * @param chatId ID чата.
      * @return Этот объект MessageSender.
      */
-    public MessageSender setChatId(Long chatId) {
+    protected MessageSender setChatId(Long chatId) {
         sendMessage.setChatId(chatId);
         log.debug("Установлен ID чата: {}", chatId);
         return this;
@@ -57,7 +58,7 @@ public class MessageSender {
      * @param text Текст сообщения.
      * @return Этот объект MessageSender.
      */
-    public MessageSender setText(String text) {
+    protected MessageSender setText(String text) {
         sendMessage.setText(text);
         log.debug("Установлен текст сообщения: {}", text);
         return this;
@@ -69,16 +70,22 @@ public class MessageSender {
      * @param keyboard Inline-клавиатура.
      * @return Этот объект MessageSender.
      */
-    public MessageSender setInlineKeyboard(InlineKeyboardMarkup keyboard) {
+    protected MessageSender setInlineKeyboard(InlineKeyboardMarkup keyboard) {
         sendMessage.setReplyMarkup(keyboard);
         log.debug("Установлена inline-клавиатура для сообщения");
+        return this;
+    }
+
+    protected MessageSender setKeyboardMarkup (ReplyKeyboardMarkup keyboard) {
+        sendMessage.setReplyMarkup(keyboard);
+        log.debug("Установлена KeyboardMarkup-клавиатура для сообщения");
         return this;
     }
 
     /**
      * Отправляет сообщение пользователю.
      */
-    public void send() {
+    protected void send() {
         sendMessage.enableMarkdown(true);
         sendMessage.enableHtml(true);
 

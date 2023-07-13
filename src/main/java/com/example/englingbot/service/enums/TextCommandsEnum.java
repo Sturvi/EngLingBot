@@ -24,4 +24,13 @@ public enum TextCommandsEnum {
     public String getCommand() {
         return command;
     }
+
+    public static TextCommandsEnum fromString(String textCommand) {
+        for (TextCommandsEnum b : TextCommandsEnum.values()) {
+            if (b.command.equalsIgnoreCase(textCommand)) {
+                return b;
+            }
+        }
+        return null;
+    }
 }

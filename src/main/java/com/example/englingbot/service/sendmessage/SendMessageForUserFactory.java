@@ -2,6 +2,7 @@ package com.example.englingbot.service.sendmessage;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
@@ -9,7 +10,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
-public class MessageSenderFactory {
+@Lazy
+public class SendMessageForUserFactory {
 
     private final ApplicationContext context;
 
@@ -18,7 +20,7 @@ public class MessageSenderFactory {
      *
      * @return Новый экземпляр MessageSender.
      */
-    public MessageSender createMessageSender() {
-        return context.getBean(MessageSender.class);
+    public SendMessageForUser createMessageSender() {
+        return context.getBean(SendMessageForUser.class);
     }
 }

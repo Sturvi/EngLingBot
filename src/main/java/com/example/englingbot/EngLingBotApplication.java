@@ -1,5 +1,6 @@
 package com.example.englingbot;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,9 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
  * Главный класс приложения Spring Boot.
  */
 @SpringBootApplication
+@Slf4j
 public class EngLingBotApplication {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EngLingBotApplication.class);
 
     private final TelegramBotApplication bot;
 
@@ -29,7 +30,7 @@ public class EngLingBotApplication {
      */
     public EngLingBotApplication(TelegramBotApplication bot) {
         this.bot = bot;
-        LOGGER.debug("Создан экземпляр класса EngLingBotApplication.");
+        log.debug("Создан экземпляр класса EngLingBotApplication.");
     }
 
     /**
@@ -38,7 +39,7 @@ public class EngLingBotApplication {
      * @param args аргументы командной строки.
      */
     public static void main(String[] args) {
-        LOGGER.info("Запуск приложения.");
+        log.info("Запуск приложения.");
         SpringApplication.run(EngLingBotApplication.class, args);
     }
 
@@ -52,12 +53,12 @@ public class EngLingBotApplication {
     @Bean
     public TelegramBotsApi telegramBotsApi() {
         try {
-            LOGGER.info("Создание и регистрация бота в API.");
+            log.info("Создание и регистрация бота в API.");
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
             botsApi.registerBot(bot);
             return botsApi;
         } catch (Exception e) {
-            LOGGER.error("Ошибка при регистрации бота.", e);
+            log.error("Ошибка при регистрации бота.", e);
             throw new IllegalStateException(e);
         }
     }
