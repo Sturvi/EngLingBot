@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 
 /**
- * Класс MessageSender обеспечивает функциональность отправки сообщений пользователю.
+ * The MessageSender class provides functionality to send messages to the user.
  */
 @Slf4j
 @Component
@@ -20,9 +20,9 @@ public abstract class MessageSender {
     private SendMessage sendMessage;
 
     /**
-     * Конструктор MessageSender.
+     * MessageSender constructor.
      *
-     * @param telegramBotApplication Экземпляр приложения TelegramBot.
+     * @param telegramBotApplication Instance of the TelegramBot application.
      */
     protected MessageSender(TelegramBotApplication telegramBotApplication) {
         this.telegramBotApplication = telegramBotApplication;
@@ -30,60 +30,60 @@ public abstract class MessageSender {
     }
 
     /**
-     * Создает новое сообщение.
+     * Creates a new message.
      *
-     * @return Этот объект MessageSender.
+     * @return This MessageSender object.
      */
     protected MessageSender newMessage() {
         this.sendMessage = new SendMessage();
-        log.debug("Создано новое сообщение");
+        log.debug("New message created");
         return this;
     }
 
     /**
-     * Устанавливает ID чата для сообщения.
+     * Sets the chat ID for the message.
      *
-     * @param chatId ID чата.
-     * @return Этот объект MessageSender.
+     * @param chatId Chat ID.
+     * @return This MessageSender object.
      */
     protected MessageSender setChatId(Long chatId) {
         sendMessage.setChatId(chatId);
-        log.debug("Установлен ID чата: {}", chatId);
+        log.debug("Chat ID set: {}", chatId);
         return this;
     }
 
     /**
-     * Устанавливает текст сообщения.
+     * Sets the text of the message.
      *
-     * @param text Текст сообщения.
-     * @return Этот объект MessageSender.
+     * @param text Text of the message.
+     * @return This MessageSender object.
      */
     protected MessageSender setText(String text) {
         sendMessage.setText(text);
-        log.debug("Установлен текст сообщения: {}", text);
+        log.debug("Message text set: {}", text);
         return this;
     }
 
     /**
-     * Устанавливает inline-клавиатуру для сообщения.
+     * Sets an inline keyboard for the message.
      *
-     * @param keyboard Inline-клавиатура.
-     * @return Этот объект MessageSender.
+     * @param keyboard Inline keyboard.
+     * @return This MessageSender object.
      */
     protected MessageSender setInlineKeyboard(InlineKeyboardMarkup keyboard) {
         sendMessage.setReplyMarkup(keyboard);
-        log.debug("Установлена inline-клавиатура для сообщения");
+        log.debug("Inline keyboard for the message set");
         return this;
     }
 
     protected MessageSender setKeyboardMarkup (ReplyKeyboardMarkup keyboard) {
         sendMessage.setReplyMarkup(keyboard);
-        log.debug("Установлена KeyboardMarkup-клавиатура для сообщения");
+        log.debug("KeyboardMarkup keyboard for the message set");
         return this;
     }
 
     /**
-     * Отправляет сообщение пользователю.
+     * Sends the message to the user.
      */
     protected void send() {
         sendMessage.enableMarkdown(true);
@@ -91,9 +91,9 @@ public abstract class MessageSender {
 
         try {
             telegramBotApplication.execute(sendMessage);
-            log.debug("Сообщение отправлено в чат: {}", sendMessage.getChatId());
+            log.debug("Message sent to chat: {}", sendMessage.getChatId());
         } catch (Exception e) {
-            log.error("Произошла ошибка при отправке сообщения: {}", e.getMessage());
+            log.error("An error occurred while sending the message: {}", e.getMessage());
         }
     }
 }

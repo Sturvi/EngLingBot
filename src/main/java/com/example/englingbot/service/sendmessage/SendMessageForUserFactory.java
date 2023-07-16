@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
- * Класс MessageSenderFactory предоставляет методы для создания экземпляров класса MessageSender.
+ * The MessageSenderFactory class provides methods for creating instances of the MessageSender class.
  */
 @Component
 @RequiredArgsConstructor
@@ -16,9 +16,9 @@ public class SendMessageForUserFactory {
     private final ApplicationContext context;
 
     /**
-     * Создает новый экземпляр MessageSender.
+     * Creates a new instance of MessageSender.
      *
-     * @return Новый экземпляр MessageSender.
+     * @return A new instance of MessageSender.
      */
     public SendMessageForUser createMessageSender() {
         return context.getBean(SendMessageForUser.class);

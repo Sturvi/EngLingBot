@@ -7,16 +7,16 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 /**
- * Класс для преобразования пользователей Telegram в сущности пользователей системы.
+ * Class for transforming Telegram users into system user entities.
  */
 @Component
 public class UserMapper {
 
     /**
-     * Создает новую сущность UserEntity, заполнив ее данными из пользователя Telegram.
+     * Creates a new UserEntity entity, filling it with data from a Telegram user.
      *
-     * @param user объект пользователя Telegram
-     * @return сущность пользователя UserEntity
+     * @param user Telegram user object
+     * @return UserEntity user entity
      */
     public UserEntity mapNewUserToUserEntity(User user) {
         return UserEntity.builder()
@@ -31,10 +31,10 @@ public class UserMapper {
     }
 
     /**
-     * Обновляет существующую сущность UserEntity данными из пользователя Telegram.
+     * Updates an existing UserEntity entity with data from a Telegram user.
      *
-     * @param user объект пользователя Telegram
-     * @param userEntity сущность пользователя, которую нужно обновить
+     * @param user Telegram user object
+     * @param userEntity User entity that needs to be updated
      */
     public void updateExistingUserEntityFromTelegramUser(User user, UserEntity userEntity) {
         userEntity.setFirstName(user.getFirstName());
@@ -44,19 +44,19 @@ public class UserMapper {
     }
 
     /**
-     * Обновляет состояние пользователя в системе.
+     * Updates the user's state in the system.
      *
-     * @param userEntity сущность пользователя, которую нужно обновить
-     * @param userStateEnum новое состояние пользователя
+     * @param userEntity User entity that needs to be updated
+     * @param userStateEnum New user state
      */
     public void updateUserState(UserEntity userEntity, UserStateEnum userStateEnum) {
         userEntity.setUserState(userStateEnum);
     }
 
     /**
-     * Деактивирует пользователя в системе.
+     * Deactivates a user in the system.
      *
-     * @param userEntity сущность пользователя, которую нужно деактивировать
+     * @param userEntity User entity that needs to be deactivated
      */
     public void deactivateUser(UserEntity userEntity) {
         userEntity.setUserStatus(false);

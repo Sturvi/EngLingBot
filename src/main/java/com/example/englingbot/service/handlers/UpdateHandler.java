@@ -4,11 +4,10 @@ import com.example.englingbot.BotEvent;
 import com.example.englingbot.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- * Класс UpdateHandler обрабатывает события бота и обновления от пользователей.
+ * The UpdateHandler class handles bot events and user updates.
  */
 @Component
 @Slf4j
@@ -20,29 +19,29 @@ public class UpdateHandler implements Handler {
     private final CallbackQueryHandler callbackQueryHandler;
 
     /**
-     * Метод обработки событий бота. Сохраняет или обновляет информацию о пользователе, затем обрабатывает деактивацию,
-     * сообщения или callback-запросы от пользователя.
+     * The method of handling bot events. It saves or updates user information, then processes the deactivation,
+     * messages, or callback queries from the user.
      *
-     * @param botEvent событие бота для обработки.
+     * @param botEvent The bot event to process.
      */
     @Override
     public void handle(BotEvent botEvent) {
         userService.saveOrUpdateUser(botEvent.getFrom());
-        log.debug("Обновление или сохранение информации о пользователе: {}", botEvent.getFrom());
+        log.debug("Update or save user information: {}", botEvent.getFrom());
 
         try {
             if (botEvent.isDeactivationQuery()) {
-                log.debug("Обработка запроса на деактивацию от пользователя: {}", botEvent.getFrom());
+                log.debug("Processing the deactivation request from the user: {}", botEvent.getFrom());
                 userService.deactivateUser(botEvent);
             } else if (botEvent.isMessage()) {
-                log.debug("Обработка сообщения от пользователя: {}", botEvent.getFrom());
+                log.debug("Processing the message from the user: {}", botEvent.getFrom());
                 messageHandler.handle(botEvent);
             } else if (botEvent.isCallbackQuery()) {
-                log.debug("Обработка callback-запроса с данными: {}, chat ID: {}", botEvent.getData(), botEvent.getId());
+                log.debug("Processing callback request with data: {}, chat ID: {}", botEvent.getData(), botEvent.getId());
                 callbackQueryHandler.handle(botEvent);
             }
         } catch (Exception e) {
-            log.error("Произошла ошибка при обработке объекта Telegram", e);
+            log.error("An error occurred while processing the Telegram object", e);
         }
     }
 }

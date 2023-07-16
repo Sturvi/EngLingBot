@@ -9,11 +9,19 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * ReplyKeyboardMarkupFactory is a class responsible for creating a predefined keyboard markup for Telegram bot.
+ */
 @Slf4j
 public class ReplyKeyboardMarkupFactory {
 
+    /**
+     * Creates a ReplyKeyboardMarkup object which holds the keyboard layout to be shown to the Telegram users.
+     *
+     * @return a ReplyKeyboardMarkup object representing a specific keyboard layout.
+     */
     public static ReplyKeyboardMarkup getReplyKeyboardMarkup() {
+        log.debug("Start creating a new keyboard markup");
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
         replyKeyboardMarkup.setSelective(true);
@@ -41,6 +49,13 @@ public class ReplyKeyboardMarkupFactory {
 
         replyKeyboardMarkup.setKeyboard(keyboardRowList);
 
-        return replyKeyboardMarkup;
+        log.debug("Successfully created a new keyboard markup");
+
+        try {
+            return replyKeyboardMarkup;
+        } catch (Exception e) {
+            log.error("An error occurred while creating the keyboard markup", e);
+            throw e;
+        }
     }
 }

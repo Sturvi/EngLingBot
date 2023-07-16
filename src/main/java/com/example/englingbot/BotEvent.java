@@ -7,8 +7,8 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import lombok.AccessLevel;
 
 /**
- * Класс, представляющий событие бота.
- * Экземпляр этого класса создается при получении обновления от Telegram API.
+ * Represents a bot event.
+ * An instance of this class is created when an update is received from the Telegram API.
  */
 @Slf4j
 @Getter
@@ -29,11 +29,12 @@ public class BotEvent {
     private String phoneNumber;
 
     /**
-     * Создает объект BotEvent из объекта Update.
-     * @param update объект Update, полученный от Telegram API.
-     * @return созданный объект BotEvent.
+     * Creates a BotEvent object from an Update object.
+     * @param update the Update object received from the Telegram API.
+     * @return the created BotEvent object.
      */
     public static BotEvent getTelegramObject(Update update) {
+        log.debug("Creating BotEvent object from the Update object");
         BotEvent botEvent = new BotEvent();
 
         botEvent.isMessage = isMessageWithText(update);
@@ -42,27 +43,31 @@ public class BotEvent {
 
         botEvent.initTelegramObject(update);
 
+        log.debug("BotEvent object created successfully");
         return botEvent;
     }
 
     /**
-     * Инициализирует объект для обработки отписки.
-     * @param chatMemberUpdated объект ChatMemberUpdated, представляющий обновление статуса участника чата.
+     * Initializes the object for handling unsubscriptions.
+     * @param chatMemberUpdated a ChatMemberUpdated object representing chat member status update.
      */
     private void initUnsubscriptionObject(ChatMemberUpdated chatMemberUpdated) {
+        log.debug("Initializing unsubscription object");
         User user = chatMemberUpdated.getFrom();
 
         this.isContact = false;
         this.id = user.getId();
         this.from = user;
         this.userName = user.getUserName();
+        log.debug("Unsubscription object initialized");
     }
 
     /**
-     * Инициализирует объект в зависимости от типа обновления.
-     * @param update объект Update, полученный от Telegram API.
+     * Initializes the object depending on the type of update.
+     * @param update the Update object received from the Telegram API.
      */
     private void initTelegramObject(Update update) {
+        log.debug("Initializing telegram object based on update type");
         if (isMessage) {
             initMessageObject(update.getMessage());
         } else if (isCallbackQuery) {
@@ -70,13 +75,15 @@ public class BotEvent {
         } else if (isDeactivationQuery) {
             initUnsubscriptionObject(update.getMyChatMember());
         }
+        log.debug("Telegram object initialized");
     }
 
     /**
-     * Инициализирует объект для обработки сообщений.
-     * @param message объект Message, представляющий сообщение от пользователя.
+     * Initializes the object for handling messages.
+     * @param message a Message object representing a user's message.
      */
     private void initMessageObject(Message message) {
+        log.debug("Initializing message object");
         id = message.getChatId();
         userName = message.getFrom().getUserName();
         messageId = message.getMessageId();
@@ -87,13 +94,15 @@ public class BotEvent {
         if (Boolean.TRUE.equals(isContact)) {
             phoneNumber = contact.getPhoneNumber();
         }
+        log.debug("Message object initialized");
     }
 
     /**
-     * Инициализирует объект для обработки обратных вызовов.
-     * @param callbackQuery объект CallbackQuery, представляющий обратный вызов от пользователя.
+     * Initializes the object for handling callback queries.
+     * @param callbackQuery a CallbackQuery object representing a user's callback.
      */
     private void initCallbackQueryObject(CallbackQuery callbackQuery) {
+        log.debug("Initializing callback query object");
         id = callbackQuery.getFrom().getId();
         userName = callbackQuery.getFrom().getUserName();
         messageId = callbackQuery.getMessage().getMessageId();
@@ -103,21 +112,22 @@ public class BotEvent {
         isContact = false;
         contact = null;
         phoneNumber = null;
+        log.debug("Callback query object initialized");
     }
 
     /**
-     * Проверяет, содержит ли обновление текстовое сообщение.
-     * @param update объект Update, полученный от Telegram API.
-     * @return true, если обновление содержит текстовое сообщение, иначе false.
+     * Checks if the update contains a text message.
+     * @param update the Update object received from the Telegram API.
+     * @return true if the update contains a text message, false otherwise.
      */
     private static boolean isMessageWithText(Update update) {
         return !update.hasCallbackQuery() && update.hasMessage();
     }
 
     /**
-     * Проверяет, содержит ли обновление обратный вызов с данными.
-     * @param update объект Update, полученный от Telegram API.
-     * @return true, если обновление содержит обратный вызов с данными, иначе false.
+     * Checks if the update contains a callback with data.
+     * @param update the Update object received from the Telegram API.
+     * @return true if the update contains a callback with data, false otherwise.
      */
     private static boolean isCallbackWithData(Update update) {
         CallbackQuery callbackQuery = update.getCallbackQuery();
@@ -127,15 +137,13 @@ public class BotEvent {
         }
 
         String data = callbackQuery.getData();
-        boolean hasData = data != null && !data.isEmpty();
-
-        return hasData;
+        return data != null && !data.isEmpty();
     }
 
     /**
-     * Проверяет, содержит ли обновление запрос на деактивацию.
-     * @param update объект Update, полученный от Telegram API.
-     * @return true, если обновление содержит запрос на деактивацию, иначе false.
+     * Checks if the update contains a deactivation request.
+     * @param update the Update object received from the Telegram API.
+     * @return true if the update contains a deactivation request, false otherwise.
      */
     private static boolean isDeactivationQuery(Update update) {
         if (update.hasMyChatMember()) {
