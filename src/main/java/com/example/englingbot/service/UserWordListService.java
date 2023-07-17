@@ -1,6 +1,6 @@
 package com.example.englingbot.service;
 
-import com.example.englingbot.model.UserEntity;
+import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.UserWordList;
 import com.example.englingbot.model.Word;
 import com.example.englingbot.model.enums.WordListTypeEnum;
@@ -30,7 +30,7 @@ public class UserWordListService {
      * @param types the WordListTypeEnum array
      * @return a list of UserWordList objects
      */
-    public List<UserWordList> getUserWordLists(UserEntity user, WordListTypeEnum... types) {
+    public List<UserWordList> getUserWordLists(AppUser user, WordListTypeEnum... types) {
         log.info("Getting word lists for user id: {} with list types: {}", user.getId(), Arrays.toString(types));
         return userWordListRepository.findByUserAndListTypeIn(user, Arrays.asList(types));
     }
@@ -42,7 +42,7 @@ public class UserWordListService {
      * @param types the WordListTypeEnum array
      * @return a UserWordList object or null if the list is empty
      */
-    public UserWordList getRandomUserWordList(UserEntity user, WordListTypeEnum... types) {
+    public UserWordList getRandomUserWordList(AppUser user, WordListTypeEnum... types) {
         log.info("Getting random word list for user id: {} with list types: {}", user.getId(), Arrays.toString(types));
         List<UserWordList> userWordLists = getUserWordLists(user, types);
         if (userWordLists.isEmpty()) {

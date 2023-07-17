@@ -1,6 +1,6 @@
 package com.example.englingbot.service.handlers;
 
-import com.example.englingbot.BotEvent;
+import com.example.englingbot.service.externalapi.telegram.BotEvent;
 
 /**
  * The interface for a handler that processes bot events.

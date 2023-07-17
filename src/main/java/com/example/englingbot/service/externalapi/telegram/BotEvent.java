@@ -1,4 +1,4 @@
-package com.example.englingbot;
+package com.example.englingbot.service.externalapi.telegram;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

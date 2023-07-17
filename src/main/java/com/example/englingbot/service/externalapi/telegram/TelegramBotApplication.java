@@ -1,7 +1,7 @@
-package com.example.englingbot;
+package com.example.englingbot.service.externalapi.telegram;
 
 import com.example.englingbot.service.externalapi.googleapi.GoogleTranslator;
-import com.example.englingbot.service.handlers.UpdateHandler;
+import com.example.englingbot.service.handlers.implementations.UpdateHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

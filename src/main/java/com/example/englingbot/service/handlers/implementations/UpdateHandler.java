@@ -1,7 +1,8 @@
-package com.example.englingbot.service.handlers;
+package com.example.englingbot.service.handlers.implementations;
 
-import com.example.englingbot.BotEvent;
+import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.UserService;
+import com.example.englingbot.service.handlers.Handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -26,13 +27,13 @@ public class UpdateHandler implements Handler {
      */
     @Override
     public void handle(BotEvent botEvent) {
-        userService.saveOrUpdateUser(botEvent.getFrom());
+        userService.saveOrUpdateAppUser(botEvent.getFrom());
         log.debug("Update or save user information: {}", botEvent.getFrom());
 
         try {
             if (botEvent.isDeactivationQuery()) {
                 log.debug("Processing the deactivation request from the user: {}", botEvent.getFrom());
-                userService.deactivateUser(botEvent);
+                userService.deactivateAppUser(botEvent);
             } else if (botEvent.isMessage()) {
                 log.debug("Processing the message from the user: {}", botEvent.getFrom());
                 messageHandler.handle(botEvent);
