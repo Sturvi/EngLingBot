@@ -13,12 +13,12 @@ import org.jetbrains.annotations.NotNull;
 @Data
 @NoArgsConstructor
 @SuperBuilder
-public class QuestionsForChatGpt extends TimestampWithId {
+public class QuestionsForChatGpt extends AbstractEntity {
 
     @ManyToOne
     @NotNull
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private UserEntity user;
+    private AppUser user;
 
     @Column (name = "question")
     private String question;

@@ -1,6 +1,6 @@
 package com.example.englingbot.service.sendmessage;
 
-import com.example.englingbot.TelegramBotApplication;
+import com.example.englingbot.service.externalapi.telegram.TelegramBotApplication;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

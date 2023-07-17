@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 @Data
-public class Word extends TimestampWithId{
+public class Word extends AbstractEntity {
 
     @Column(name = "russian_word", nullable = false)
     private String russianWord;

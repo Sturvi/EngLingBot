@@ -1,8 +1,8 @@
 package com.example.englingbot.service;
 
-import com.example.englingbot.BotEvent;
+import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.mapper.UserMapper;
-import com.example.englingbot.model.UserEntity;
+import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.enums.UserRoleEnum;
 import com.example.englingbot.model.enums.UserStateEnum;
 import com.example.englingbot.repository.UserRepository;
@@ -11,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 
@@ -34,16 +32,16 @@ public class UserService {
      * @param user The user to save or update.
      * @return The saved or updated user.
      */
-    public UserEntity saveOrUpdateUser(User user) {
+    public AppUser saveOrUpdateAppUser(User user) {
         log.debug("Updating user information for ID: {}", user.getId());
 
         return userRepository.findByTelegramChatId(user.getId()).map(existingUserEntity -> {
             log.debug("User with ID: {} found in the database, updating...", user.getId());
-            updateUserInDataBase(user, existingUserEntity);
+            updateAppUserInDataBase(user, existingUserEntity);
             return userRepository.save(existingUserEntity);
         }).orElseGet(() -> {
             log.debug("User with ID: {} not found in the database, creating a new user...", user.getId());
-            return saveUserInDataBase(user);
+            return saveAppUser(user);
         });
     }
 
@@ -53,10 +51,10 @@ public class UserService {
      * @param user The user to save.
      * @return The saved user.
      */
-    private UserEntity saveUserInDataBase(User user) {
+    private AppUser saveAppUser(User user) {
         log.debug("Saving user with ID: {}", user.getId());
 
-        UserEntity userEntity = userMapper.mapNewUserToUserEntity(user);
+        AppUser userEntity = userMapper.mapNewUserToUserEntity(user);
 
         userRepository.save(userEntity);
 
@@ -70,7 +68,7 @@ public class UserService {
      * @param userEntity  The user entity to update.
      * @return The updated user.
      */
-    private UserEntity updateUserInDataBase(User user, UserEntity userEntity) {
+    private AppUser updateAppUserInDataBase(User user, AppUser userEntity) {
         userMapper.updateExistingUserEntityFromTelegramUser(user, userEntity);
         return userEntity;
     }
@@ -81,10 +79,10 @@ public class UserService {
      * @param newUserState The new user state.
      * @param botEvent     The bot event.
      */
-    public void changeUserState(UserStateEnum newUserState, BotEvent botEvent) {
+    public void changeAppUserState(UserStateEnum newUserState, BotEvent botEvent) {
         log.debug("Updating user state for chat ID: {}", botEvent.getId());
 
-        UserEntity userEntity = userRepository
+        AppUser userEntity = userRepository
                 .findByTelegramChatId(botEvent.getId())
                 .orElseGet(() -> userMapper.mapNewUserToUserEntity(botEvent.getFrom()));
 
@@ -100,8 +98,8 @@ public class UserService {
      * @param botEvent The bot event.
      * @return The user state.
      */
-    public UserStateEnum getUserState(BotEvent botEvent) {
-        UserEntity userEntity = getUserEntityFromDataBase(botEvent);
+    public UserStateEnum getAppUserState(BotEvent botEvent) {
+        AppUser userEntity = getAppUser(botEvent);
 
         return userEntity.getUserState();
     }
@@ -112,8 +110,8 @@ public class UserService {
      * @param chatId The chat ID.
      * @return The user state.
      */
-    public UserStateEnum getUserState(Long chatId) {
-        var userEntity = getUserEntityFromDataBase(chatId);
+    public UserStateEnum getAppUserState(Long chatId) {
+        var userEntity = getAppUser(chatId);
 
         if (userEntity.isPresent()) {
             return userEntity.get().getUserState();
@@ -128,8 +126,8 @@ public class UserService {
      * @param botEvent The bot event.
      * @return The user role.
      */
-    public UserRoleEnum getUserRole(BotEvent botEvent) {
-        UserEntity userEntity = getUserEntityFromDataBase(botEvent);
+    public UserRoleEnum getAppUserRole(BotEvent botEvent) {
+        AppUser userEntity = getAppUser(botEvent);
 
         return userEntity.getRole();
     }
@@ -140,7 +138,7 @@ public class UserService {
      * @param botEvent The bot event.
      * @return The user entity.
      */
-    public UserEntity getUserEntityFromDataBase(BotEvent botEvent) {
+    public AppUser getAppUser(BotEvent botEvent) {
         return userRepository
                 .findByTelegramChatId(botEvent.getId())
                 .orElseGet(() -> userMapper.mapNewUserToUserEntity(botEvent.getFrom()));
@@ -152,7 +150,7 @@ public class UserService {
      * @param chatId The chat ID.
      * @return The user entity.
      */
-    public Optional<UserEntity> getUserEntityFromDataBase(Long chatId) {
+    public Optional<AppUser> getAppUser(Long chatId) {
         return userRepository
                 .findByTelegramChatId(chatId);
     }
@@ -162,11 +160,11 @@ public class UserService {
      *
      * @param botEvent The bot event.
      */
-    public void deactivateUser(BotEvent botEvent) {
+    public void deactivateAppUser(BotEvent botEvent) {
         var userEntityOpt = userRepository.findByTelegramChatId(botEvent.getId());
 
         if (userEntityOpt.isPresent()) {
-            UserEntity user = userEntityOpt.get();
+            AppUser user = userEntityOpt.get();
             userMapper.deactivateUser(user);
             userRepository.save(user);
             log.debug("User with chat ID: {} deactivated", botEvent.getId());

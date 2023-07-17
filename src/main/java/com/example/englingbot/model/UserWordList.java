@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 @Data
 @NoArgsConstructor
 @SuperBuilder
-public class UserWordList extends TimestampWithId {
+public class UserWordList extends AbstractEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "list_type", columnDefinition = "varchar(255) default 'LEARNING'")
@@ -26,7 +26,7 @@ public class UserWordList extends TimestampWithId {
     @ManyToOne
     @NotNull
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private UserEntity user;
+    private AppUser user;
 
     @ManyToOne
     @NotNull

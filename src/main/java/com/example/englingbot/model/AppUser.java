@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @Data
 @NoArgsConstructor
 @SuperBuilder
-public class UserEntity extends TimestampWithId {
+public class AppUser extends AbstractEntity {
 
     @Column(name = "telegram_chat_id")
     private Long telegramChatId;

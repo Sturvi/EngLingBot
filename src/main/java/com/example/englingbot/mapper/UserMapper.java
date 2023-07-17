@@ -1,6 +1,6 @@
 package com.example.englingbot.mapper;
 
-import com.example.englingbot.model.UserEntity;
+import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.enums.UserRoleEnum;
 import com.example.englingbot.model.enums.UserStateEnum;
 import org.springframework.stereotype.Component;
@@ -18,8 +18,8 @@ public class UserMapper {
      * @param user Telegram user object
      * @return UserEntity user entity
      */
-    public UserEntity mapNewUserToUserEntity(User user) {
-        return UserEntity.builder()
+    public AppUser mapNewUserToUserEntity(User user) {
+        return AppUser.builder()
                 .telegramChatId(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
@@ -36,7 +36,7 @@ public class UserMapper {
      * @param user Telegram user object
      * @param userEntity User entity that needs to be updated
      */
-    public void updateExistingUserEntityFromTelegramUser(User user, UserEntity userEntity) {
+    public void updateExistingUserEntityFromTelegramUser(User user, AppUser userEntity) {
         userEntity.setFirstName(user.getFirstName());
         userEntity.setLastName(user.getLastName());
         userEntity.setUsername(user.getUserName());
@@ -49,7 +49,7 @@ public class UserMapper {
      * @param userEntity User entity that needs to be updated
      * @param userStateEnum New user state
      */
-    public void updateUserState(UserEntity userEntity, UserStateEnum userStateEnum) {
+    public void updateUserState(AppUser userEntity, UserStateEnum userStateEnum) {
         userEntity.setUserState(userStateEnum);
     }
 
@@ -58,7 +58,7 @@ public class UserMapper {
      *
      * @param userEntity User entity that needs to be deactivated
      */
-    public void deactivateUser(UserEntity userEntity) {
+    public void deactivateUser(AppUser userEntity) {
         userEntity.setUserStatus(false);
     }
 }

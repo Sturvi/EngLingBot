@@ -1,11 +1,12 @@
-package com.example.englingbot.service.handlers;
+package com.example.englingbot.service.handlers.implementations;
 
-import com.example.englingbot.BotEvent;
+import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.model.enums.UserStateEnum;
 import com.example.englingbot.model.enums.WordListTypeEnum;
 import com.example.englingbot.service.UserService;
 import com.example.englingbot.service.UserWordListService;
 import com.example.englingbot.service.enums.TextCommandsEnum;
+import com.example.englingbot.service.handlers.Handler;
 import com.example.englingbot.service.sendmessage.SendMessageForUserFactory;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -151,7 +152,7 @@ class MessageHandler implements Handler {
     private void handleLearnWord(BotEvent botEvent) {
         log.debug("Starting handleLearnWord method for event: {}", botEvent);
         var messageSender = sendMessageForUserFactory.createMessageSender();
-        var user = userService.getUserEntityFromDataBase(botEvent);
+        var user = userService.getAppUser(botEvent);
         var userWord = userWordListService.getRandomUserWordList(user, WordListTypeEnum.LEARNING);
 
         if (userWord == null) {
@@ -175,7 +176,7 @@ class MessageHandler implements Handler {
      */
     private void handleAddWord(BotEvent botEvent) {
         log.debug("Starting handleAddWord method for event: {}", botEvent);
-        userService.changeUserState(UserStateEnum.ADD_MENU, botEvent);
+        userService.changeAppUserState(UserStateEnum.ADD_MENU, botEvent);
         sendMessageForUserFactory
                 .createMessageSender()
                 .sendMessage(botEvent.getId(), """
@@ -198,7 +199,7 @@ class MessageHandler implements Handler {
      */
     private void handleAnswer(BotEvent botEvent) {
         log.debug("Starting handleAnswer method for event: {}", botEvent);
-        userService.changeUserState(UserStateEnum.ANSWER, botEvent);
+        userService.changeAppUserState(UserStateEnum.ANSWER, botEvent);
         sendMessageForUserFactory
                 .createMessageSender()
                 .sendMessage(botEvent.getId(), "Пришлите пожалуйста ваш вопрос. \n\nПримечание: получение ответа может занять некоторое время");
