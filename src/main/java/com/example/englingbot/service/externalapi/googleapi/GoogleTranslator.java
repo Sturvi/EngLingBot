@@ -6,12 +6,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -35,12 +38,16 @@ public class GoogleTranslator {
         this.gson = new Gson();
     }
 
+
     /**
-     * Translates the provided word to Russian and English and puts the results into the provided resultMap.
-     * @param word The word to be translated.
-     * @param resultMap The map where the translations will be stored with language codes as keys.
+     * Translates the given word to Russian and English, then stores and returns the results in a Map.
+     * To retrieve the Russian translation from the map, use the key "ru". For the English translation, use the key "en".
+     *
+     * @param word       The word to be translated.
+     * @return           A map containing the translations of the word in Russian and English.
      */
-    public void translate(String word, Map<String, String> resultMap) {
+    public Map<String, String> translate(String word) {
+        var resultMap = new HashMap <String, String>();
         String[] languages = {"ru", "en"};
         for (String language : languages) {
             log.info("Translating word {} to language {}", word, language);
@@ -49,6 +56,8 @@ public class GoogleTranslator {
             parseResponse(response.block(), resultMap, language);
             log.info("Translation completed for language {}", language);
         }
+
+        return resultMap;
     }
 
     /**
