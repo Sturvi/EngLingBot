@@ -1,16 +1,11 @@
 package com.example.englingbot.service.handlers.implementations;
 
-import com.example.englingbot.mapper.UserMapper;
 import com.example.englingbot.model.AppUser;
-import com.example.englingbot.repository.UserRepository;
 import com.example.englingbot.service.UserService;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
-import com.example.englingbot.service.sendmessage.SendMessageForUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.telegram.telegrambots.meta.api.objects.User;
 

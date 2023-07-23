@@ -1,11 +1,11 @@
 package com.example.englingbot.service;
 
+import com.example.englingbot.mapper.UserMapper;
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.enums.UserRoleEnum;
 import com.example.englingbot.model.enums.UserStateEnum;
 import com.example.englingbot.repository.UserRepository;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
-import com.example.englingbot.mapper.UserMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,9 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.annotation.Bean;
 import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 
 import java.util.Optional;
 

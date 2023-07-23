@@ -34,6 +34,7 @@ class MessageHandlerTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         messageHandler.init();
+
     }
 
     @Test
@@ -57,12 +58,15 @@ class MessageHandlerTest {
         BotEvent botEvent = mock(BotEvent.class);
         when(botEvent.getId()).thenReturn(123L);
         when(botEvent.getText()).thenReturn(TextCommandsEnum.ANSWER.getCommand());
+        var sendMessageForUser = Mockito.mock(SendMessageForUser.class);
+        when(sendMessageForUserFactory.createMessageSender()).thenReturn(sendMessageForUser);
+        doNothing().when(sendMessageForUser).sendMessage(anyLong(), anyString());
 
         messageHandler.handle(botEvent);
 
         verify(userService, times(1)).changeAppUserState(UserStateEnum.ANSWER, botEvent);
         verify(sendMessageForUserFactory, times(1)).createMessageSender();
-        verify(sendMessageForUserFactory, times(1)).createMessageSender().sendMessage(eq(123L), anyString());
+        verify(sendMessageForUser, times(1)).sendMessage(eq(123L), anyString());
     }
 
     @Test
@@ -70,12 +74,15 @@ class MessageHandlerTest {
         BotEvent botEvent = mock(BotEvent.class);
         when(botEvent.getId()).thenReturn(123L);
         when(botEvent.getText()).thenReturn(TextCommandsEnum.ADD_WORD.getCommand());
+        var sendMessageForUser = Mockito.mock(SendMessageForUser.class);
+        when(sendMessageForUserFactory.createMessageSender()).thenReturn(sendMessageForUser);
+        doNothing().when(sendMessageForUser).sendMessage(anyLong(), anyString());
 
         messageHandler.handle(botEvent);
 
         verify(userService, times(1)).changeAppUserState(UserStateEnum.ADD_MENU, botEvent);
         verify(sendMessageForUserFactory, times(1)).createMessageSender();
-        verify(sendMessageForUserFactory, times(1)).createMessageSender().sendMessage(eq(123L), anyString());
+        verify(sendMessageForUser, times(1)).sendMessage(eq(123L), anyString());
     }
 
     @Test
@@ -84,13 +91,16 @@ class MessageHandlerTest {
         when(botEvent.getId()).thenReturn(123L);
         when(botEvent.getText()).thenReturn(TextCommandsEnum.LEARN_WORD.getCommand());
         when(userWordListService.getRandomUserWordList(any(), eq(WordListTypeEnum.LEARNING))).thenReturn(null);
+        var sendMessageForUser = Mockito.mock(SendMessageForUser.class);
+        when(sendMessageForUserFactory.createMessageSender()).thenReturn(sendMessageForUser);
+        doNothing().when(sendMessageForUser).sendMessage(anyLong(), anyString());
 
         messageHandler.handle(botEvent);
 
         verify(userService, times(1)).getAppUser(botEvent);
         verify(userWordListService, times(1)).getRandomUserWordList(any(), eq(WordListTypeEnum.LEARNING));
         verify(sendMessageForUserFactory, times(1)).createMessageSender();
-        verify(sendMessageForUserFactory, times(1)).createMessageSender().sendMessage(eq(123L), anyString());
+        verify(sendMessageForUser, times(1)).sendMessage(eq(123L), anyString());
     }
 
     @Test
@@ -98,13 +108,19 @@ class MessageHandlerTest {
         BotEvent botEvent = mock(BotEvent.class);
         when(botEvent.getId()).thenReturn(123L);
         when(botEvent.getText()).thenReturn(TextCommandsEnum.LEARN_WORD.getCommand());
-        when(userWordListService.getRandomUserWordList(any(), eq(WordListTypeEnum.LEARNING))).thenReturn(any(UserWordList.class));
+        var wordFromUserDictionary = mock(UserWordList.class);
+        when(userWordListService.getRandomUserWordList(any(), eq(WordListTypeEnum.LEARNING))).thenReturn(wordFromUserDictionary);
+        String messageText = "A word to send to the user.";
+        when(userWordListService.getUserWordListString(wordFromUserDictionary)).thenReturn(messageText);
+        var sendMessageForUser = Mockito.mock(SendMessageForUser.class);
+        when(sendMessageForUserFactory.createMessageSender()).thenReturn(sendMessageForUser);
+        doNothing().when(sendMessageForUser).sendMessage(anyLong(), anyString());
 
         messageHandler.handle(botEvent);
 
         verify(userService, times(1)).getAppUser(botEvent);
         verify(userWordListService, times(1)).getRandomUserWordList(any(), eq(WordListTypeEnum.LEARNING));
         verify(sendMessageForUserFactory, times(1)).createMessageSender();
-        verify(sendMessageForUserFactory, times(1)).createMessageSender().sendMessage(eq(123L), anyString());
+        verify(sendMessageForUser, times(1)).sendMessage(eq(123L), eq(messageText));
     }
 }
