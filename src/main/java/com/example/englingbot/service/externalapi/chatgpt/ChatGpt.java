@@ -17,22 +17,47 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class provides an interface to the OpenAI ChatGPT API.
+ */
 @Slf4j
 @Component
 public class ChatGpt {
 
+    /**
+     * OpenAI API key
+     */
     @Value("${openai.api.key}")
     private String apiKey;
 
+    /**
+     * WebClient is a non-blocking, reactive client to perform HTTP requests.
+     */
     private final WebClient webClient;
+
+    /**
+     * Gson is a Java library that can be used to convert Java Objects into their JSON representation.
+     */
     private final Gson gson;
 
+    /**
+     * Constructs a new instance of ChatGpt
+     *
+     * @param webClient WebClient instance
+     * @param gson Gson instance
+     */
     @Autowired
     public ChatGpt(WebClient webClient, Gson gson) {
         this.webClient = webClient;
         this.gson = gson;
     }
 
+    /**
+     * Method to start a chat session with ChatGPT API using a provided prompt.
+     *
+     * @param promt The initial text input for the chat.
+     * @return The response from the ChatGPT API.
+     */
     public String chat(String promt) {
         log.info("Sending word {} to OpenAI ChatGPT API", promt);
         var requestEntity = createRequestEntity(promt);
@@ -40,6 +65,12 @@ public class ChatGpt {
         return parseResponse(response.block());
     }
 
+    /**
+     * Creates the request entity for the chat session.
+     *
+     * @param promt The initial text input for the chat.
+     * @return A map containing the request entity.
+     */
     private Map<String, Object> createRequestEntity(String promt) {
         Map<String, String> messageContent = Map.of("role", "system", "content", promt);
         List<Map<String, String>> messages = new ArrayList<>();
@@ -48,7 +79,12 @@ public class ChatGpt {
         return Map.of("model", "gpt-3.5-turbo", "messages", messages);
     }
 
-
+    /**
+     * Sends the HTTP request to the OpenAI ChatGPT API.
+     *
+     * @param entity The request entity for the chat session.
+     * @return The response from the API as a Mono.
+     */
     private Mono<String> sendHttpRequest(Map<String, Object> entity) {
         try {
             return webClient.post()
@@ -64,6 +100,12 @@ public class ChatGpt {
         }
     }
 
+    /**
+     * Parses the response from the OpenAI ChatGPT API.
+     *
+     * @param response The raw JSON response from the API.
+     * @return The message content from the API response as a string, or null if the response contains no choices.
+     */
     private String parseResponse(String response) {
         JsonObject root = gson.fromJson(response, JsonObject.class);
         JsonArray choices = root.getAsJsonArray("choices");
@@ -79,5 +121,4 @@ public class ChatGpt {
 
         return null;
     }
-
 }
