@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("prototype")
 @Slf4j
-public class SendMessageForUser extends MessageSender {
+public class SendMessageForUser extends AbstractMessageSender {
 
     public SendMessageForUser(TelegramBotApplication telegramBotApplication) {
         super(telegramBotApplication);

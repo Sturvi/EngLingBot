@@ -14,7 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 @Slf4j
 @Component
 @Scope("prototype")
-public abstract class MessageSender {
+public abstract class AbstractMessageSender {
 
     private final TelegramBotApplication telegramBotApplication;
     private SendMessage sendMessage;
@@ -24,7 +24,7 @@ public abstract class MessageSender {
      *
      * @param telegramBotApplication Instance of the TelegramBot application.
      */
-    protected MessageSender(TelegramBotApplication telegramBotApplication) {
+    protected AbstractMessageSender(TelegramBotApplication telegramBotApplication) {
         this.telegramBotApplication = telegramBotApplication;
         this.sendMessage = new SendMessage();
     }
@@ -34,7 +34,7 @@ public abstract class MessageSender {
      *
      * @return This MessageSender object.
      */
-    protected MessageSender newMessage() {
+    protected AbstractMessageSender newMessage() {
         this.sendMessage = new SendMessage();
         log.debug("New message created");
         return this;
@@ -46,7 +46,7 @@ public abstract class MessageSender {
      * @param chatId Chat ID.
      * @return This MessageSender object.
      */
-    protected MessageSender setChatId(Long chatId) {
+    protected AbstractMessageSender setChatId(Long chatId) {
         sendMessage.setChatId(chatId);
         log.debug("Chat ID set: {}", chatId);
         return this;
@@ -58,7 +58,7 @@ public abstract class MessageSender {
      * @param text Text of the message.
      * @return This MessageSender object.
      */
-    protected MessageSender setText(String text) {
+    protected AbstractMessageSender setText(String text) {
         sendMessage.setText(text);
         log.debug("Message text set: {}", text);
         return this;
@@ -70,13 +70,13 @@ public abstract class MessageSender {
      * @param keyboard Inline keyboard.
      * @return This MessageSender object.
      */
-    protected MessageSender setInlineKeyboard(InlineKeyboardMarkup keyboard) {
+    protected AbstractMessageSender setInlineKeyboard(InlineKeyboardMarkup keyboard) {
         sendMessage.setReplyMarkup(keyboard);
         log.debug("Inline keyboard for the message set");
         return this;
     }
 
-    protected MessageSender setKeyboardMarkup (ReplyKeyboardMarkup keyboard) {
+    protected AbstractMessageSender setKeyboardMarkup (ReplyKeyboardMarkup keyboard) {
         sendMessage.setReplyMarkup(keyboard);
         log.debug("KeyboardMarkup keyboard for the message set");
         return this;
