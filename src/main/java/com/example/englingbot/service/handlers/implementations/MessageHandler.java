@@ -55,7 +55,7 @@ class MessageHandler implements Handler {
      * Initializes the MessageHandler by mapping the command handlers to the appropriate commands.
      */
     @PostConstruct
-    private void init() {
+    void init() {
         textCommandsHandler.put(TextCommandsEnum.START, this::handleStartAndHelp);
         textCommandsHandler.put(TextCommandsEnum.HELP, this::handleStartAndHelp);
         textCommandsHandler.put(TextCommandsEnum.ANSWER, this::handleAnswer);
@@ -215,6 +215,7 @@ class MessageHandler implements Handler {
      */
     private void handleStartAndHelp(BotEvent botEvent) {
         log.debug("Starting handleStartAndHelp method for event: {}", botEvent);
+        userService.changeAppUserState(UserStateEnum.MAIN, botEvent);
         String startAndHelpMessage = """
                 Привет! Я - Word Learning Bot, и я помогу тебе учить английские слова. Вот список доступных команд и функций, которые ты можешь использовать:
 
