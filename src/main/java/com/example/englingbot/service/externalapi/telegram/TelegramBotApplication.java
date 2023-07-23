@@ -1,6 +1,5 @@
 package com.example.englingbot.service.externalapi.telegram;
 
-import com.example.englingbot.service.externalapi.googleapi.GoogleTranslator;
 import com.example.englingbot.service.handlers.implementations.UpdateHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +16,7 @@ public class TelegramBotApplication extends TelegramLongPollingBot {
 
 
     public TelegramBotApplication(@Value("${bot.token}") String botToken,
-                                  @Value("${bot.username}") String botUsername, UpdateHandler updateHandler, GoogleTranslator googleTranslator) {
+                                  @Value("${bot.username}") String botUsername, UpdateHandler updateHandler) {
         super(botToken);
         this.botUsername = botUsername;
         this.updateHandler = updateHandler;
@@ -26,7 +25,6 @@ public class TelegramBotApplication extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         var botEvent = BotEvent.getTelegramObject(update);
-
         try {
             updateHandler.handle(botEvent);
         } catch (Exception e) {

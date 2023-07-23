@@ -1,5 +1,6 @@
 package com.example.englingbot.service.externalapi.googleapi;
 
+import com.google.gson.Gson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +26,9 @@ public class GoogleTranslatorTest {
 
     private String apiKey = "your-api-key";
 
+    @Spy
+    private Gson gson;
+
     @Mock
     private WebClient webClient;
 
@@ -40,6 +44,7 @@ public class GoogleTranslatorTest {
         Field apiKeyField = GoogleTranslator.class.getDeclaredField("apiKey");
         apiKeyField.setAccessible(true);
         apiKeyField.set(googleTranslator, apiKey);
+
 
         // Устанавливаем значение webClient в googleTranslator используя рефлексию
         Field webClientField = GoogleTranslator.class.getDeclaredField("webClient");

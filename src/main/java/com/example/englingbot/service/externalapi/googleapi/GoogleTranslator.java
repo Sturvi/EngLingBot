@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -30,12 +31,10 @@ public class GoogleTranslator {
     private final WebClient webClient;
     private final Gson gson;
 
-    /**
-     * Constructor initializing web client and Gson instance.
-     */
-    public GoogleTranslator() {
-        this.webClient = WebClient.create();
-        this.gson = new Gson();
+    @Autowired
+    public GoogleTranslator(WebClient webClient, Gson gson) {
+        this.webClient = webClient;
+        this.gson = gson;
     }
 
 
