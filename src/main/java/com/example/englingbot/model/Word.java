@@ -9,6 +9,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Objects;
+
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "words", uniqueConstraints = {
@@ -33,4 +35,18 @@ public class Word extends AbstractEntity {
 
     @Column(name = "usage_examples")
     private String usageExamples;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Word word = (Word) o;
+        return Objects.equals(russianWord, word.russianWord) && Objects.equals(englishWord, word.englishWord);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), russianWord, englishWord);
+    }
 }

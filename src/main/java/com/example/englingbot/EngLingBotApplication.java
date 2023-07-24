@@ -1,6 +1,7 @@
 package com.example.englingbot;
 
 import com.example.englingbot.service.externalapi.telegram.TelegramBotApplication;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,14 +17,17 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 public class EngLingBotApplication {
 
     private final TelegramBotApplication bot;
+    private final Test test;
 
     /**
      * Creates an instance of the EngLingBotApplication class.
      *
-     * @param bot an instance of the TelegramBotApplication class.
+     * @param bot  an instance of the TelegramBotApplication class.
+     * @param test
      */
-    public EngLingBotApplication(TelegramBotApplication bot) {
+    public EngLingBotApplication(TelegramBotApplication bot, Test test) {
         this.bot = bot;
+        this.test = test;
         log.debug("An instance of the EngLingBotApplication class has been created.");
     }
 
@@ -55,5 +59,10 @@ public class EngLingBotApplication {
             log.error("Error encountered while registering the bot.", e);
             throw new IllegalStateException(e);
         }
+    }
+
+    @PostConstruct  // add this annotation
+    public void init() {
+        test.test();  // call the method when the application starts
     }
 }
