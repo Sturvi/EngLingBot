@@ -23,6 +23,7 @@ class MessageHandler implements Handler {
     private final SendMessageForUserFactory sendMessageForUserFactory;
     private final UserService userService;
     private final UserWordListService userWordListService;
+    private final DefaultMessageHandler defaultMessageHandler;
 
     private final Map<TextCommandsEnum, Consumer<BotEvent>> textCommandsHandler;
 
@@ -30,10 +31,11 @@ class MessageHandler implements Handler {
      * Component that handles incoming messages from the bot user.
      * Implements the {@link Handler} interface.
      */
-    MessageHandler(SendMessageForUserFactory sendMessageForUserFactory, UserService userService, UserWordListService userWordListService) {
+    MessageHandler(SendMessageForUserFactory sendMessageForUserFactory, UserService userService, UserWordListService userWordListService, DefaultMessageHandler defaultMessageHandler) {
         this.sendMessageForUserFactory = sendMessageForUserFactory;
         this.userService = userService;
         this.userWordListService = userWordListService;
+        this.defaultMessageHandler = defaultMessageHandler;
         textCommandsHandler = new HashMap<>();
     }
 
@@ -68,16 +70,9 @@ class MessageHandler implements Handler {
         textCommandsHandler.put(TextCommandsEnum.ADD_RANDOM_WORDS, this::handleAddRandomWords);
         textCommandsHandler.put(TextCommandsEnum.STATISTIC, this::handleStatistic);
         textCommandsHandler.put(TextCommandsEnum.DELETE, this::handleDelete);
-        textCommandsHandler.put(null, this::handleDefault);
+        textCommandsHandler.put(null, defaultMessageHandler::handle);
     }
 
-    /**
-     * Default handler for unrecognized commands.
-     *
-     * @param botEvent the event to handle.
-     */
-    private void handleDefault(BotEvent botEvent) {
-    }
 
     /**
      * Handler for delete command.
