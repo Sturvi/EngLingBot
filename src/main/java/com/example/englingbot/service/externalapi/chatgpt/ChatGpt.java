@@ -1,5 +1,6 @@
 package com.example.englingbot.service.externalapi.chatgpt;
 
+import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -24,27 +25,17 @@ import java.util.Map;
 @Component
 public class ChatGpt {
 
-    /**
-     * OpenAI API key
-     */
     @Value("${openai.api.key}")
     private String apiKey;
-
-    /**
-     * WebClient is a non-blocking, reactive client to perform HTTP requests.
-     */
     private final WebClient webClient;
-
-    /**
-     * Gson is a Java library that can be used to convert Java Objects into their JSON representation.
-     */
     private final Gson gson;
+    private final RateLimiter rateLimiter = RateLimiter.create(0.047); // 1 запрос в секунду
 
     /**
      * Constructs a new instance of ChatGpt
      *
      * @param webClient WebClient instance
-     * @param gson Gson instance
+     * @param gson      Gson instance
      */
     @Autowired
     public ChatGpt(WebClient webClient, Gson gson) {
@@ -87,18 +78,33 @@ public class ChatGpt {
      */
     private Mono<String> sendHttpRequest(Map<String, Object> entity) {
         try {
+            log.debug("Start sendHttpRequest method for " + entity);
+            synchronized (rateLimiter) {
+                rateLimiter.acquire();
+            }
+            log.debug("ACQUIRE ПРОЙДЕН!");
             return webClient.post()
                     .uri("https://api.openai.com/v1/chat/completions")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
                     .body(BodyInserters.fromValue(entity))
-                    .retrieve()
-                    .bodyToMono(String.class);
+                    .exchange()
+                    .flatMap(response -> {
+                        log.info("Response HTTP Status: " + response.statusCode());
+                        if (response.statusCode().isError()) {
+                            return response.bodyToMono(String.class)
+                                    .doOnNext(errorBody -> log.error("Error Body: " + errorBody))
+                                    .flatMap(errorBody -> Mono.<String>error(new RuntimeException("Error retrieving word from ChatGPT. Status: " + response.statusCode() + " Error Body: " + errorBody)));
+                        } else {
+                            return response.bodyToMono(String.class);
+                        }
+                    });
         } catch (Exception e) {
             log.error("Error retrieving word from ChatGPT.", e);
             throw new RuntimeException("Error retrieving word from ChatGPT.", e);
         }
     }
+
 
     /**
      * Parses the response from the OpenAI ChatGPT API.

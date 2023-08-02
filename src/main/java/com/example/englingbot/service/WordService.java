@@ -2,7 +2,7 @@ package com.example.englingbot.service;
 
 import com.example.englingbot.model.Word;
 import com.example.englingbot.repository.WordRepository;
-import com.example.englingbot.service.externalapi.chatgpt.ChatGptWordTranslator;
+import com.example.englingbot.service.externalapi.chatgpt.ChatGptWordUtils;
 import com.example.englingbot.service.externalapi.googleapi.GoogleTranslator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,14 +19,14 @@ import java.util.concurrent.ExecutorService;
 public class WordService {
 
     private final GoogleTranslator googleTranslator;
-    private final ChatGptWordTranslator chatGptWordTranslator;
+    private final ChatGptWordUtils chatGptWordUtils;
     private final ExecutorService chatGPTExecutorService;
     private final WordRepository wordRepository;
 
 
-    public WordService(GoogleTranslator googleTranslator, ChatGptWordTranslator chatGptWordTranslator, ExecutorService chatGPTExecutorService, WordRepository wordRepository) {
+    public WordService(GoogleTranslator googleTranslator, ChatGptWordUtils chatGptWordUtils, ExecutorService chatGPTExecutorService, WordRepository wordRepository) {
         this.googleTranslator = googleTranslator;
-        this.chatGptWordTranslator = chatGptWordTranslator;
+        this.chatGptWordUtils = chatGptWordUtils;
         this.chatGPTExecutorService = chatGPTExecutorService;
         this.wordRepository = wordRepository;
     }
@@ -56,16 +56,8 @@ public class WordService {
                 if (wordFromDB.isPresent()) continue;
 
                 wordRepository.save(word);
+                addTranscription(word);
 
-                Runnable runnable = () -> {
-                    String transcription = chatGptWordTranslator.getTranscription(word.getEnglishWord());
-                    if (transcription != null) {
-                        word.setTranscription(transcription);
-                        wordRepository.save(word);
-                    }
-                };
-
-                chatGPTExecutorService.submit(runnable);
             } catch (DataIntegrityViolationException e) {
                 log.error("Failed to save the word due to integrity violation: {}", word, e);
             }
@@ -88,13 +80,15 @@ public class WordService {
 
     private List<Word> translateChatGpt(String incomingWord) {
         List<Word> newWordsList = new ArrayList<>();
-        List<Word> chatGptResponse = chatGptWordTranslator.getTranslatedWordList(incomingWord);
+        List<Word> chatGptResponse = chatGptWordUtils.getTranslations(incomingWord);
 
         for (Word word : chatGptResponse) {
             Optional<Word> wordFromDBOpt = wordRepository.findByRussianWordAndEnglishWord(word.getRussianWord(), word.getEnglishWord());
             if (wordFromDBOpt.isEmpty()) {
                 log.info("New word from ChatGpt: {}", word);
-                newWordsList.add(word);
+                if (word.getRussianWord().equals(incomingWord) || word.getEnglishWord().equals(incomingWord)){
+                    newWordsList.add(word);
+                }
             } else {
                 log.warn("Word from ChatGpt already exists in database: {}", word);
             }
@@ -112,5 +106,19 @@ public class WordService {
                 .russianWord(wordMap.get("ru").toLowerCase())
                 .englishWord(wordMap.get("en").toLowerCase())
                 .build();
+    }
+
+    private void addTranscription (Word word) {
+        if (word.getTranscription() == null) {
+            Runnable runnable = () -> {
+                String transcription = chatGptWordUtils.fetchTranscription(word.getEnglishWord());
+                if (transcription != null) {
+                    word.setTranscription(transcription);
+                    wordRepository.save(word);
+                }
+            };
+
+            chatGPTExecutorService.submit(runnable);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.englingbot.service.handlers;
 
+import com.example.englingbot.model.AppUser;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 
 /**
