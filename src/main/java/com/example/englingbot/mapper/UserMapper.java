@@ -44,16 +44,6 @@ public class UserMapper {
     }
 
     /**
-     * Updates the user's state in the system.
-     *
-     * @param userEntity User entity that needs to be updated
-     * @param userStateEnum New user state
-     */
-    public void updateUserState(AppUser userEntity, UserStateEnum userStateEnum) {
-        userEntity.setUserState(userStateEnum);
-    }
-
-    /**
      * Deactivates a user in the system.
      *
      * @param userEntity User entity that needs to be deactivated

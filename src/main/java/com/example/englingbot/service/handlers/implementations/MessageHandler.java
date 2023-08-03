@@ -1,9 +1,10 @@
 package com.example.englingbot.service.handlers.implementations;
 
+import com.example.englingbot.model.AppUser;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.model.enums.UserStateEnum;
 import com.example.englingbot.model.enums.WordListTypeEnum;
-import com.example.englingbot.service.UserService;
+import com.example.englingbot.service.AppUserService;
 import com.example.englingbot.service.UserWordListService;
 import com.example.englingbot.service.enums.TextCommandsEnum;
 import com.example.englingbot.service.handlers.Handler;
@@ -14,48 +15,35 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 @Component
 @Slf4j
 class MessageHandler implements Handler {
 
     private final SendMessageForUserFactory sendMessageForUserFactory;
-    private final UserService userService;
+    private final AppUserService appUserService;
     private final UserWordListService userWordListService;
     private final DefaultMessageHandler defaultMessageHandler;
 
-    private final Map<TextCommandsEnum, Consumer<BotEvent>> textCommandsHandler;
+    private final Map<TextCommandsEnum, BiConsumer<BotEvent, AppUser>> textCommandsHandler;
 
-    /**
-     * Component that handles incoming messages from the bot user.
-     * Implements the {@link Handler} interface.
-     */
-    MessageHandler(SendMessageForUserFactory sendMessageForUserFactory, UserService userService, UserWordListService userWordListService, DefaultMessageHandler defaultMessageHandler) {
+    MessageHandler(SendMessageForUserFactory sendMessageForUserFactory, AppUserService appUserService, UserWordListService userWordListService, DefaultMessageHandler defaultMessageHandler) {
         this.sendMessageForUserFactory = sendMessageForUserFactory;
-        this.userService = userService;
+        this.appUserService = appUserService;
         this.userWordListService = userWordListService;
         this.defaultMessageHandler = defaultMessageHandler;
         textCommandsHandler = new HashMap<>();
     }
 
-    /**
-     * Handles the BotEvent by retrieving the command from the event's text and
-     * invoking the corresponding command handler.
-     *
-     * @param botEvent the event to handle.
-     */
     @Override
-    public void handle(BotEvent botEvent) {
+    public void handle(BotEvent botEvent, AppUser appUser) {
         TextCommandsEnum incomingCommand = TextCommandsEnum.fromString(botEvent.getText());
 
         var handlerMethod = textCommandsHandler.get(incomingCommand);
-        handlerMethod.accept(botEvent);
+        handlerMethod.accept(botEvent, appUser);
     }
 
-    /**
-     * Initializes the MessageHandler by mapping the command handlers to the appropriate commands.
-     */
     @PostConstruct
     void init() {
         textCommandsHandler.put(TextCommandsEnum.START, this::handleStartAndHelp);
@@ -73,82 +61,31 @@ class MessageHandler implements Handler {
         textCommandsHandler.put(null, defaultMessageHandler::handle);
     }
 
-
-    /**
-     * Handler for delete command.
-     *
-     * @param botEvent the event to handle.
-     */
-    private void handleDelete(BotEvent botEvent) {
-
+    private void handleDelete(BotEvent botEvent, AppUser appUser) {
     }
 
-    /**
-     * Handler for statistic command.
-     *
-     * @param botEvent the event to handle.
-     */
-    private void handleStatistic(BotEvent botEvent) {
-
+    private void handleStatistic(BotEvent botEvent, AppUser appUser) {
     }
 
-    /**
-     * Handler for add random words command.
-     *
-     * @param botEvent the event to handle.
-     */
-    private void handleAddRandomWords(BotEvent botEvent) {
-
+    private void handleAddRandomWords(BotEvent botEvent, AppUser appUser) {
     }
 
-    /**
-     * Handler for list repetition words command.
-     *
-     * @param botEvent the event to handle.
-     */
-    private void handleListRepetitionWords(BotEvent botEvent) {
-
+    private void handleListRepetitionWords(BotEvent botEvent, AppUser appUser) {
     }
 
-    /**
-     * Handler for list study words command.
-     *
-     * @param botEvent the event to handle.
-     */
-    private void handleListStudyWords(BotEvent botEvent) {
-
+    private void handleListStudyWords(BotEvent botEvent, AppUser appUser) {
     }
 
-    /**
-     * Handler for mixed mode command.
-     *
-     * @param botEvent the event to handle.
-     */
-    private void handleMixedMode(BotEvent botEvent) {
-
+    private void handleMixedMode(BotEvent botEvent, AppUser appUser) {
     }
 
-    /**
-     * Handler for repeat word command.
-     *
-     * @param botEvent the event to handle.
-     */
-    private void handleRepeatWord(BotEvent botEvent) {
+    private void handleRepeatWord(BotEvent botEvent, AppUser appUser) {
     }
 
-
-    /**
-     * Handler for learn word command. This handler first checks if there are any words to learn for the user.
-     * If there are, it sends a message with the word to learn. If there aren't, it sends a message suggesting
-     * to add more words or to use the word bank.
-     *
-     * @param botEvent the event to handle.
-     */
-    private void handleLearnWord(BotEvent botEvent) {
+    private void handleLearnWord(BotEvent botEvent, AppUser appUser) {
         log.debug("Starting handleLearnWord method for event: {}", botEvent);
         var messageSender = sendMessageForUserFactory.createMessageSender();
-        var user = userService.getAppUser(botEvent);
-        var userWord = userWordListService.getRandomUserWordList(user, WordListTypeEnum.LEARNING);
+        var userWord = userWordListService.getRandomUserWordList(appUser, WordListTypeEnum.LEARNING);
 
         if (userWord == null) {
             log.debug("User has no words to learn, sending a message to add more words");
@@ -163,19 +100,13 @@ class MessageHandler implements Handler {
         log.debug("Finished handleLearnWord method for event: {}", botEvent);
     }
 
-    /**
-     * Handler for add word command. This handler changes the user's state to ADD_MENU and sends a message
-     * to the user with instructions on how to add words.
-     *
-     * @param botEvent the event to handle.
-     */
-    private void handleAddWord(BotEvent botEvent) {
+    private void handleAddWord(BotEvent botEvent, AppUser appUser) {
         log.debug("Starting handleAddWord method for event: {}", botEvent);
-        userService.changeAppUserState(UserStateEnum.ADD_MENU, botEvent);
+        appUser.setUserState(UserStateEnum.ADD_MENU);
         sendMessageForUserFactory
                 .createMessageSender()
                 .sendMessage(botEvent.getId(), """
-                        Можете отправлять слова, которые хотите добавить в свою коллекцию.\s
+                        Можете отправлять слова, которые хотите добавить в свою коллекцию.\\s
 
                         Если нужно добавить несколько слов, можете отправлять их по очереди.
 
@@ -186,31 +117,19 @@ class MessageHandler implements Handler {
         log.debug("Finished handleAddWord method for event: {}", botEvent);
     }
 
-    /**
-     * Handler for answer command. This handler changes the user's state to ANSWER and sends a message
-     * to the user asking for their question.
-     *
-     * @param botEvent the event to handle.
-     */
-    private void handleAnswer(BotEvent botEvent) {
+    private void handleAnswer(BotEvent botEvent, AppUser appUser) {
         log.debug("Starting handleAnswer method for event: {}", botEvent);
-        userService.changeAppUserState(UserStateEnum.ANSWER, botEvent);
+        appUser.setUserState(UserStateEnum.ANSWER);
         sendMessageForUserFactory
                 .createMessageSender()
-                .sendMessage(botEvent.getId(), "Пришлите пожалуйста ваш вопрос. \n\nПримечание: получение ответа может занять некоторое время");
+                .sendMessage(botEvent.getId(), "Пришлите пожалуйста ваш вопрос. \\n\\nПримечание: получение ответа может занять некоторое время");
 
         log.debug("Finished handleAnswer method for event: {}", botEvent);
     }
 
-    /**
-     * Handler for start and help command. This handler changes the user's state to NORMAL and sends a message
-     * to the user with the help text.
-     *
-     * @param botEvent the event to handle.
-     */
-    private void handleStartAndHelp(BotEvent botEvent) {
+    private void handleStartAndHelp(BotEvent botEvent, AppUser appUser) {
         log.debug("Starting handleStartAndHelp method for event: {}", botEvent);
-        userService.changeAppUserState(UserStateEnum.MAIN, botEvent);
+        appUser.setUserState(UserStateEnum.MAIN);
         String startAndHelpMessage = """
                 Привет! Я - Word Learning Bot, и я помогу тебе учить английские слова. Вот список доступных команд и функций, которые ты можешь использовать:
 

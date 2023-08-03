@@ -17,17 +17,15 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 public class EngLingBotApplication {
 
     private final TelegramBotApplication bot;
-    private final Test test;
+
 
     /**
      * Creates an instance of the EngLingBotApplication class.
      *
      * @param bot  an instance of the TelegramBotApplication class.
-     * @param test
      */
-    public EngLingBotApplication(TelegramBotApplication bot, Test test) {
+    public EngLingBotApplication(TelegramBotApplication bot) {
         this.bot = bot;
-        this.test = test;
         log.debug("An instance of the EngLingBotApplication class has been created.");
     }
 
@@ -59,10 +57,5 @@ public class EngLingBotApplication {
             log.error("Error encountered while registering the bot.", e);
             throw new IllegalStateException(e);
         }
-    }
-
-    @PostConstruct  // add this annotation
-    public void init() {
-        test.test();  // call the method when the application starts
     }
 }
