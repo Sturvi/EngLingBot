@@ -1,5 +1,6 @@
 package com.example.englingbot.service.externalapi.googleapi;
 
+import com.example.englingbot.service.WordService;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -104,7 +105,7 @@ public class GoogleTranslator {
 
         for (JsonElement translation : translations) {
             String translatedText = translation.getAsJsonObject().get("translatedText").getAsString();
-            resultMap.put(language, translatedText);
+            resultMap.put(language, WordService.capitalizeFirstLetter(translatedText));
         }
     }
 }

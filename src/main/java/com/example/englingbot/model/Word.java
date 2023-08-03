@@ -36,6 +36,19 @@ public class Word extends AbstractEntity {
     @Column(name = "usage_examples")
     private String usageExamples;
 
+    public void setRussianWord(String russianWord) {
+        if (russianWord != null && !russianWord.isEmpty()) {
+            this.russianWord = russianWord.substring(0, 1).toUpperCase() + russianWord.substring(1);
+        }
+    }
+
+    public void setEnglishWord(String englishWord) {
+        if (englishWord != null && !englishWord.isEmpty()) {
+            this.englishWord = englishWord.substring(0, 1).toUpperCase() + englishWord.substring(1);
+        }
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
