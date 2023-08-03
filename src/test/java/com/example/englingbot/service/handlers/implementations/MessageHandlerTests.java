@@ -1,9 +1,9 @@
 package com.example.englingbot.service.handlers.implementations;
 
+import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.UserWordList;
 import com.example.englingbot.model.enums.UserStateEnum;
 import com.example.englingbot.model.enums.WordListTypeEnum;
-import com.example.englingbot.service.UserService;
 import com.example.englingbot.service.UserWordListService;
 import com.example.englingbot.service.enums.TextCommandsEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
@@ -15,7 +15,7 @@ import org.mockito.*;
 
 import static org.mockito.Mockito.*;
 
-class MessageHandlerTest {
+class MessageHandlerTests {
 
     @Spy
     @InjectMocks
@@ -25,10 +25,12 @@ class MessageHandlerTest {
     private SendMessageForUserFactory sendMessageForUserFactory;
 
     @Mock
-    private UserService userService;
+    private AppUser appUser;
 
     @Mock
     private UserWordListService userWordListService;
+    @Mock
+    private DefaultMessageHandler defaultMessageHandler;
 
     @BeforeEach
     void setUp() {
@@ -46,9 +48,9 @@ class MessageHandlerTest {
         when(sendMessageForUserFactory.createMessageSender()).thenReturn(sendMessageForUser);
         doNothing().when(sendMessageForUser).sendMessage(anyLong(), anyString());
 
-        messageHandler.handle(botEvent);
+        messageHandler.handle(botEvent, appUser);
 
-        verify(userService, times(1)).changeAppUserState(UserStateEnum.MAIN, botEvent);
+        verify(appUser, times(1)).setUserState(UserStateEnum.MAIN);
         verify(sendMessageForUserFactory, times(1)).createMessageSender();
         verify(sendMessageForUser, times(1)).sendMessage(eq(123L), anyString());
     }
@@ -62,9 +64,9 @@ class MessageHandlerTest {
         when(sendMessageForUserFactory.createMessageSender()).thenReturn(sendMessageForUser);
         doNothing().when(sendMessageForUser).sendMessage(anyLong(), anyString());
 
-        messageHandler.handle(botEvent);
+        messageHandler.handle(botEvent, appUser);
 
-        verify(userService, times(1)).changeAppUserState(UserStateEnum.ANSWER, botEvent);
+        verify(appUser, times(1)).setUserState(UserStateEnum.ANSWER);
         verify(sendMessageForUserFactory, times(1)).createMessageSender();
         verify(sendMessageForUser, times(1)).sendMessage(eq(123L), anyString());
     }
@@ -78,9 +80,9 @@ class MessageHandlerTest {
         when(sendMessageForUserFactory.createMessageSender()).thenReturn(sendMessageForUser);
         doNothing().when(sendMessageForUser).sendMessage(anyLong(), anyString());
 
-        messageHandler.handle(botEvent);
+        messageHandler.handle(botEvent, appUser);
 
-        verify(userService, times(1)).changeAppUserState(UserStateEnum.ADD_MENU, botEvent);
+        verify(appUser, times(1)).setUserState(UserStateEnum.ADD_MENU);
         verify(sendMessageForUserFactory, times(1)).createMessageSender();
         verify(sendMessageForUser, times(1)).sendMessage(eq(123L), anyString());
     }
@@ -95,9 +97,8 @@ class MessageHandlerTest {
         when(sendMessageForUserFactory.createMessageSender()).thenReturn(sendMessageForUser);
         doNothing().when(sendMessageForUser).sendMessage(anyLong(), anyString());
 
-        messageHandler.handle(botEvent);
+        messageHandler.handle(botEvent, appUser);
 
-        verify(userService, times(1)).getAppUser(botEvent);
         verify(userWordListService, times(1)).getRandomUserWordList(any(), eq(WordListTypeEnum.LEARNING));
         verify(sendMessageForUserFactory, times(1)).createMessageSender();
         verify(sendMessageForUser, times(1)).sendMessage(eq(123L), anyString());
@@ -116,9 +117,8 @@ class MessageHandlerTest {
         when(sendMessageForUserFactory.createMessageSender()).thenReturn(sendMessageForUser);
         doNothing().when(sendMessageForUser).sendMessage(anyLong(), anyString());
 
-        messageHandler.handle(botEvent);
+        messageHandler.handle(botEvent, appUser);
 
-        verify(userService, times(1)).getAppUser(botEvent);
         verify(userWordListService, times(1)).getRandomUserWordList(any(), eq(WordListTypeEnum.LEARNING));
         verify(sendMessageForUserFactory, times(1)).createMessageSender();
         verify(sendMessageForUser, times(1)).sendMessage(eq(123L), eq(messageText));
