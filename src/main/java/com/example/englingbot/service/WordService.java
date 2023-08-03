@@ -49,6 +49,10 @@ public class WordService {
         return newWordsList;
     }
 
+    public List<Word> fetchWordList (String word){
+        return wordRepository.findByRussianWordOrEnglishWord(word);
+    }
+
     private void saveNewWords(List<Word> newWordsList) {
         for (Word word : newWordsList) {
             try {
