@@ -49,4 +49,9 @@ public class Word extends AbstractEntity {
     public int hashCode() {
         return Objects.hash(super.hashCode(), russianWord, englishWord);
     }
+
+    @Override
+    public String toString() {
+        return  englishWord + "  -  " + russianWord;
+    }
 }

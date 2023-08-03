@@ -45,14 +45,14 @@ class MessageHandlerTests {
         when(botEvent.getId()).thenReturn(123L);
         when(botEvent.getText()).thenReturn(TextCommandsEnum.START.getCommand());
         var sendMessageForUser = Mockito.mock(SendMessageForUser.class);
-        when(sendMessageForUserFactory.createMessageSender()).thenReturn(sendMessageForUser);
-        doNothing().when(sendMessageForUser).sendMessage(anyLong(), anyString());
+        when(sendMessageForUserFactory.createNewMessage()).thenReturn(sendMessageForUser);
+        doNothing().when(sendMessageForUser).sendMessageWithReplyKeyboard(anyLong(), anyString());
 
         messageHandler.handle(botEvent, appUser);
 
         verify(appUser, times(1)).setUserState(UserStateEnum.MAIN);
-        verify(sendMessageForUserFactory, times(1)).createMessageSender();
-        verify(sendMessageForUser, times(1)).sendMessage(eq(123L), anyString());
+        verify(sendMessageForUserFactory, times(1)).createNewMessage();
+        verify(sendMessageForUser, times(1)).sendMessageWithReplyKeyboard(eq(123L), anyString());
     }
 
     @Test
@@ -61,14 +61,14 @@ class MessageHandlerTests {
         when(botEvent.getId()).thenReturn(123L);
         when(botEvent.getText()).thenReturn(TextCommandsEnum.ANSWER.getCommand());
         var sendMessageForUser = Mockito.mock(SendMessageForUser.class);
-        when(sendMessageForUserFactory.createMessageSender()).thenReturn(sendMessageForUser);
-        doNothing().when(sendMessageForUser).sendMessage(anyLong(), anyString());
+        when(sendMessageForUserFactory.createNewMessage()).thenReturn(sendMessageForUser);
+        doNothing().when(sendMessageForUser).sendMessageWithReplyKeyboard(anyLong(), anyString());
 
         messageHandler.handle(botEvent, appUser);
 
         verify(appUser, times(1)).setUserState(UserStateEnum.ANSWER);
-        verify(sendMessageForUserFactory, times(1)).createMessageSender();
-        verify(sendMessageForUser, times(1)).sendMessage(eq(123L), anyString());
+        verify(sendMessageForUserFactory, times(1)).createNewMessage();
+        verify(sendMessageForUser, times(1)).sendMessageWithReplyKeyboard(eq(123L), anyString());
     }
 
     @Test
@@ -77,14 +77,14 @@ class MessageHandlerTests {
         when(botEvent.getId()).thenReturn(123L);
         when(botEvent.getText()).thenReturn(TextCommandsEnum.ADD_WORD.getCommand());
         var sendMessageForUser = Mockito.mock(SendMessageForUser.class);
-        when(sendMessageForUserFactory.createMessageSender()).thenReturn(sendMessageForUser);
-        doNothing().when(sendMessageForUser).sendMessage(anyLong(), anyString());
+        when(sendMessageForUserFactory.createNewMessage()).thenReturn(sendMessageForUser);
+        doNothing().when(sendMessageForUser).sendMessageWithReplyKeyboard(anyLong(), anyString());
 
         messageHandler.handle(botEvent, appUser);
 
         verify(appUser, times(1)).setUserState(UserStateEnum.ADD_MENU);
-        verify(sendMessageForUserFactory, times(1)).createMessageSender();
-        verify(sendMessageForUser, times(1)).sendMessage(eq(123L), anyString());
+        verify(sendMessageForUserFactory, times(1)).createNewMessage();
+        verify(sendMessageForUser, times(1)).sendMessageWithReplyKeyboard(eq(123L), anyString());
     }
 
     @Test
@@ -94,14 +94,14 @@ class MessageHandlerTests {
         when(botEvent.getText()).thenReturn(TextCommandsEnum.LEARN_WORD.getCommand());
         when(userWordListService.getRandomUserWordList(any(), eq(WordListTypeEnum.LEARNING))).thenReturn(null);
         var sendMessageForUser = Mockito.mock(SendMessageForUser.class);
-        when(sendMessageForUserFactory.createMessageSender()).thenReturn(sendMessageForUser);
-        doNothing().when(sendMessageForUser).sendMessage(anyLong(), anyString());
+        when(sendMessageForUserFactory.createNewMessage()).thenReturn(sendMessageForUser);
+        doNothing().when(sendMessageForUser).sendMessageWithReplyKeyboard(anyLong(), anyString());
 
         messageHandler.handle(botEvent, appUser);
 
         verify(userWordListService, times(1)).getRandomUserWordList(any(), eq(WordListTypeEnum.LEARNING));
-        verify(sendMessageForUserFactory, times(1)).createMessageSender();
-        verify(sendMessageForUser, times(1)).sendMessage(eq(123L), anyString());
+        verify(sendMessageForUserFactory, times(1)).createNewMessage();
+        verify(sendMessageForUser, times(1)).sendMessageWithReplyKeyboard(eq(123L), anyString());
     }
 
     @Test
@@ -114,13 +114,13 @@ class MessageHandlerTests {
         String messageText = "A word to send to the user.";
         when(userWordListService.getUserWordListString(wordFromUserDictionary)).thenReturn(messageText);
         var sendMessageForUser = Mockito.mock(SendMessageForUser.class);
-        when(sendMessageForUserFactory.createMessageSender()).thenReturn(sendMessageForUser);
-        doNothing().when(sendMessageForUser).sendMessage(anyLong(), anyString());
+        when(sendMessageForUserFactory.createNewMessage()).thenReturn(sendMessageForUser);
+        doNothing().when(sendMessageForUser).sendMessageWithReplyKeyboard(anyLong(), anyString());
 
         messageHandler.handle(botEvent, appUser);
 
         verify(userWordListService, times(1)).getRandomUserWordList(any(), eq(WordListTypeEnum.LEARNING));
-        verify(sendMessageForUserFactory, times(1)).createMessageSender();
-        verify(sendMessageForUser, times(1)).sendMessage(eq(123L), eq(messageText));
+        verify(sendMessageForUserFactory, times(1)).createNewMessage();
+        verify(sendMessageForUser, times(1)).sendMessageWithReplyKeyboard(eq(123L), eq(messageText));
     }
 }

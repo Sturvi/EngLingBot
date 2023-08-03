@@ -5,6 +5,7 @@ import com.example.englingbot.service.keyboards.ReplyKeyboardMarkupFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 /**
  * This class represents a message sender for users.
@@ -19,21 +20,41 @@ public class SendMessageForUser extends AbstractMessageSender {
     }
 
     /**
-     * Sends a message to the specified chat ID with the given text.
+     * Sends a message to the specified chat ID with the given text and default ReplyKeyboardMarkup.
      *
      * @param chatId       The ID of the chat to send the message to.
      * @param messageText  The text of the message to send.
      */
-    public void sendMessage(Long chatId, String messageText) {
+    public void sendMessageWithReplyKeyboard(Long chatId, String messageText) {
         var keyboard = ReplyKeyboardMarkupFactory.getReplyKeyboardMarkup();
 
         log.info("Sending message to chat ID: {}", chatId);
         log.debug("Message text: {}", messageText);
+        log.debug("Using default ReplyKeyboardMarkup");
 
         newMessage()
                 .setChatId(chatId)
                 .setText(messageText)
                 .setKeyboardMarkup(keyboard)
+                .send();
+    }
+
+    /**
+     * Sends a message to the specified chat ID with the given text and custom InlineKeyboardMarkup.
+     *
+     * @param chatId       The ID of the chat to send the message to.
+     * @param messageText  The text of the message to send.
+     * @param keyboard     The custom InlineKeyboardMarkup to send.
+     */
+    public void sendMessageWithInlineKeyboard(Long chatId, String messageText, InlineKeyboardMarkup keyboard) {
+        log.info("Sending message to chat ID: {}", chatId);
+        log.debug("Message text: {}", messageText);
+        log.debug("Using custom InlineKeyboardMarkup");
+
+        newMessage()
+                .setChatId(chatId)
+                .setText(messageText)
+                .setInlineKeyboard(keyboard)
                 .send();
     }
 }

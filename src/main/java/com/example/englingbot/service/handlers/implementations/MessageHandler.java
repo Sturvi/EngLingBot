@@ -84,18 +84,18 @@ class MessageHandler implements Handler {
 
     private void handleLearnWord(BotEvent botEvent, AppUser appUser) {
         log.debug("Starting handleLearnWord method for event: {}", botEvent);
-        var messageSender = sendMessageForUserFactory.createMessageSender();
+        var messageSender = sendMessageForUserFactory.createNewMessage();
         var userWord = userWordListService.getRandomUserWordList(appUser, WordListTypeEnum.LEARNING);
 
         if (userWord == null) {
             log.debug("User has no words to learn, sending a message to add more words");
-            messageSender.sendMessage(botEvent.getId(), "У вас нет слов для изучения в данный момент. Пожалуйста, " +
+            messageSender.sendMessageWithReplyKeyboard(botEvent.getId(), "У вас нет слов для изучения в данный момент. Пожалуйста, " +
                     "добавьте новые слова, или воспользуйтесь нашим банком слов.");
         } else {
             log.debug("User has words to learn, sending the word to user");
             //НАПИСАТЬ МЕТОДЫ ДЛЯ РАБОТЫ С ПРОИЗНОШЕНИЯМИ
             String messageText = userWordListService.getUserWordListString(userWord);
-            messageSender.sendMessage(botEvent.getId(), messageText);
+            messageSender.sendMessageWithReplyKeyboard(botEvent.getId(), messageText);
         }
         log.debug("Finished handleLearnWord method for event: {}", botEvent);
     }
@@ -104,8 +104,8 @@ class MessageHandler implements Handler {
         log.debug("Starting handleAddWord method for event: {}", botEvent);
         appUser.setUserState(UserStateEnum.ADD_MENU);
         sendMessageForUserFactory
-                .createMessageSender()
-                .sendMessage(botEvent.getId(), """
+                .createNewMessage()
+                .sendMessageWithReplyKeyboard(botEvent.getId(), """
                         Можете отправлять слова, которые хотите добавить в свою коллекцию.\\s
 
                         Если нужно добавить несколько слов, можете отправлять их по очереди.
@@ -121,8 +121,8 @@ class MessageHandler implements Handler {
         log.debug("Starting handleAnswer method for event: {}", botEvent);
         appUser.setUserState(UserStateEnum.ANSWER);
         sendMessageForUserFactory
-                .createMessageSender()
-                .sendMessage(botEvent.getId(), "Пришлите пожалуйста ваш вопрос. \\n\\nПримечание: получение ответа может занять некоторое время");
+                .createNewMessage()
+                .sendMessageWithReplyKeyboard(botEvent.getId(), "Пришлите пожалуйста ваш вопрос. \\n\\nПримечание: получение ответа может занять некоторое время");
 
         log.debug("Finished handleAnswer method for event: {}", botEvent);
     }
@@ -154,8 +154,8 @@ class MessageHandler implements Handler {
 
                 Если у вас возникли вопросы, жалобы или предложения, свяжитесь с администратором: @SturviBots
                 """;
-        var messageSender = sendMessageForUserFactory.createMessageSender();
-        messageSender.sendMessage(botEvent.getId(), startAndHelpMessage);
+        var messageSender = sendMessageForUserFactory.createNewMessage();
+        messageSender.sendMessageWithReplyKeyboard(botEvent.getId(), startAndHelpMessage);
 
         log.debug("Finished handleStartAndHelp method for event: {}", botEvent);
     }

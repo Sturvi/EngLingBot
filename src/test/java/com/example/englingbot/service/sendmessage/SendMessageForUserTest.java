@@ -33,7 +33,7 @@ public class SendMessageForUserTest {
 
         when(telegramBotApplication.execute(any(SendMessage.class))).thenReturn(returnedMessage);
 
-        sendMessageForUser.sendMessage(chatId, messageText);
+        sendMessageForUser.sendMessageWithReplyKeyboard(chatId, messageText);
 
         verify(telegramBotApplication, times(1)).execute(any(SendMessage.class));
     }

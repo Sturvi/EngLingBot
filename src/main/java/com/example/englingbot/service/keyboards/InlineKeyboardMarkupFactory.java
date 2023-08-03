@@ -7,8 +7,23 @@ public class InlineKeyboardMarkupFactory extends AbstractInlineKeyboardMarkupFac
     public static InlineKeyboardMarkup getYesOrNoKeyboard (){
         var keyboard = creatNewInlineKeyboard();
 
-        addButtonToNewLine(keyboard, "✅", "yes");
-        addButtonToCurrentLine(keyboard, "⛔️", "no");
+        addButtonToNewLine(keyboard,
+                KeyboardDataEnum.YES.getText(),
+                KeyboardDataEnum.YES.getData());
+
+        addButtonToCurrentLine(keyboard,
+                KeyboardDataEnum.NO.getText(),
+                KeyboardDataEnum.NO.getData());
+
+        return keyboard;
+    }
+
+    public static InlineKeyboardMarkup getWordFromTranslatorKeyboard (){
+        var keyboard = creatNewInlineKeyboard();
+
+        addButtonToNewLine(keyboard,
+                KeyboardDataEnum.TRANSLATOR.getText(),
+                KeyboardDataEnum.TRANSLATOR.getData());
 
         return keyboard;
     }

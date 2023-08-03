@@ -20,7 +20,7 @@ public class SendMessageForUserFactory {
      *
      * @return A new instance of MessageSender.
      */
-    public SendMessageForUser createMessageSender() {
+    public SendMessageForUser createNewMessage() {
         return context.getBean(SendMessageForUser.class);
     }
 }
