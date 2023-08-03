@@ -1,7 +1,8 @@
 package com.example.englingbot.service.handlers.implementations;
 
+import com.example.englingbot.model.AppUser;
+import com.example.englingbot.service.AppUserService;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
-import com.example.englingbot.service.UserService;
 import com.example.englingbot.service.handlers.Handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UpdateHandler implements Handler {
 
-    private final UserService userService;
     private final MessageHandler messageHandler;
     private final CallbackQueryHandler callbackQueryHandler;
 
@@ -26,20 +26,17 @@ public class UpdateHandler implements Handler {
      * @param botEvent The bot event to process.
      */
     @Override
-    public void handle(BotEvent botEvent) {
-        userService.saveOrUpdateAppUser(botEvent.getFrom());
-        log.debug("Update or save user information: {}", botEvent.getFrom());
-
+    public void handle(BotEvent botEvent, AppUser appUser) {
         try {
             if (botEvent.isDeactivationQuery()) {
                 log.debug("Processing the deactivation request from the user: {}", botEvent.getFrom());
-                userService.deactivateAppUser(botEvent);
+                appUser.setUserStatus(false);
             } else if (botEvent.isMessage()) {
                 log.debug("Processing the message from the user: {}", botEvent.getFrom());
-                messageHandler.handle(botEvent);
+                messageHandler.handle(botEvent, appUser);
             } else if (botEvent.isCallbackQuery()) {
                 log.debug("Processing callback request with data: {}, chat ID: {}", botEvent.getData(), botEvent.getId());
-                callbackQueryHandler.handle(botEvent);
+                callbackQueryHandler.handle(botEvent, appUser);
             }
         } catch (Exception e) {
             log.error("An error occurred while processing the Telegram object", e);

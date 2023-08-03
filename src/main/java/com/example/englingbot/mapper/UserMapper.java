@@ -9,7 +9,6 @@ import org.telegram.telegrambots.meta.api.objects.User;
 /**
  * Class for transforming Telegram users into system user entities.
  */
-@Component
 public class UserMapper {
 
     /**
@@ -18,7 +17,7 @@ public class UserMapper {
      * @param user Telegram user object
      * @return UserEntity user entity
      */
-    public AppUser mapNewUserToUserEntity(User user) {
+    public static AppUser mapNewUserToUserEntity(User user) {
         return AppUser.builder()
                 .telegramChatId(user.getId())
                 .firstName(user.getFirstName())
@@ -36,7 +35,7 @@ public class UserMapper {
      * @param user Telegram user object
      * @param userEntity User entity that needs to be updated
      */
-    public void updateExistingUserEntityFromTelegramUser(User user, AppUser userEntity) {
+    public static void updateExistingUserEntityFromTelegramUser(User user, AppUser userEntity) {
         userEntity.setFirstName(user.getFirstName());
         userEntity.setLastName(user.getLastName());
         userEntity.setUsername(user.getUserName());
@@ -44,21 +43,11 @@ public class UserMapper {
     }
 
     /**
-     * Updates the user's state in the system.
-     *
-     * @param userEntity User entity that needs to be updated
-     * @param userStateEnum New user state
-     */
-    public void updateUserState(AppUser userEntity, UserStateEnum userStateEnum) {
-        userEntity.setUserState(userStateEnum);
-    }
-
-    /**
      * Deactivates a user in the system.
      *
      * @param userEntity User entity that needs to be deactivated
      */
-    public void deactivateUser(AppUser userEntity) {
+    public static void deactivateUser(AppUser userEntity) {
         userEntity.setUserStatus(false);
     }
 }

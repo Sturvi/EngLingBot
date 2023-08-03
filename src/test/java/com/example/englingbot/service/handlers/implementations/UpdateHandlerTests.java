@@ -1,7 +1,7 @@
 package com.example.englingbot.service.handlers.implementations;
 
 import com.example.englingbot.model.AppUser;
-import com.example.englingbot.service.UserService;
+import com.example.englingbot.service.AppUserService;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,11 +16,13 @@ class UpdateHandlerTests {
     @Mock
     private BotEvent botEvent;
     @Mock
-    private UserService userService;
+    private AppUserService appUserService;
     @Mock
     private MessageHandler messageHandler;
     @Mock
     private CallbackQueryHandler callbackQueryHandler;
+    @Mock
+    private AppUser appUser;
 
     private UpdateHandler updateHandler;
 
@@ -32,8 +34,8 @@ class UpdateHandlerTests {
         User user = mock(User.class);
         when(botEvent.getFrom()).thenReturn(user);
         AppUser appUser = mock(AppUser.class);
-        when(userService.saveOrUpdateAppUser(user)).thenReturn(appUser);
-        updateHandler = new UpdateHandler(userService, messageHandler, callbackQueryHandler);
+        when(appUserService.saveOrUpdateAppUser(user)).thenReturn(appUser);
+        updateHandler = new UpdateHandler(appUserService, messageHandler, callbackQueryHandler);
     }
 
     @Test
@@ -41,22 +43,22 @@ class UpdateHandlerTests {
         when(botEvent.isDeactivationQuery()).thenReturn(false);
         when(botEvent.isMessage()).thenReturn(true);
 
-        updateHandler.handle(botEvent);
+        updateHandler.handle(botEvent, appUser);
 
-        verify(messageHandler, times(1)).handle(botEvent);
-        verify(userService, never()).deactivateAppUser(any(BotEvent.class));
-        verify(callbackQueryHandler, never()).handle(any(BotEvent.class));
+        verify(messageHandler, times(1)).handle(botEvent, appUser);
+        verify(appUser, never()).setUserStatus(false);
+        verify(callbackQueryHandler, never()).handle(botEvent, appUser);
     }
 
     @Test
     void testHandleWhenBotEventIsDeactivationQuery (){
         when(botEvent.isDeactivationQuery()).thenReturn(true);
 
-        updateHandler.handle(botEvent);
+        updateHandler.handle(botEvent, appUser);
 
-        verify(userService, times(1)).deactivateAppUser(botEvent);
-        verify(messageHandler, never()).handle(any(BotEvent.class));
-        verify(callbackQueryHandler, never()).handle(any(BotEvent.class));
+        verify(appUser, times(1)).setUserStatus(false);
+        verify(messageHandler, never()).handle(botEvent, appUser);
+        verify(callbackQueryHandler, never()).handle(botEvent, appUser);
     }
 
     @Test
@@ -65,10 +67,10 @@ class UpdateHandlerTests {
         when(botEvent.isMessage()).thenReturn(false);
         when(botEvent.isCallbackQuery()).thenReturn(true);
 
-        updateHandler.handle(botEvent);
+        updateHandler.handle(botEvent, appUser);
 
-        verify(callbackQueryHandler, times(1)).handle(botEvent);
-        verify(userService, never()).deactivateAppUser(any(BotEvent.class));
-        verify(messageHandler, never()).handle(any(BotEvent.class));
+        verify(callbackQueryHandler, times(1)).handle(botEvent, appUser);
+        verify(appUser, never()).setUserStatus(false);
+        verify(messageHandler, never()).handle(botEvent, appUser);
     }
 }

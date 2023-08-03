@@ -1,5 +1,6 @@
 package com.example.englingbot.service.handlers;
 
+import com.example.englingbot.model.AppUser;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 
 /**
@@ -11,6 +12,7 @@ public interface Handler {
      * Handles a given bot event.
      *
      * @param botEvent The bot event to be handled.
+     * @param appUser The user associated with the bot event.
      */
-    void handle(BotEvent botEvent);
+    void handle(BotEvent botEvent, AppUser appUser);
 }

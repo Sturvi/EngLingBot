@@ -1,4 +1,4 @@
-package com.example.englingbot.service.sendmessage;
+package com.example.englingbot.service.message.sendmessage;
 
 import com.example.englingbot.service.externalapi.telegram.TelegramBotApplication;
 import lombok.extern.slf4j.Slf4j;

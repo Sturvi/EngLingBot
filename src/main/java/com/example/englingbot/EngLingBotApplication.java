@@ -17,10 +17,11 @@ public class EngLingBotApplication {
 
     private final TelegramBotApplication bot;
 
+
     /**
      * Creates an instance of the EngLingBotApplication class.
      *
-     * @param bot an instance of the TelegramBotApplication class.
+     * @param bot  an instance of the TelegramBotApplication class.
      */
     public EngLingBotApplication(TelegramBotApplication bot) {
         this.bot = bot;

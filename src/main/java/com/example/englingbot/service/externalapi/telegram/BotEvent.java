@@ -1,10 +1,10 @@
 package com.example.englingbot.service.externalapi.telegram;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.objects.*;
-import lombok.AccessLevel;
 
 /**
  * Represents a bot event.

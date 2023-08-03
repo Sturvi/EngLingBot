@@ -1,4 +1,4 @@
-package com.example.englingbot.service.sendmessage;
+package com.example.englingbot.service.message.sendmessage;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
@@ -20,7 +20,7 @@ public class SendMessageForUserFactory {
      *
      * @return A new instance of MessageSender.
      */
-    public SendMessageForUser createMessageSender() {
+    public SendMessageForUser createNewMessage() {
         return context.getBean(SendMessageForUser.class);
     }
 }
