@@ -7,7 +7,7 @@ import com.example.englingbot.service.WordService;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.handlers.Handler;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
-import com.example.englingbot.service.sendmessage.SendMessageForUserFactory;
+import com.example.englingbot.service.message.sendmessage.SendMessageForUserFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

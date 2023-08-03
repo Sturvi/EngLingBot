@@ -7,7 +7,7 @@ import com.example.englingbot.service.UserWordListService;
 import com.example.englingbot.service.comandsenums.TextCommandsEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.handlers.Handler;
-import com.example.englingbot.service.sendmessage.SendMessageForUserFactory;
+import com.example.englingbot.service.message.sendmessage.SendMessageForUserFactory;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
