@@ -125,4 +125,15 @@ public class WordService {
             chatGPTExecutorService.submit(runnable);
         }
     }
+
+    public String getWordBetweenSpaces(String input) {
+        int startIndex = input.indexOf('\'') + 1;
+        int endIndex = input.lastIndexOf('\'');
+
+        if (startIndex >= endIndex) {
+            return "";
+        }
+
+        return input.substring(startIndex, endIndex);
+    }
 }

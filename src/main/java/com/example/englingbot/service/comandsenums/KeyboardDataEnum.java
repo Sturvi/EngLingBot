@@ -1,4 +1,4 @@
-package com.example.englingbot.service.keyboards;
+package com.example.englingbot.service.comandsenums;
 
 public enum KeyboardDataEnum {
 

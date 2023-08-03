@@ -1,4 +1,4 @@
-package com.example.englingbot.service.enums;
+package com.example.englingbot.service.comandsenums;
 
 public enum TextCommandsEnum {
     START("/start"),

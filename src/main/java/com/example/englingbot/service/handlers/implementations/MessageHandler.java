@@ -4,9 +4,8 @@ import com.example.englingbot.model.AppUser;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.model.enums.UserStateEnum;
 import com.example.englingbot.model.enums.WordListTypeEnum;
-import com.example.englingbot.service.AppUserService;
 import com.example.englingbot.service.UserWordListService;
-import com.example.englingbot.service.enums.TextCommandsEnum;
+import com.example.englingbot.service.comandsenums.TextCommandsEnum;
 import com.example.englingbot.service.handlers.Handler;
 import com.example.englingbot.service.sendmessage.SendMessageForUserFactory;
 import jakarta.annotation.PostConstruct;
@@ -22,15 +21,12 @@ import java.util.function.BiConsumer;
 class MessageHandler implements Handler {
 
     private final SendMessageForUserFactory sendMessageForUserFactory;
-    private final AppUserService appUserService;
     private final UserWordListService userWordListService;
     private final DefaultMessageHandler defaultMessageHandler;
-
     private final Map<TextCommandsEnum, BiConsumer<BotEvent, AppUser>> textCommandsHandler;
 
-    MessageHandler(SendMessageForUserFactory sendMessageForUserFactory, AppUserService appUserService, UserWordListService userWordListService, DefaultMessageHandler defaultMessageHandler) {
+    MessageHandler(SendMessageForUserFactory sendMessageForUserFactory, UserWordListService userWordListService, DefaultMessageHandler defaultMessageHandler) {
         this.sendMessageForUserFactory = sendMessageForUserFactory;
-        this.appUserService = appUserService;
         this.userWordListService = userWordListService;
         this.defaultMessageHandler = defaultMessageHandler;
         textCommandsHandler = new HashMap<>();

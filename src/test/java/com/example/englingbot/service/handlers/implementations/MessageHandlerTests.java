@@ -5,7 +5,7 @@ import com.example.englingbot.model.UserWordList;
 import com.example.englingbot.model.enums.UserStateEnum;
 import com.example.englingbot.model.enums.WordListTypeEnum;
 import com.example.englingbot.service.UserWordListService;
-import com.example.englingbot.service.enums.TextCommandsEnum;
+import com.example.englingbot.service.comandsenums.TextCommandsEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.sendmessage.SendMessageForUser;
 import com.example.englingbot.service.sendmessage.SendMessageForUserFactory;

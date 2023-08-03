@@ -1,6 +1,6 @@
 package com.example.englingbot.service.keyboards;
 
-import com.example.englingbot.service.enums.TextCommandsEnum;
+import com.example.englingbot.service.comandsenums.TextCommandsEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
