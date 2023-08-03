@@ -1,5 +1,6 @@
 package com.example.englingbot.service;
 
+import com.example.englingbot.mapper.UserWordListMapper;
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.UserWordList;
 import com.example.englingbot.model.Word;
@@ -95,5 +96,11 @@ public class UserWordListService {
 
         log.info("Generated string for word list id: {}", userWordList.getId());
         return sb.toString();
+    }
+
+    public void addWordToUserWordList(Word word, AppUser appUser){
+        var newWordInUserWordList = UserWordListMapper.mapNewWordInUserWordList(word, appUser);
+
+        userWordListRepository.save(newWordInUserWordList);
     }
 }

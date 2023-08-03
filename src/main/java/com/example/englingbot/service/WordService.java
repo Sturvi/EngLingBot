@@ -61,6 +61,12 @@ public class WordService {
         return wordRepository.findByRussianWordOrEnglishWord(word);
     }
 
+    public Word getWordByTextMessage (String textMessage){
+        String[] splitedMessage = textMessage.split("  -  ");
+        var word = wordRepository.findByRussianWordAndEnglishWord(splitedMessage[1], splitedMessage[0]);
+        return word.get();
+    }
+
     private void saveNewWords(List<Word> newWordsList) {
         for (Word word : newWordsList) {
             try {
@@ -136,7 +142,7 @@ public class WordService {
         }
     }
 
-    public String getWordBetweenSpaces(String input) {
+    public String getStringBetweenSpaces(String input) {
         int startIndex = input.indexOf('\'') + 1;
         int endIndex = input.lastIndexOf('\'');
 

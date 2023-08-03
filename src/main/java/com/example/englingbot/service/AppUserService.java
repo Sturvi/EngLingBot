@@ -22,7 +22,6 @@ import java.util.Optional;
 public class AppUserService {
 
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
 
     /**
      * Saves or updates the user information.
@@ -55,7 +54,7 @@ public class AppUserService {
     private AppUser saveAppUser(User user) {
         log.debug("Saving user with ID: {}", user.getId());
 
-        AppUser userEntity = userMapper.mapNewUserToUserEntity(user);
+        AppUser userEntity = UserMapper.mapNewUserToUserEntity(user);
 
         userRepository.save(userEntity);
 
@@ -70,7 +69,7 @@ public class AppUserService {
      * @return The updated user.
      */
     private AppUser updateAppUserInDataBase(User user, AppUser userEntity) {
-        userMapper.updateExistingUserEntityFromTelegramUser(user, userEntity);
+        UserMapper.updateExistingUserEntityFromTelegramUser(user, userEntity);
         return userEntity;
     }
 
@@ -82,10 +81,9 @@ public class AppUserService {
      */
     public AppUser getAppUser(BotEvent botEvent) {
         log.debug("Getting user with ID: {}", botEvent.getId());
-        AppUser appUser = userRepository
+        return userRepository
                 .findByTelegramChatId(botEvent.getId())
-                .orElseGet(() -> userMapper.mapNewUserToUserEntity(botEvent.getFrom()));
-        return appUser;
+                .orElseGet(() -> UserMapper.mapNewUserToUserEntity(botEvent.getFrom()));
     }
 
     /**
@@ -96,9 +94,8 @@ public class AppUserService {
      */
     public Optional<AppUser> getAppUser(Long chatId) {
         log.debug("Getting user with chat ID: {}", chatId);
-        Optional<AppUser> appUser = userRepository
+        return userRepository
                 .findByTelegramChatId(chatId);
-        return appUser;
     }
 
     /**

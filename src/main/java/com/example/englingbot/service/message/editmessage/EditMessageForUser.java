@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
+import java.util.ArrayList;
+
 @Component
 @Scope("prototype")
 @Slf4j
@@ -30,6 +32,14 @@ public class EditMessageForUser extends AbstractMessageEditor {
     }
 
     public void deleteInlineKeyboard(BotEvent botEvent){
-        editMessageWithInlineKeyboard(botEvent, botEvent.getText(), new InlineKeyboardMarkup());
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        keyboardMarkup.setKeyboard(new ArrayList<>());
+        editMessageWithInlineKeyboard(botEvent, botEvent.getText(), keyboardMarkup);
+    }
+
+    public void editTextAndDeleteInlineKeyboard(BotEvent botEvent, String messageText){
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        keyboardMarkup.setKeyboard(new ArrayList<>());
+        editMessageWithInlineKeyboard(botEvent, messageText, keyboardMarkup);
     }
 }
