@@ -7,7 +7,7 @@ import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.handlers.Handler;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
-import com.example.englingbot.service.sendmessage.SendMessageForUserFactory;
+import com.example.englingbot.service.message.sendmessage.SendMessageForUserFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -23,7 +23,8 @@ public class CallbackQueryHandler implements Handler {
         this.wordService = wordService;
         this.sendMessageForUser = sendMessageForUser;
         callbackQueryHandler = Map.of(
-                KeyboardDataEnum.TRANSLATOR, this::handleTranslator
+                KeyboardDataEnum.TRANSLATOR, this::handleTranslator,
+                KeyboardDataEnum.NO, this::handleNoComand
         );
     }
 
@@ -33,6 +34,9 @@ public class CallbackQueryHandler implements Handler {
         var handler = callbackQueryHandler.get(dataEnum);
 
         handler.accept(botEvent, appUser);
+    }
+
+    private void handleNoComand(BotEvent botEvent, AppUser appUser) {
     }
 
     private void handleTranslator(BotEvent botEvent, AppUser appUser) {

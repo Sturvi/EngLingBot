@@ -28,7 +28,6 @@ public class GoogleTranslator {
 
     @Value("${google.api.key}")
     private String apiKey;
-
     private final WebClient webClient;
     private final Gson gson;
 
