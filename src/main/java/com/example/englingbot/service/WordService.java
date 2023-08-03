@@ -8,10 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 @Slf4j
@@ -32,24 +29,35 @@ public class WordService {
     }
 
     public List<Word> addNewWordFromExternalApi(String incomingWord) {
+        incomingWord = capitalizeFirstLetter(incomingWord);
         log.debug("Starting translation for incoming word: {}", incomingWord);
-        List<Word> newWordsList = new ArrayList<>();
+        Set<Word> newWordsSet = new HashSet<>();
+        List<Word> availableWords = wordRepository.findByRussianWordOrEnglishWord(incomingWord);
 
         Word googleResponse = translateGoogle(incomingWord);
-        if (googleResponse != null){
-            newWordsList.add(googleResponse);
+        if (googleResponse != null && !availableWords.contains(googleResponse)) {
+            newWordsSet.add(googleResponse);
         }
 
-        newWordsList.addAll(translateChatGpt(incomingWord));
+        var wordsFromChatGpt = translateChatGpt(incomingWord);
+
+        for (Word word :
+                wordsFromChatGpt) {
+            if (!availableWords.contains(word)){
+                newWordsSet.add(word);
+            }
+        }
+
+        var newWordsList = newWordsSet.stream().toList();
 
         saveNewWords(newWordsList);
 
-
-        log.debug("Translation completed for incoming word: {}. New words list size: {}", incomingWord, newWordsList.size());
+        log.debug("Translation completed for incoming word: {}. New words list size: {}", incomingWord, newWordsSet.size());
         return newWordsList;
     }
 
-    public List<Word> fetchWordList (String word){
+    public List<Word> fetchWordList(String word) {
+        word = capitalizeFirstLetter(word);
         return wordRepository.findByRussianWordOrEnglishWord(word);
     }
 
@@ -69,6 +77,7 @@ public class WordService {
     }
 
     private Word translateGoogle(String incomingWord) {
+        incomingWord = capitalizeFirstLetter(incomingWord);
         Map<String, String> translation = googleTranslator.translate(incomingWord);
         Word word = getWordFromMap(translation);
 
@@ -83,6 +92,7 @@ public class WordService {
     }
 
     private List<Word> translateChatGpt(String incomingWord) {
+        incomingWord = capitalizeFirstLetter(incomingWord);
         List<Word> newWordsList = new ArrayList<>();
         List<Word> chatGptResponse = chatGptWordUtils.getTranslations(incomingWord);
 
@@ -90,7 +100,7 @@ public class WordService {
             Optional<Word> wordFromDBOpt = wordRepository.findByRussianWordAndEnglishWord(word.getRussianWord(), word.getEnglishWord());
             if (wordFromDBOpt.isEmpty()) {
                 log.info("New word from ChatGpt: {}", word);
-                if (word.getRussianWord().equals(incomingWord) || word.getEnglishWord().equals(incomingWord)){
+                if (word.getRussianWord().equals(incomingWord) || word.getEnglishWord().equals(incomingWord)) {
                     newWordsList.add(word);
                 }
             } else {
@@ -107,12 +117,12 @@ public class WordService {
 
     private Word getWordFromMap(Map<String, String> wordMap) {
         return Word.builder()
-                .russianWord(wordMap.get("ru").toLowerCase())
-                .englishWord(wordMap.get("en").toLowerCase())
+                .russianWord(wordMap.get("ru"))
+                .englishWord(wordMap.get("en"))
                 .build();
     }
 
-    private void addTranscription (Word word) {
+    private void addTranscription(Word word) {
         if (word.getTranscription() == null) {
             Runnable runnable = () -> {
                 String transcription = chatGptWordUtils.fetchTranscription(word.getEnglishWord());
@@ -135,5 +145,12 @@ public class WordService {
         }
 
         return input.substring(startIndex, endIndex);
+    }
+
+    public static String capitalizeFirstLetter(String str) {
+        if (str == null || str.length() == 0) {
+            return str;
+        }
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 }

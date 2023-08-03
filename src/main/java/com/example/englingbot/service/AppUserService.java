@@ -1,9 +1,9 @@
 package com.example.englingbot.service;
 
-import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.mapper.UserMapper;
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.repository.UserRepository;
+import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
