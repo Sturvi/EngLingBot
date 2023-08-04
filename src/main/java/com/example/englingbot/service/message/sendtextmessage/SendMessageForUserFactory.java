@@ -1,4 +1,4 @@
-package com.example.englingbot.service.message.sendmessage;
+package com.example.englingbot.service.message.sendtextmessage;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;

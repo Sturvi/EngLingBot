@@ -2,15 +2,13 @@ package com.example.englingbot.service.handlers.implementations;
 
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.Word;
-import com.example.englingbot.model.enums.UserStateEnum;
-import com.example.englingbot.service.UserWordListService;
+import com.example.englingbot.service.UserVocabularyService;
 import com.example.englingbot.service.WordService;
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.handlers.Handler;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
-import com.example.englingbot.service.message.editmessage.EditMessageForUserFactory;
-import com.example.englingbot.service.message.sendmessage.SendMessageForUserFactory;
+import com.example.englingbot.service.message.MessageService;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -22,15 +20,13 @@ import static com.example.englingbot.model.enums.UserStateEnum.*;
 public class CallbackQueryHandler implements Handler {
     private Map<KeyboardDataEnum, BiConsumer<BotEvent, AppUser>> callbackQueryHandler;
     private final WordService wordService;
-    private final SendMessageForUserFactory sendMessageForUser;
-    private final EditMessageForUserFactory editMessageForUserFactory;
-    private final UserWordListService userWordListService;
+    private final MessageService messageService;
+    private final UserVocabularyService userVocabularyService;
 
-    public CallbackQueryHandler(WordService wordService, SendMessageForUserFactory sendMessageForUser, EditMessageForUserFactory editMessageForUserFactory, UserWordListService userWordListService) {
+    public CallbackQueryHandler(WordService wordService, MessageService messageService, UserVocabularyService userVocabularyService) {
         this.wordService = wordService;
-        this.sendMessageForUser = sendMessageForUser;
-        this.editMessageForUserFactory = editMessageForUserFactory;
-        this.userWordListService = userWordListService;
+        this.messageService = messageService;
+        this.userVocabularyService = userVocabularyService;
         callbackQueryHandler = Map.of(
                 KeyboardDataEnum.TRANSLATOR, this::handleTranslator,
                 KeyboardDataEnum.NO, this::handleNoCommand,
@@ -52,12 +48,11 @@ public class CallbackQueryHandler implements Handler {
 
         if (userState == ADD_MENU) {
             var word = wordService.getWordByTextMessage(botEvent.getText());
-            userWordListService.addWordToUserWordList(word, appUser);
+            userVocabularyService.addWordToUserVocabulary(word, appUser);
 
             String newTextForMessage = "Слово: " + botEvent.getText() + " добавлено в Ваш словарь.";
 
-            editMessageForUserFactory
-                    .createNewMessage()
+            messageService
                     .editTextAndDeleteInlineKeyboard(botEvent, newTextForMessage);
         } else if (userState == DELETE_MENU) {
 
@@ -66,8 +61,7 @@ public class CallbackQueryHandler implements Handler {
     }
 
     private void handleNoCommand(BotEvent botEvent, AppUser appUser) {
-        editMessageForUserFactory
-                .createNewMessage()
+        messageService
                 .deleteInlineKeyboard(botEvent);
     }
 
@@ -79,8 +73,7 @@ public class CallbackQueryHandler implements Handler {
 
         for (Word word :
                 newWordsList) {
-            sendMessageForUser
-                    .createNewMessage()
+            messageService
                     .sendMessageWithInlineKeyboard(botEvent.getId(), word.toString(), keyboard);
         }
     }

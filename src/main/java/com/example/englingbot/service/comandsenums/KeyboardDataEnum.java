@@ -4,7 +4,12 @@ public enum KeyboardDataEnum {
 
     YES ("yes", "✅"),
     NO ("no", "⛔️"),
-    TRANSLATOR ("get from translator", "Получить онлайн перевод");
+    TRANSLATOR ("get from translator", "Получить онлайн перевод"),
+    LEARNED ("learned", "\uD83D\uDC68\u200D\uD83C\uDF93 Уже выучил слово"),
+    USAGEEXAMPLES ("usage examples", "Примеры использования"),
+    REMEMBERED ("Remembered", "✅ Вспомнил"),
+    CONTEXT ("context", "Контекст"),
+    NOTREMEMBERED ("not remembered", "⛔️ Не вспомнил");
 
 
     private final String data;

@@ -2,7 +2,7 @@ package com.example.englingbot.service;
 
 import com.example.englingbot.mapper.UserMapper;
 import com.example.englingbot.model.AppUser;
-import com.example.englingbot.repository.UserRepository;
+import com.example.englingbot.repository.AppUserRepository;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AppUserService {
 
-    private final UserRepository userRepository;
+    private final AppUserRepository appUserRepository;
 
     /**
      * Saves or updates the user information.
@@ -32,10 +32,10 @@ public class AppUserService {
     public AppUser saveOrUpdateAppUser(User user) {
         log.debug("Starting saveOrUpdateAppUser method for ID: {}", user.getId());
 
-        AppUser appUser = userRepository.findByTelegramChatId(user.getId()).map(existingUserEntity -> {
+        AppUser appUser = appUserRepository.findByTelegramChatId(user.getId()).map(existingUserEntity -> {
             log.debug("User with ID: {} found in the database, updating...", user.getId());
             updateAppUserInDataBase(user, existingUserEntity);
-            return userRepository.save(existingUserEntity);
+            return appUserRepository.save(existingUserEntity);
         }).orElseGet(() -> {
             log.debug("User with ID: {} not found in the database, creating a new user...", user.getId());
             return saveAppUser(user);
@@ -56,7 +56,7 @@ public class AppUserService {
 
         AppUser userEntity = UserMapper.mapNewUserToUserEntity(user);
 
-        userRepository.save(userEntity);
+        appUserRepository.save(userEntity);
 
         return userEntity;
     }
@@ -81,7 +81,7 @@ public class AppUserService {
      */
     public AppUser getAppUser(BotEvent botEvent) {
         log.debug("Getting user with ID: {}", botEvent.getId());
-        return userRepository
+        return appUserRepository
                 .findByTelegramChatId(botEvent.getId())
                 .orElseGet(() -> UserMapper.mapNewUserToUserEntity(botEvent.getFrom()));
     }
@@ -94,7 +94,7 @@ public class AppUserService {
      */
     public Optional<AppUser> getAppUser(Long chatId) {
         log.debug("Getting user with chat ID: {}", chatId);
-        return userRepository
+        return appUserRepository
                 .findByTelegramChatId(chatId);
     }
 
@@ -106,7 +106,7 @@ public class AppUserService {
      */
     public AppUser save(AppUser appUser) {
         log.debug("Saving user entity...");
-        userRepository.save(appUser);
+        appUserRepository.save(appUser);
         return appUser;
     }
 }

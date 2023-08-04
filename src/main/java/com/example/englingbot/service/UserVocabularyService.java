@@ -2,10 +2,10 @@ package com.example.englingbot.service;
 
 import com.example.englingbot.mapper.UserWordListMapper;
 import com.example.englingbot.model.AppUser;
-import com.example.englingbot.model.UserWordList;
+import com.example.englingbot.model.UserVocabulary;
 import com.example.englingbot.model.Word;
-import com.example.englingbot.model.enums.WordListTypeEnum;
-import com.example.englingbot.repository.UserWordListRepository;
+import com.example.englingbot.model.enums.UserWordState;
+import com.example.englingbot.repository.UserVocabularyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,67 +14,53 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Service for handling user word lists
- */
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserWordListService {
+public class UserVocabularyService {
 
-    private final UserWordListRepository userWordListRepository;
+    private final UserVocabularyRepository userVocabularyRepository;
 
-    /**
-     * Retrieves a list of UserWordList objects filtered by user and list type.
-     *
-     * @param user the UserEntity object
-     * @param types the WordListTypeEnum array
-     * @return a list of UserWordList objects
-     */
-    public List<UserWordList> getUserWordLists(AppUser user, WordListTypeEnum... types) {
+
+    public List<UserVocabulary> getUserVocabularies(AppUser user, UserWordState... types) {
         log.info("Getting word lists for user id: {} with list types: {}", user.getId(), Arrays.toString(types));
-        return userWordListRepository.findByUserAndListTypeIn(user, Arrays.asList(types));
+        return userVocabularyRepository.findByUserAndListTypeIn(user, Arrays.asList(types));
     }
 
-    /**
-     * Retrieves a random UserWordList object filtered by user and list type.
-     *
-     * @param user the UserEntity object
-     * @param types the WordListTypeEnum array
-     * @return a UserWordList object or null if the list is empty
-     */
-    public UserWordList getRandomUserWordList(AppUser user, WordListTypeEnum... types) {
+
+    public UserVocabulary getRandomUserVocabulary(AppUser user, UserWordState... types) {
         log.info("Getting random word list for user id: {} with list types: {}", user.getId(), Arrays.toString(types));
-        List<UserWordList> userWordLists = getUserWordLists(user, types);
-        if (userWordLists.isEmpty()) {
+        List<UserVocabulary> userVocabularies = getUserVocabularies(user, types);
+        if (userVocabularies.isEmpty()) {
             log.warn("User id: {} has no word lists of the requested types", user.getId());
             return null;
         }
         Random rand = new Random();
-        return userWordLists.get(rand.nextInt(userWordLists.size()));
+        return userVocabularies.get(rand.nextInt(userVocabularies.size()));
     }
 
     /**
      * Generates a string representation of the user word list.
      *
-     * @param userWordList the UserWordList object
+     * @param userVocabulary the UserWordList object
      * @return a string representation of the UserWordList
      */
-    public String getUserWordListString(UserWordList userWordList) {
-        log.info("Generating string for word list id: {}", userWordList.getId());
+    public String getWordWithStatus(UserVocabulary userVocabulary) {
+        log.info("Generating string for word list id: {}", userVocabulary.getId());
 
         StringBuilder sb = new StringBuilder();
         sb.append("Слово из словаря \"");
 
-        switch (userWordList.getListType()) {
+        switch (userVocabulary.getListType()) {
             case LEARNING -> sb.append("Изучаемые слова");
-            case REPETITION -> sb.append("Слова на повторении ").append(userWordList.getTimerValue()).append(" уровня");
+            case REPETITION -> sb.append("Слова на повторении ").append(userVocabulary.getTimerValue()).append(" уровня");
             case LEARNED -> sb.append("Изученное слово");
         }
 
         sb.append("\"\n\n");
 
-        Word word = userWordList.getWord();
+        Word word = userVocabulary.getWord();
 
         // Randomly generate the word format
         Random rand = new Random();
@@ -94,13 +80,13 @@ public class UserWordListService {
                     .append("]</span>");
         }
 
-        log.info("Generated string for word list id: {}", userWordList.getId());
+        log.info("Generated string for word list id: {}", userVocabulary.getId());
         return sb.toString();
     }
 
-    public void addWordToUserWordList(Word word, AppUser appUser){
+    public void addWordToUserVocabulary(Word word, AppUser appUser){
         var newWordInUserWordList = UserWordListMapper.mapNewWordInUserWordList(word, appUser);
 
-        userWordListRepository.save(newWordInUserWordList);
+        userVocabularyRepository.save(newWordInUserWordList);
     }
 }

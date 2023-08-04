@@ -1,6 +1,6 @@
 package com.example.englingbot.model.enums;
 
-public enum WordListTypeEnum {
+public enum UserWordState {
     LEARNING,
     REPETITION,
     LEARNED

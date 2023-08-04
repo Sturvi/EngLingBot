@@ -1,5 +1,6 @@
 package com.example.englingbot.service.keyboards;
 
+import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -28,14 +29,10 @@ public abstract class AbstractInlineKeyboardMarkupFactory {
         return inlineKeyboardMarkup;
     }
 
-    /**
-     * Adds a button to a new line in the given InlineKeyboardMarkup object.
-     *
-     * @param inlineKeyboardMarkup InlineKeyboardMarkup object to add the button to.
-     * @param text Text to display on the button.
-     * @param data Callback data associated with the button.
-     */
-    protected static void addButtonToNewLine(InlineKeyboardMarkup inlineKeyboardMarkup, String text, String data) {
+
+    protected static void addButtonToNewLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum) {
+        var data = keyboardDataEnum.getData();
+        var text = keyboardDataEnum.getText();
         log.debug("Adding button to new line: text={}, data={}", text, data);
         var keyboardRoad = getNewKeyboardRoad(inlineKeyboardMarkup);
 
@@ -44,14 +41,10 @@ public abstract class AbstractInlineKeyboardMarkupFactory {
         keyboardRoad.add(button);
     }
 
-    /**
-     * Adds a button to the current line in the given InlineKeyboardMarkup object.
-     *
-     * @param inlineKeyboardMarkup InlineKeyboardMarkup object to add the button to.
-     * @param text Text to display on the button.
-     * @param data Callback data associated with the button.
-     */
-    protected static void addButtonToCurrentLine(InlineKeyboardMarkup inlineKeyboardMarkup, String text, String data) {
+
+    protected static void addButtonToCurrentLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum) {
+        var data = keyboardDataEnum.getData();
+        var text = keyboardDataEnum.getText();
         log.debug("Adding button to current line: text={}, data={}", text, data);
         var keyboardRoad = getCurrentKeyboardRoad(inlineKeyboardMarkup);
 

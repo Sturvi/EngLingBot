@@ -1,10 +1,11 @@
-package com.example.englingbot.service.message.sendmessage;
+package com.example.englingbot.service.message.sendtextmessage;
 
 import com.example.englingbot.service.externalapi.telegram.TelegramBotApplication;
 import com.example.englingbot.service.keyboards.ReplyKeyboardMarkupFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 /**
@@ -25,14 +26,14 @@ public class SendMessageForUser extends AbstractMessageSender {
      * @param chatId       The ID of the chat to send the message to.
      * @param messageText  The text of the message to send.
      */
-    public void sendMessageWithReplyKeyboard(Long chatId, String messageText) {
+    public Message sendMessageWithReplyKeyboard(Long chatId, String messageText) {
         var keyboard = ReplyKeyboardMarkupFactory.getReplyKeyboardMarkup();
 
         log.info("Sending message to chat ID: {}", chatId);
         log.debug("Message text: {}", messageText);
         log.debug("Using default ReplyKeyboardMarkup");
 
-        newMessage()
+        return newMessage()
                 .setChatId(chatId)
                 .setText(messageText)
                 .setKeyboardMarkup(keyboard)
@@ -46,12 +47,12 @@ public class SendMessageForUser extends AbstractMessageSender {
      * @param messageText  The text of the message to send.
      * @param keyboard     The custom InlineKeyboardMarkup to send.
      */
-    public void sendMessageWithInlineKeyboard(Long chatId, String messageText, InlineKeyboardMarkup keyboard) {
+    public Message sendMessageWithInlineKeyboard(Long chatId, String messageText, InlineKeyboardMarkup keyboard) {
         log.info("Sending message to chat ID: {}", chatId);
         log.debug("Message text: {}", messageText);
         log.debug("Using custom InlineKeyboardMarkup");
 
-        newMessage()
+        return newMessage()
                 .setChatId(chatId)
                 .setText(messageText)
                 .setInlineKeyboard(keyboard)

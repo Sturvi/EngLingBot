@@ -1,4 +1,4 @@
-package com.example.englingbot.service.message.editmessage;
+package com.example.englingbot.service.message.edittextmessage;
 
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.externalapi.telegram.TelegramBotApplication;

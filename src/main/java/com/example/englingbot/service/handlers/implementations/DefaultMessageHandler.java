@@ -7,7 +7,8 @@ import com.example.englingbot.service.WordService;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.handlers.Handler;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
-import com.example.englingbot.service.message.sendmessage.SendMessageForUserFactory;
+import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.sendtextmessage.SendMessageForUserFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -17,11 +18,11 @@ import java.util.function.BiConsumer;
 public class DefaultMessageHandler implements Handler {
     private final Map<UserStateEnum, BiConsumer<BotEvent, AppUser>> userStateHandlers;
     private final WordService wordService;
-    private final SendMessageForUserFactory sendMessageForUserFactory;
+    private final MessageService messageService;
 
-    public DefaultMessageHandler(WordService wordService, SendMessageForUserFactory sendMessageForUserFactory) {
+    public DefaultMessageHandler(WordService wordService, MessageService messageService) {
         this.wordService = wordService;
-        this.sendMessageForUserFactory = sendMessageForUserFactory;
+        this.messageService = messageService;
         userStateHandlers = Map.of(
                 UserStateEnum.ADD_MENU, this::handleAddMenu
         );
@@ -44,15 +45,14 @@ public class DefaultMessageHandler implements Handler {
             var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard();
             for (Word word :
                     wordList) {
-                sendMessageForUserFactory
-                        .createNewMessage()
+                messageService
                         .sendMessageWithInlineKeyboard(botEvent.getId(), word.toString(), keyboard);
             }
         } else {
             var keyboard = InlineKeyboardMarkupFactory.getWordFromTranslatorKeyboard();
-            sendMessageForUserFactory
-                    .createNewMessage()
-                    .sendMessageWithInlineKeyboard(botEvent.getId(),
+            messageService
+                    .sendMessageWithInlineKeyboard(
+                            botEvent.getId(),
                             "К сожалению у нас в базе не нашлось слова '" + botEvent.getText() + "'.",
                             keyboard);
         }
