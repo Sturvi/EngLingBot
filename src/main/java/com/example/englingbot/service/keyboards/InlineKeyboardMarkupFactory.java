@@ -7,6 +7,12 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 
 public class InlineKeyboardMarkupFactory extends AbstractInlineKeyboardMarkupFactory {
 
+    /**
+     * Creates a keyboard with options for "Yes" or "No" with a specific word.
+     *
+     * @param word The specific word to be used.
+     * @return A keyboard with "Yes" and "No" options.
+     */
     public static InlineKeyboardMarkup getYesOrNoKeyboard(String word) {
         var keyboard = creatNewInlineKeyboard();
 
@@ -16,6 +22,12 @@ public class InlineKeyboardMarkupFactory extends AbstractInlineKeyboardMarkupFac
         return keyboard;
     }
 
+    /**
+     * Creates a keyboard with a word from the translator.
+     *
+     * @param word The specific word to be used.
+     * @return A keyboard with the translated word.
+     */
     public static InlineKeyboardMarkup getWordFromTranslatorKeyboard(String word) {
         var keyboard = creatNewInlineKeyboard();
 
@@ -24,6 +36,13 @@ public class InlineKeyboardMarkupFactory extends AbstractInlineKeyboardMarkupFac
         return keyboard;
     }
 
+    /**
+     * Creates a keyboard for the current word in the user's word list.
+     *
+     * @param userVocabulary The vocabulary object containing user data.
+     * @param word           The specific word to be used.
+     * @return A keyboard with options related to the current word in the user's word list.
+     */
     public static InlineKeyboardMarkup getKeyboardForCurrentWordInUserWordList(UserVocabulary userVocabulary, String word) {
         var timerValue = userVocabulary.getTimerValue();
         var keyboard = creatNewInlineKeyboard();
@@ -41,6 +60,11 @@ public class InlineKeyboardMarkupFactory extends AbstractInlineKeyboardMarkupFac
         return keyboard;
     }
 
+    /**
+     * Creates a keyboard with a "Next" option.
+     *
+     * @return A keyboard with the "Next" option.
+     */
     public static InlineKeyboardMarkup getNextKeyboard() {
         var keyboard = creatNewInlineKeyboard();
 

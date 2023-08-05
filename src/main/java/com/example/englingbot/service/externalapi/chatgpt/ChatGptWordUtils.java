@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 /**
  * ChatGptWordUtils is a utility class for working with the ChatGPT API.
  * It includes methods for fetching translations, transcriptions, usage examples, and word context.
@@ -68,14 +67,33 @@ public class ChatGptWordUtils extends ChatGpt {
         return words;
     }
 
+    /**
+     * Fetches the transcription for the provided word.
+     *
+     * @param word the word to transcribe.
+     * @return the transcription of the word.
+     */
     public String fetchTranscription(String word) {
         return fetchTranscription(word, RequestPriorityEnum.TRANSCRIPTION.getPriority());
     }
 
+    /**
+     * Fetches the transcription for the provided word with priority.
+     *
+     * @param word the word to transcribe.
+     * @return the transcription of the word.
+     */
     public String fetchTranscriptionWithPriority(String word) {
         return fetchTranscription(word, RequestPriorityEnum.PRIORITYTRANSCRIPTION.getPriority());
     }
 
+    /**
+     * Fetches the transcription for the provided word with specified priority.
+     *
+     * @param word     the word to transcribe.
+     * @param priority the priority level.
+     * @return the transcription of the word.
+     */
     private String fetchTranscription(String word, int priority) {
         log.debug("Entering fetchTranscription(String word)");
 
@@ -102,15 +120,33 @@ public class ChatGptWordUtils extends ChatGpt {
         return response;
     }
 
-
+    /**
+     * Fetches the usage examples for the provided word.
+     *
+     * @param word the word to fetch usage examples for.
+     * @return the usage examples of the word.
+     */
     public String fetchUsageExamples(String word) {
         return fetchUsageExamples(word, RequestPriorityEnum.USAGEEXAMPLES.getPriority());
     }
 
+    /**
+     * Fetches the usage examples for the provided word with priority.
+     *
+     * @param word the word to fetch usage examples for.
+     * @return the usage examples of the word.
+     */
     public String fetchUsageExamplesWithPriority(String word) {
         return fetchUsageExamples(word, RequestPriorityEnum.PRIORITYUSAGEEXAMPLES.getPriority());
     }
 
+    /**
+     * Fetches the usage examples for the provided word with specified priority.
+     *
+     * @param word     the word to fetch usage examples for.
+     * @param priority the priority level.
+     * @return the usage examples of the word.
+     */
     private String fetchUsageExamples(String word, int priority) {
         log.debug("Entering fetchUsageExamples(String word)");
 
@@ -122,14 +158,36 @@ public class ChatGptWordUtils extends ChatGpt {
         return waitingResponse(request);
     }
 
+    /**
+     * Fetches the word context for the provided English and Russian words.
+     *
+     * @param englishWord the English word.
+     * @param russianWord the Russian word.
+     * @return the context of the words.
+     */
     public String fetchWordContext(String englishWord, String russianWord) {
         return fetchWordContext(englishWord, russianWord, RequestPriorityEnum.CONTEXT.getPriority());
     }
 
+    /**
+     * Fetches the word context for the provided English and Russian words with priority.
+     *
+     * @param englishWord the English word.
+     * @param russianWord the Russian word.
+     * @return the context of the words.
+     */
     public String fetchWordContextWithPriority(String englishWord, String russianWord) {
         return fetchWordContext(englishWord, russianWord, RequestPriorityEnum.PRIORITYCONTEXT.getPriority());
     }
 
+    /**
+     * Fetches the word context for the provided English and Russian words with specified priority.
+     *
+     * @param englishWord the English word.
+     * @param russianWord the Russian word.
+     * @param priority    the priority level.
+     * @return the context of the words.
+     */
     private String fetchWordContext(String englishWord, String russianWord, int priority) {
         log.debug("Entering fetchWordContext(String englishWord, String russianWord)");
 
@@ -141,7 +199,6 @@ public class ChatGptWordUtils extends ChatGpt {
 
         return waitingResponse(request);
     }
-
 
     /**
      * Constructs a prompt for the ChatGPT API based on the provided word and prompt type.
@@ -205,8 +262,15 @@ public class ChatGptWordUtils extends ChatGpt {
         return word;
     }
 
-
+    /**
+     * Waits for a response from the API and returns it.
+     *
+     * @param request the request to wait for.
+     * @return the response from the API.
+     */
     private String waitingResponse(Request request) {
+        log.debug("Entering waitingResponse(Request request)");
+
         while (request.getResponse() == null) {
             try {
                 Thread.sleep(100);

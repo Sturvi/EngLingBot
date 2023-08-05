@@ -2,16 +2,26 @@ package com.example.englingbot.service.message;
 
 import com.example.englingbot.model.enums.UserWordState;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
+/**
+ * A class responsible for sending template messages to users.
+ */
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class TemplateMessagesSender {
     private final MessageService messageService;
 
+    /**
+     * Sends a start and help message to the specified chat.
+     * @param chatId The ID of the chat to send the message to.
+     */
     public void sendStartAndHelpMessage(Long chatId) {
+        log.debug("Sending start and help message to chat ID {}", chatId);
         String startAndHelpMessage = """
                 Привет! Я - Word Learning Bot, и я помогу тебе учить английские слова. Вот список доступных команд и функций, которые ты можешь использовать:
 
@@ -36,11 +46,15 @@ public class TemplateMessagesSender {
 
                 Если у вас возникли вопросы, жалобы или предложения, свяжитесь с администратором: @SturviBots
                 """;
-
         messageService.sendMessage(chatId, startAndHelpMessage);
     }
 
+    /**
+     * Sends an "Add Word" message to the specified chat.
+     * @param chatId The ID of the chat to send the message to.
+     */
     public void sendAddWordMessage(Long chatId) {
+        log.debug("Sending add word message to chat ID {}", chatId);
         String message = """
                 Можете отправлять слова, которые хотите добавить в свою коллекцию.\\s
 
@@ -52,7 +66,13 @@ public class TemplateMessagesSender {
         messageService.sendMessage(chatId, message);
     }
 
+    /**
+     * Sends a message indicating that there are no words to send for the specified user word state(s).
+     * @param chatId The ID of the chat to send the message to.
+     * @param types The types of word states.
+     */
     public void sendNoWordToSendMessage(Long chatId, UserWordState... types) {
+        log.debug("Sending no word to send message to chat ID {}, types {}", chatId, types);
         if (types.length == 1) {
             if (types[0] == UserWordState.LEARNING) {
                 messageService.sendMessage(
@@ -75,8 +95,12 @@ public class TemplateMessagesSender {
         }
     }
 
+    /**
+     * Sends an error message to the specified chat.
+     * @param chatId The ID of the chat to send the message to.
+     */
     public void sendErrorMessage(Long chatId) {
-        messageService.sendMessage(chatId,
-                "Произошла непредвиденная ошибка. Постараемся решить ее в ближайшее время!");
+        log.error("Sending error message to chat ID {}", chatId);
+        messageService.sendMessage(chatId, "Произошла непредвиденная ошибка. Постараемся решить ее в ближайшее время!");
     }
 }

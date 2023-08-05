@@ -21,6 +21,9 @@ import java.util.function.BiConsumer;
 
 import static com.example.englingbot.model.enums.UserStateEnum.*;
 
+/**
+ * Handler class responsible for managing the callback queries.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -31,8 +34,12 @@ public class CallbackQueryHandler implements Handler {
     private final TemplateMessagesSender templateMessagesSender;
     private final UserVocabularyService userVocabularyService;
 
+    /**
+     * Initializes callback query handlers.
+     */
     @PostConstruct
     private void init() {
+        log.debug("Initializing CallbackQueryHandler");
         callbackQueryHandlers = Map.of(
                 KeyboardDataEnum.TRANSLATOR, this::handleTranslator,
                 KeyboardDataEnum.NO, this::handleNoCommand,
@@ -46,15 +53,29 @@ public class CallbackQueryHandler implements Handler {
         );
     }
 
+    /**
+     * Handles a given BotEvent and AppUser.
+     *
+     * @param botEvent The bot event to be handled.
+     * @param appUser  The associated app user.
+     */
     @Override
     public void handle(BotEvent botEvent, AppUser appUser) {
+        log.debug("Handling bot event: {}", botEvent);
         var dataEnum = KeyboardDataEnum.fromData(botEvent.getData());
         var handler = callbackQueryHandlers.get(dataEnum);
 
         handler.accept(botEvent, appUser);
     }
 
+    /**
+     * Handles the "Next" command.
+     *
+     * @param botEvent The bot event containing the command.
+     * @param appUser  The associated app user.
+     */
     private void handleNext(BotEvent botEvent, AppUser appUser) {
+        log.debug("Handling 'Next' command for bot event: {}", botEvent);
         var userState = appUser.getUserState();
 
         switch (userState) {
@@ -68,7 +89,14 @@ public class CallbackQueryHandler implements Handler {
         }
     }
 
+    /**
+     * Handles the "Learned" command.
+     *
+     * @param botEvent The bot event containing the command.
+     * @param appUser  The associated app user.
+     */
     private void handleLearned(BotEvent botEvent, AppUser appUser) {
+        log.debug("Handling 'Learned' command for bot event: {}", botEvent);
         var wordText = KeyboardDataEnum.getWord(botEvent.getData());
         var word = wordService.getWordByTextMessage(wordText);
 
@@ -82,7 +110,14 @@ public class CallbackQueryHandler implements Handler {
         }
     }
 
+    /**
+     * Handles the "Usage Examples" command.
+     *
+     * @param botEvent The bot event containing the command.
+     * @param appUser  The associated app user.
+     */
     private void handleUsageExamples(BotEvent botEvent, AppUser appUser) {
+        log.debug("Handling 'Usage Examples' command for bot event: {}", botEvent);
         var wordText = KeyboardDataEnum.getWord(botEvent.getData());
         var word = wordService.getWordByTextMessage(wordText);
 
@@ -97,7 +132,14 @@ public class CallbackQueryHandler implements Handler {
         }
     }
 
+    /**
+     * Handles the "Context" command.
+     *
+     * @param botEvent The bot event containing the command.
+     * @param appUser  The associated app user.
+     */
     private void handleContext(BotEvent botEvent, AppUser appUser) {
+        log.debug("Handling 'Context' command for bot event: {}", botEvent);
         var wordText = KeyboardDataEnum.getWord(botEvent.getData());
         var word = wordService.getWordByTextMessage(wordText);
 
@@ -112,7 +154,14 @@ public class CallbackQueryHandler implements Handler {
         }
     }
 
+    /**
+     * Handles the "Remembered" command.
+     *
+     * @param botEvent The bot event containing the command.
+     * @param appUser  The associated app user.
+     */
     private void handleRemembered(BotEvent botEvent, AppUser appUser) {
+        log.debug("Handling 'Remembered' command for bot event: {}", botEvent);
         var wordText = KeyboardDataEnum.getWord(botEvent.getData());
         var word = wordService.getWordByTextMessage(wordText);
 
@@ -123,14 +172,27 @@ public class CallbackQueryHandler implements Handler {
         messageService.editMessageWithInlineKeyboard(botEvent, botEvent.getText(), keyboard);
     }
 
+    /**
+     * Handles the "Not Remembered" command.
+     *
+     * @param botEvent The bot event containing the command.
+     * @param appUser  The associated app user.
+     */
     private void handleNotRemembered(BotEvent botEvent, AppUser appUser) {
+        log.debug("Handling 'Not Remembered' command for bot event: {}", botEvent);
         var keyboard = InlineKeyboardMarkupFactory.getNextKeyboard();
 
         messageService.editMessageWithInlineKeyboard(botEvent, botEvent.getText(), keyboard);
     }
 
-
+    /**
+     * Handles the "Yes" command.
+     *
+     * @param botEvent The bot event containing the command.
+     * @param appUser  The associated app user.
+     */
     private void handleYesCommand(BotEvent botEvent, AppUser appUser) {
+        log.debug("Handling 'Yes' command for bot event: {}", botEvent);
         var userState = appUser.getUserState();
 
         if (userState == ADD_MENU) {
@@ -143,15 +205,29 @@ public class CallbackQueryHandler implements Handler {
             messageService
                     .editTextAndDeleteInlineKeyboard(botEvent, newTextForMessage);
         } else if (userState == DELETE_MENU) {
-
+            // Handle delete menu logic here
         }
     }
 
+    /**
+     * Handles the "No" command.
+     *
+     * @param botEvent The bot event containing the command.
+     * @param appUser  The associated app user.
+     */
     private void handleNoCommand(BotEvent botEvent, AppUser appUser) {
+        log.debug("Handling 'No' command for bot event: {}", botEvent);
         messageService.deleteInlineKeyboard(botEvent);
     }
 
+    /**
+     * Handles the "Translator" command.
+     *
+     * @param botEvent The bot event containing the command.
+     * @param appUser  The associated app user.
+     */
     private void handleTranslator(BotEvent botEvent, AppUser appUser) {
+        log.debug("Handling 'Translator' command for bot event: {}", botEvent);
         String wordString = wordService.getStringBetweenSpaces(botEvent.getText());
 
         var newWordsList = wordService.addNewWordFromExternalApi(wordString);

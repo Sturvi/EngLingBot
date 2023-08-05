@@ -30,6 +30,12 @@ class MessageHandler implements Handler {
     private final TemplateMessagesSender templateMessagesSender;
     private Map<TextCommandsEnum, BiConsumer<BotEvent, AppUser>> textCommandsHandler;
 
+    /**
+     * Handles the incoming bot event and associated app user.
+     *
+     * @param botEvent Event information from the bot.
+     * @param appUser  Associated application user.
+     */
     @Override
     public void handle(BotEvent botEvent, AppUser appUser) {
         TextCommandsEnum incomingCommand = TextCommandsEnum.fromString(botEvent.getText());
@@ -38,8 +44,12 @@ class MessageHandler implements Handler {
         handlerMethod.accept(botEvent, appUser);
     }
 
+    /**
+     * Initializes the text commands handler.
+     */
     @PostConstruct
     void init() {
+        log.debug("Initializing text commands handler");
         textCommandsHandler = new HashMap<>();
         textCommandsHandler.put(TextCommandsEnum.START, this::handleStartAndHelp);
         textCommandsHandler.put(TextCommandsEnum.HELP, this::handleStartAndHelp);
@@ -54,35 +64,59 @@ class MessageHandler implements Handler {
         textCommandsHandler.put(TextCommandsEnum.STATISTIC, this::handleStatistic);
         textCommandsHandler.put(TextCommandsEnum.DELETE, this::handleDelete);
         textCommandsHandler.put(null, defaultMessageHandler::handle);
+        log.debug("Finished initializing text commands handler");
     }
 
     private void handleDelete(BotEvent botEvent, AppUser appUser) {
+        // Not implemented
     }
 
     private void handleStatistic(BotEvent botEvent, AppUser appUser) {
+        // Not implemented
     }
 
     private void handleAddRandomWords(BotEvent botEvent, AppUser appUser) {
+        // Not implemented
     }
 
     private void handleListRepetitionWords(BotEvent botEvent, AppUser appUser) {
+        // Not implemented
     }
 
     private void handleListStudyWords(BotEvent botEvent, AppUser appUser) {
+        // Not implemented
     }
 
+    /**
+     * Handles the mixed mode command.
+     *
+     * @param botEvent Event information from the bot.
+     * @param appUser  Associated application user.
+     */
     private void handleMixedMode(BotEvent botEvent, AppUser appUser) {
         appUser.setUserState(UserStateEnum.MIXED);
 
         userVocabularyService.sendRandomWord(botEvent.getId(), appUser, UserWordState.LEARNING, UserWordState.REPETITION);
     }
 
+    /**
+     * Handles the repeat word command.
+     *
+     * @param botEvent Event information from the bot.
+     * @param appUser  Associated application user.
+     */
     private void handleRepeatWord(BotEvent botEvent, AppUser appUser) {
         appUser.setUserState(UserStateEnum.REPETITION);
 
         userVocabularyService.sendRandomWord(botEvent.getId(), appUser, UserWordState.REPETITION);
     }
 
+    /**
+     * Handles the learn word command.
+     *
+     * @param botEvent Event information from the bot.
+     * @param appUser  Associated application user.
+     */
     private void handleLearnWord(BotEvent botEvent, AppUser appUser) {
         log.debug("Starting handleLearnWord method for event: {}", botEvent);
         appUser.setUserState(UserStateEnum.LEARNING);
@@ -92,6 +126,12 @@ class MessageHandler implements Handler {
         log.debug("Finished handleLearnWord method for event: {}", botEvent);
     }
 
+    /**
+     * Handles the add word command.
+     *
+     * @param botEvent Event information from the bot.
+     * @param appUser  Associated application user.
+     */
     private void handleAddWord(BotEvent botEvent, AppUser appUser) {
         log.debug("Starting handleAddWord method for event: {}", botEvent);
         appUser.setUserState(UserStateEnum.ADD_MENU);
@@ -101,6 +141,12 @@ class MessageHandler implements Handler {
         log.debug("Finished handleAddWord method for event: {}", botEvent);
     }
 
+    /**
+     * Handles the answer command.
+     *
+     * @param botEvent Event information from the bot.
+     * @param appUser  Associated application user.
+     */
     private void handleAnswer(BotEvent botEvent, AppUser appUser) {
         log.debug("Starting handleAnswer method for event: {}", botEvent);
         appUser.setUserState(UserStateEnum.ANSWER);
@@ -112,6 +158,12 @@ class MessageHandler implements Handler {
         log.debug("Finished handleAnswer method for event: {}", botEvent);
     }
 
+    /**
+     * Handles the start and help commands.
+     *
+     * @param botEvent Event information from the bot.
+     * @param appUser  Associated application user.
+     */
     private void handleStartAndHelp(BotEvent botEvent, AppUser appUser) {
         log.debug("Starting handleStartAndHelp method for event: {}", botEvent);
         appUser.setUserState(UserStateEnum.MAIN);

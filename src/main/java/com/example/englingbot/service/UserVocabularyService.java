@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -26,15 +25,27 @@ public class UserVocabularyService {
     private final MessageService messageService;
     private final TemplateMessagesSender templateMessagesSender;
 
-
+    /**
+     * Retrieves user vocabularies by user and word state types.
+     *
+     * @param user  the user to search for
+     * @param types the word state types to filter by
+     * @return a list of user vocabularies
+     */
     public List<UserVocabulary> getUserVocabularies(AppUser user, UserWordState... types) {
-        log.info("Getting word lists for user id: {} with list types: {}", user.getId(), Arrays.toString(types));
+        log.debug("Getting word lists for user id: {} with list types: {}", user.getId(), Arrays.toString(types));
         return userVocabularyRepository.findByUserAndListTypeIn(user, Arrays.asList(types));
     }
 
-
+    /**
+     * Retrieves a random user vocabulary by user and word state types.
+     *
+     * @param user  the user to search for
+     * @param types the word state types to filter by
+     * @return a random user vocabulary
+     */
     public UserVocabulary getRandomUserVocabulary(AppUser user, UserWordState... types) {
-        log.info("Getting random word list for user id: {} with list types: {}", user.getId(), Arrays.toString(types));
+        log.debug("Getting random word list for user id: {} with list types: {}", user.getId(), Arrays.toString(types));
         List<UserVocabulary> userVocabularies = getUserVocabularies(user, types);
         if (userVocabularies.isEmpty()) {
             log.warn("User id: {} has no word lists of the requested types", user.getId());
@@ -51,7 +62,7 @@ public class UserVocabularyService {
      * @return a string representation of the UserWordList
      */
     public String getWordWithStatus(UserVocabulary userVocabulary) {
-        log.info("Generating string for word list id: {}", userVocabulary.getId());
+        log.debug("Generating string for word list id: {}", userVocabulary.getId());
 
         StringBuilder sb = new StringBuilder();
         sb.append("Слово из словаря \"");
@@ -85,16 +96,29 @@ public class UserVocabularyService {
                     .append("]</span>");
         }
 
-        log.info("Generated string for word list id: {}", userVocabulary.getId());
+        log.debug("Generated string for word list id: {}", userVocabulary.getId());
         return sb.toString();
     }
 
+    /**
+     * Adds a word to user vocabulary.
+     *
+     * @param word    the word to add
+     * @param appUser the user to whom the word will be added
+     */
     public void addWordToUserVocabulary(Word word, AppUser appUser) {
         var newWordInUserWordList = UserWordListMapper.mapNewWordInUserWordList(word, appUser);
 
         userVocabularyRepository.save(newWordInUserWordList);
     }
 
+    /**
+     * Sends a random word to the user.
+     *
+     * @param chatId  the chat ID to send the word to
+     * @param appUser the user to whom the word will be sent
+     * @param types   the word state types to filter by
+     */
     public void sendRandomWord(Long chatId, AppUser appUser, UserWordState... types) {
         var userWord = getRandomUserVocabulary(appUser, types);
 
@@ -106,6 +130,12 @@ public class UserVocabularyService {
         }
     }
 
+    /**
+     * Updates the user vocabulary for a given user and word.
+     *
+     * @param appUser the user whose vocabulary will be updated
+     * @param word    the word to update
+     */
     public void updateUserVocabulary(AppUser appUser, Word word) {
         var userVocabulary = userVocabularyRepository.findByUserAndWord(appUser, word);
 
@@ -118,7 +148,13 @@ public class UserVocabularyService {
         userVocabularyRepository.save(userVocabulary);
     }
 
-    public void setLearnedState (AppUser appUser, Word word){
+    /**
+     * Sets the learned state for a given user and word.
+     *
+     * @param appUser the user whose vocabulary will be updated
+     * @param word    the word to set as learned
+     */
+    public void setLearnedState(AppUser appUser, Word word) {
         var userVocabulary = userVocabularyRepository.findByUserAndWord(appUser, word);
 
         userVocabulary.setListType(UserWordState.LEARNED);
