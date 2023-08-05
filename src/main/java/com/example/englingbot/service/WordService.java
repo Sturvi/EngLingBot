@@ -62,12 +62,7 @@ public class WordService {
     }
 
     public Word getWordByTextMessage(String textMessage) {
-        String[] splitedMessage = textMessage
-                .replaceAll("(.*\\n){2}", "")
-                .replaceAll("\\[.*?\\]", "")
-                .replaceAll("\\[+", "")
-                .replaceAll("\\]", "")
-                .split("  -  ");
+        String[] splitedMessage = textMessage.split("  -  ");
         splitedMessage[0] = splitedMessage[0].trim();
         splitedMessage[1] = splitedMessage[1].trim();
 

@@ -1,5 +1,6 @@
 package com.example.englingbot.service.keyboards;
 
+import com.example.englingbot.model.Word;
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -29,29 +30,34 @@ public abstract class AbstractInlineKeyboardMarkupFactory {
         return inlineKeyboardMarkup;
     }
 
+    protected static void addButton(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum, String word, boolean isNewLine) {
+        var data = word != null ? keyboardDataEnum.getData() + " " + word : keyboardDataEnum.getData();
+        var text = keyboardDataEnum.getText();
+        log.debug("Adding button to {} line: text={}, data={}", isNewLine ? "new" : "current", text, data);
+        var keyboardRoad = isNewLine ? getNewKeyboardRoad(inlineKeyboardMarkup) : getCurrentKeyboardRoad(inlineKeyboardMarkup);
+
+        InlineKeyboardButton button = new InlineKeyboardButton(text);
+        button.setCallbackData(data);
+        keyboardRoad.add(button);
+    }
+
+    protected static void addButtonToNewLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum, String word) {
+        addButton(inlineKeyboardMarkup, keyboardDataEnum, word, true);
+    }
 
     protected static void addButtonToNewLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum) {
-        var data = keyboardDataEnum.getData();
-        var text = keyboardDataEnum.getText();
-        log.debug("Adding button to new line: text={}, data={}", text, data);
-        var keyboardRoad = getNewKeyboardRoad(inlineKeyboardMarkup);
-
-        InlineKeyboardButton button = new InlineKeyboardButton(text);
-        button.setCallbackData(data);
-        keyboardRoad.add(button);
+        addButton(inlineKeyboardMarkup, keyboardDataEnum, null, true);
     }
-
 
     protected static void addButtonToCurrentLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum) {
-        var data = keyboardDataEnum.getData();
-        var text = keyboardDataEnum.getText();
-        log.debug("Adding button to current line: text={}, data={}", text, data);
-        var keyboardRoad = getCurrentKeyboardRoad(inlineKeyboardMarkup);
-
-        InlineKeyboardButton button = new InlineKeyboardButton(text);
-        button.setCallbackData(data);
-        keyboardRoad.add(button);
+        addButton(inlineKeyboardMarkup, keyboardDataEnum, null, false);
     }
+
+    protected static void addButtonToCurrentLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum, String word) {
+        addButton(inlineKeyboardMarkup, keyboardDataEnum, word, false);
+    }
+
+
 
     /**
      * Gets a new keyboard row for the given InlineKeyboardMarkup object.
