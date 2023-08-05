@@ -1,14 +1,14 @@
 package com.example.englingbot.service.handlers.implementations;
 
 import com.example.englingbot.model.AppUser;
-import com.example.englingbot.model.UserWordList;
+import com.example.englingbot.model.UserVocabulary;
 import com.example.englingbot.model.enums.UserStateEnum;
-import com.example.englingbot.model.enums.WordListTypeEnum;
-import com.example.englingbot.service.UserWordListService;
+import com.example.englingbot.model.enums.UserWordState;
+import com.example.englingbot.service.UserVocabularyService;
 import com.example.englingbot.service.comandsenums.TextCommandsEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
-import com.example.englingbot.service.message.sendmessage.SendMessageForUser;
-import com.example.englingbot.service.message.sendmessage.SendMessageForUserFactory;
+import com.example.englingbot.service.message.sendtextmessage.SendMessageForUser;
+import com.example.englingbot.service.message.sendtextmessage.SendMessageForUserFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -28,7 +28,7 @@ class MessageHandlerTests {
     private AppUser appUser;
 
     @Mock
-    private UserWordListService userWordListService;
+    private UserVocabularyService userVocabularyService;
     @Mock
     private DefaultMessageHandler defaultMessageHandler;
 
@@ -92,14 +92,14 @@ class MessageHandlerTests {
         BotEvent botEvent = mock(BotEvent.class);
         when(botEvent.getId()).thenReturn(123L);
         when(botEvent.getText()).thenReturn(TextCommandsEnum.LEARN_WORD.getCommand());
-        when(userWordListService.getRandomUserWordList(any(), eq(WordListTypeEnum.LEARNING))).thenReturn(null);
+        when(userVocabularyService.getRandomUserVocabulary(any(), eq(UserWordState.LEARNING))).thenReturn(null);
         var sendMessageForUser = Mockito.mock(SendMessageForUser.class);
         when(sendMessageForUserFactory.createNewMessage()).thenReturn(sendMessageForUser);
         doNothing().when(sendMessageForUser).sendMessageWithReplyKeyboard(anyLong(), anyString());
 
         messageHandler.handle(botEvent, appUser);
 
-        verify(userWordListService, times(1)).getRandomUserWordList(any(), eq(WordListTypeEnum.LEARNING));
+        verify(userVocabularyService, times(1)).getRandomUserVocabulary(any(), eq(UserWordState.LEARNING));
         verify(sendMessageForUserFactory, times(1)).createNewMessage();
         verify(sendMessageForUser, times(1)).sendMessageWithReplyKeyboard(eq(123L), anyString());
     }
@@ -109,17 +109,17 @@ class MessageHandlerTests {
         BotEvent botEvent = mock(BotEvent.class);
         when(botEvent.getId()).thenReturn(123L);
         when(botEvent.getText()).thenReturn(TextCommandsEnum.LEARN_WORD.getCommand());
-        var wordFromUserDictionary = mock(UserWordList.class);
-        when(userWordListService.getRandomUserWordList(any(), eq(WordListTypeEnum.LEARNING))).thenReturn(wordFromUserDictionary);
+        var wordFromUserDictionary = mock(UserVocabulary.class);
+        when(userVocabularyService.getRandomUserVocabulary(any(), eq(UserWordState.LEARNING))).thenReturn(wordFromUserDictionary);
         String messageText = "A word to send to the user.";
-        when(userWordListService.getUserWordListString(wordFromUserDictionary)).thenReturn(messageText);
+        when(userVocabularyService.getWordWithStatus(wordFromUserDictionary)).thenReturn(messageText);
         var sendMessageForUser = Mockito.mock(SendMessageForUser.class);
         when(sendMessageForUserFactory.createNewMessage()).thenReturn(sendMessageForUser);
         doNothing().when(sendMessageForUser).sendMessageWithReplyKeyboard(anyLong(), anyString());
 
         messageHandler.handle(botEvent, appUser);
 
-        verify(userWordListService, times(1)).getRandomUserWordList(any(), eq(WordListTypeEnum.LEARNING));
+        verify(userVocabularyService, times(1)).getRandomUserVocabulary(any(), eq(UserWordState.LEARNING));
         verify(sendMessageForUserFactory, times(1)).createNewMessage();
         verify(sendMessageForUser, times(1)).sendMessageWithReplyKeyboard(eq(123L), eq(messageText));
     }

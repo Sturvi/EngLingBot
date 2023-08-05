@@ -43,7 +43,7 @@ public class WordService {
 
         for (Word word :
                 wordsFromChatGpt) {
-            if (!availableWords.contains(word)){
+            if (!availableWords.contains(word)) {
                 newWordsSet.add(word);
             }
         }
@@ -61,10 +61,26 @@ public class WordService {
         return wordRepository.findByRussianWordOrEnglishWord(word);
     }
 
-    public Word getWordByTextMessage (String textMessage){
+    public Word getWordByTextMessage(String textMessage) {
         String[] splitedMessage = textMessage.split("  -  ");
-        var word = wordRepository.findByRussianWordAndEnglishWord(splitedMessage[1], splitedMessage[0]);
-        return word.get();
+        splitedMessage[0] = splitedMessage[0].trim();
+        splitedMessage[1] = splitedMessage[1].trim();
+
+        var wordOptional = wordRepository.findByRussianWordAndEnglishWord(splitedMessage[1], splitedMessage[0])
+                .or(() -> wordRepository.findByRussianWordAndEnglishWord(splitedMessage[0], splitedMessage[1]));
+
+        Word word = null;
+        if (wordOptional.isPresent()) {
+            word = wordOptional.get();
+
+            if (word.getTranscription() == null ||
+                    word.getContext() == null ||
+                    word.getUsageExamples() == null) {
+                addExtraInformation(word);
+            }
+        }
+
+        return word;
     }
 
     private void saveNewWords(List<Word> newWordsList) {
@@ -74,7 +90,7 @@ public class WordService {
                 if (wordFromDB.isPresent()) continue;
 
                 wordRepository.save(word);
-                addTranscription(word);
+                addExtraInformation(word);
 
             } catch (DataIntegrityViolationException e) {
                 log.error("Failed to save the word due to integrity violation: {}", word, e);
@@ -128,17 +144,63 @@ public class WordService {
                 .build();
     }
 
-    private void addTranscription(Word word) {
-        if (word.getTranscription() == null) {
-            Runnable runnable = () -> {
+    private void addExtraInformation(Word word) {
+        Runnable runnable = () -> {
+
+            if (word.getTranscription() == null) {
                 String transcription = chatGptWordUtils.fetchTranscription(word.getEnglishWord());
                 if (transcription != null) {
                     word.setTranscription(transcription);
-                    wordRepository.save(word);
                 }
-            };
+            }
 
-            chatGPTExecutorService.submit(runnable);
+            if (word.getContext() == null) {
+                String context = chatGptWordUtils.fetchWordContext(word.getEnglishWord(), word.getRussianWord());
+                if (context != null) {
+                    word.setContext(context);
+                }
+            }
+
+            if (word.getUsageExamples() == null) {
+                String usageExamples = chatGptWordUtils.fetchUsageExamples(word.getEnglishWord());
+                if (usageExamples != null) {
+                    word.setUsageExamples(usageExamples);
+                }
+            }
+
+            wordRepository.save(word);
+        };
+
+        chatGPTExecutorService.submit(runnable);
+    }
+
+    public void addTranscription(Word word) {
+        if (word.getTranscription() == null) {
+            String transcription = chatGptWordUtils.fetchTranscriptionWithPriority(word.getEnglishWord());
+            if (transcription != null) {
+                word.setTranscription(transcription);
+                wordRepository.save(word);
+            }
+        }
+    }
+
+    public void addUsageExamples(Word word) {
+        if (word.getUsageExamples() == null) {
+            String usageExamples = chatGptWordUtils.fetchUsageExamplesWithPriority(word.getEnglishWord());
+            if (usageExamples != null) {
+                word.setUsageExamples(usageExamples);
+                wordRepository.save(word);
+            }
+        }
+    }
+
+    public void addWordContext(Word word) {
+        if (word.getContext() == null) {
+            String wordContext = chatGptWordUtils.fetchWordContextWithPriority(word.getEnglishWord(), word.getRussianWord());
+            if (wordContext != null) {
+                word.setContext(wordContext);
+                wordRepository.save(word);
+            }
         }
     }
 

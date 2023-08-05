@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<AppUser, Long> {
+public interface AppUserRepository extends JpaRepository<AppUser, Long> {
     Optional<AppUser> findByTelegramChatId(Long telegramChatId);
 
     List<AppUser> findAllByRole(UserRoleEnum role);

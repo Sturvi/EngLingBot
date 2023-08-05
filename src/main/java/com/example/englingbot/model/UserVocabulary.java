@@ -1,6 +1,6 @@
 package com.example.englingbot.model;
 
-import com.example.englingbot.model.enums.WordListTypeEnum;
+import com.example.englingbot.model.enums.UserWordState;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,15 +10,15 @@ import org.jetbrains.annotations.NotNull;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "users_word_lists")
+@Table(name = "users_vocabulary")
 @Data
 @NoArgsConstructor
 @SuperBuilder
-public class UserWordList extends AbstractEntity {
+public class UserVocabulary extends AbstractEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "list_type", columnDefinition = "varchar(255) default 'LEARNING'")
-    private WordListTypeEnum listType;
+    private UserWordState listType;
 
     @Column(name = "timer_value")
     private Integer timerValue;

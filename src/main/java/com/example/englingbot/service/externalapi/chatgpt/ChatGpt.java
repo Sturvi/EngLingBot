@@ -1,4 +1,3 @@
-
 package com.example.englingbot.service.externalapi.chatgpt;
 
 import com.google.common.util.concurrent.RateLimiter;
@@ -22,6 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
+/**
+ * ChatGpt class for interacting with OpenAI ChatGPT API.
+ */
 @Slf4j
 @Component
 public class ChatGpt {
@@ -36,14 +38,24 @@ public class ChatGpt {
     private Thread processRequestThread;
     private volatile boolean running = false;
 
+    /**
+     * Constructs a ChatGpt instance.
+     *
+     * @param webClient WebClient used for HTTP requests
+     * @param gson      Gson instance for JSON parsing
+     */
     @Autowired
     public ChatGpt(WebClient webClient, Gson gson) {
         this.webClient = webClient;
         this.gson = gson;
     }
 
+    /**
+     * Initializes request processing thread.
+     */
     @PostConstruct
     private void startProcessRequests() {
+        log.debug("Starting request processing thread");
         Runnable runnable = this::processRequests;
 
         running = true;
@@ -51,21 +63,37 @@ public class ChatGpt {
         processRequestThread.start();
     }
 
+    /**
+     * Stops request processing thread.
+     */
     @PreDestroy
     private void stopProcessRequests() {
+        log.debug("Stopping request processing thread");
         running = false;
         if (processRequestThread != null) {
             processRequestThread.interrupt();
         }
     }
 
+    /**
+     * Adds a request to the request queue.
+     *
+     * @param request The request to be added
+     */
     public void addRequest(Request request) {
+        log.debug("Adding request to the queue: {}", request);
         synchronized (requestQueue) {
             requestQueue.add(request);
             requestQueue.notify();
         }
     }
 
+    /**
+     * Sends chat prompt to OpenAI API and returns the response.
+     *
+     * @param promt The prompt to be sent
+     * @return The response from the OpenAI API
+     */
     private String chat(String promt) {
         log.info("Sending word {} to OpenAI ChatGPT API", promt);
         var requestEntity = createRequestEntity(promt);
@@ -73,7 +101,14 @@ public class ChatGpt {
         return parseResponse(response.block());
     }
 
+    /**
+     * Creates a request entity for sending to the OpenAI API.
+     *
+     * @param promt The prompt to be sent
+     * @return A map representing the request entity
+     */
     private Map<String, Object> createRequestEntity(String promt) {
+        log.debug("Creating request entity for promt: {}", promt);
         Map<String, String> messageContent = Map.of("role", "system", "content", promt);
         List<Map<String, String>> messages = new ArrayList<>();
         messages.add(messageContent);
@@ -81,9 +116,15 @@ public class ChatGpt {
         return Map.of("model", "gpt-3.5-turbo", "messages", messages);
     }
 
+    /**
+     * Sends an HTTP request with the given entity and returns the response.
+     *
+     * @param entity The entity to be sent in the request
+     * @return A Mono representing the response
+     */
     private Mono<String> sendHttpRequest(Map<String, Object> entity) {
         try {
-            log.debug("Start sendHttpRequest method for " + entity);
+            log.debug("Start sendHttpRequest method for {}", entity);
             return webClient.post()
                     .uri("https://api.openai.com/v1/chat/completions")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -91,10 +132,10 @@ public class ChatGpt {
                     .body(BodyInserters.fromValue(entity))
                     .exchange()
                     .flatMap(response -> {
-                        log.info("Response HTTP Status: " + response.statusCode());
+                        log.info("Response HTTP Status: {}", response.statusCode());
                         if (response.statusCode().isError()) {
                             return response.bodyToMono(String.class)
-                                    .doOnNext(errorBody -> log.error("Error Body: " + errorBody))
+                                    .doOnNext(errorBody -> log.error("Error Body: {}", errorBody))
                                     .flatMap(errorBody -> Mono.<String>error(new RuntimeException("Error retrieving word from ChatGPT. Status: " + response.statusCode() + " Error Body: " + errorBody)));
                         } else {
                             return response.bodyToMono(String.class);
@@ -106,7 +147,14 @@ public class ChatGpt {
         }
     }
 
+    /**
+     * Parses the response from the OpenAI API.
+     *
+     * @param response The response to be parsed
+     * @return The parsed response
+     */
     private String parseResponse(String response) {
+        log.debug("Parsing response: {}", response);
         JsonObject root = gson.fromJson(response, JsonObject.class);
         JsonArray choices = root.getAsJsonArray("choices");
 
@@ -122,7 +170,11 @@ public class ChatGpt {
         return null;
     }
 
+    /**
+     * Processes requests from the request queue.
+     */
     public void processRequests() {
+        log.debug("Processing requests");
         while (running) {
             Request request = null;
             rateLimiter.acquire();

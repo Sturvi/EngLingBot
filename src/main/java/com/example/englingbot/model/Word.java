@@ -1,9 +1,6 @@
 package com.example.englingbot.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -30,10 +27,10 @@ public class Word extends AbstractEntity {
     @Column(name = "transcription")
     private String transcription;
 
-    @Column(name = "context")
+    @Column(name = "context", columnDefinition = "TEXT")
     private String context;
 
-    @Column(name = "usage_examples")
+    @Column(name = "usage_examples", columnDefinition = "TEXT")
     private String usageExamples;
 
     public void setRussianWord(String russianWord) {

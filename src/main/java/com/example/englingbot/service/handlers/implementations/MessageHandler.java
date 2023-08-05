@@ -2,13 +2,16 @@ package com.example.englingbot.service.handlers.implementations;
 
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.enums.UserStateEnum;
-import com.example.englingbot.model.enums.WordListTypeEnum;
-import com.example.englingbot.service.UserWordListService;
+import com.example.englingbot.model.enums.UserWordState;
+import com.example.englingbot.service.UserVocabularyService;
 import com.example.englingbot.service.comandsenums.TextCommandsEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.handlers.Handler;
-import com.example.englingbot.service.message.sendmessage.SendMessageForUserFactory;
+import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TemplateMessagesSender;
+import com.example.englingbot.service.voice.WordSpeaker;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -18,20 +21,21 @@ import java.util.function.BiConsumer;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 class MessageHandler implements Handler {
-
-    private final SendMessageForUserFactory sendMessageForUserFactory;
-    private final UserWordListService userWordListService;
+    private final UserVocabularyService userVocabularyService;
     private final DefaultMessageHandler defaultMessageHandler;
-    private final Map<TextCommandsEnum, BiConsumer<BotEvent, AppUser>> textCommandsHandler;
+    private final MessageService messageService;
+    private final WordSpeaker wordSpeaker;
+    private final TemplateMessagesSender templateMessagesSender;
+    private Map<TextCommandsEnum, BiConsumer<BotEvent, AppUser>> textCommandsHandler;
 
-    MessageHandler(SendMessageForUserFactory sendMessageForUserFactory, UserWordListService userWordListService, DefaultMessageHandler defaultMessageHandler) {
-        this.sendMessageForUserFactory = sendMessageForUserFactory;
-        this.userWordListService = userWordListService;
-        this.defaultMessageHandler = defaultMessageHandler;
-        textCommandsHandler = new HashMap<>();
-    }
-
+    /**
+     * Handles the incoming bot event and associated app user.
+     *
+     * @param botEvent Event information from the bot.
+     * @param appUser  Associated application user.
+     */
     @Override
     public void handle(BotEvent botEvent, AppUser appUser) {
         TextCommandsEnum incomingCommand = TextCommandsEnum.fromString(botEvent.getText());
@@ -40,8 +44,13 @@ class MessageHandler implements Handler {
         handlerMethod.accept(botEvent, appUser);
     }
 
+    /**
+     * Initializes the text commands handler.
+     */
     @PostConstruct
     void init() {
+        log.debug("Initializing text commands handler");
+        textCommandsHandler = new HashMap<>();
         textCommandsHandler.put(TextCommandsEnum.START, this::handleStartAndHelp);
         textCommandsHandler.put(TextCommandsEnum.HELP, this::handleStartAndHelp);
         textCommandsHandler.put(TextCommandsEnum.ANSWER, this::handleAnswer);
@@ -55,103 +64,111 @@ class MessageHandler implements Handler {
         textCommandsHandler.put(TextCommandsEnum.STATISTIC, this::handleStatistic);
         textCommandsHandler.put(TextCommandsEnum.DELETE, this::handleDelete);
         textCommandsHandler.put(null, defaultMessageHandler::handle);
+        log.debug("Finished initializing text commands handler");
     }
 
     private void handleDelete(BotEvent botEvent, AppUser appUser) {
+        // Not implemented
     }
 
     private void handleStatistic(BotEvent botEvent, AppUser appUser) {
+        // Not implemented
     }
 
     private void handleAddRandomWords(BotEvent botEvent, AppUser appUser) {
+        // Not implemented
     }
 
     private void handleListRepetitionWords(BotEvent botEvent, AppUser appUser) {
+        // Not implemented
     }
 
     private void handleListStudyWords(BotEvent botEvent, AppUser appUser) {
+        // Not implemented
     }
 
+    /**
+     * Handles the mixed mode command.
+     *
+     * @param botEvent Event information from the bot.
+     * @param appUser  Associated application user.
+     */
     private void handleMixedMode(BotEvent botEvent, AppUser appUser) {
+        appUser.setUserState(UserStateEnum.MIXED);
+
+        userVocabularyService.sendRandomWord(botEvent.getId(), appUser, UserWordState.LEARNING, UserWordState.REPETITION);
     }
 
+    /**
+     * Handles the repeat word command.
+     *
+     * @param botEvent Event information from the bot.
+     * @param appUser  Associated application user.
+     */
     private void handleRepeatWord(BotEvent botEvent, AppUser appUser) {
+        appUser.setUserState(UserStateEnum.REPETITION);
+
+        userVocabularyService.sendRandomWord(botEvent.getId(), appUser, UserWordState.REPETITION);
     }
 
+    /**
+     * Handles the learn word command.
+     *
+     * @param botEvent Event information from the bot.
+     * @param appUser  Associated application user.
+     */
     private void handleLearnWord(BotEvent botEvent, AppUser appUser) {
         log.debug("Starting handleLearnWord method for event: {}", botEvent);
-        var messageSender = sendMessageForUserFactory.createNewMessage();
-        var userWord = userWordListService.getRandomUserWordList(appUser, WordListTypeEnum.LEARNING);
+        appUser.setUserState(UserStateEnum.LEARNING);
 
-        if (userWord == null) {
-            log.debug("User has no words to learn, sending a message to add more words");
-            messageSender.sendMessageWithReplyKeyboard(botEvent.getId(), "У вас нет слов для изучения в данный момент. Пожалуйста, " +
-                    "добавьте новые слова, или воспользуйтесь нашим банком слов.");
-        } else {
-            log.debug("User has words to learn, sending the word to user");
-            //НАПИСАТЬ МЕТОДЫ ДЛЯ РАБОТЫ С ПРОИЗНОШЕНИЯМИ
-            String messageText = userWordListService.getUserWordListString(userWord);
-            messageSender.sendMessageWithReplyKeyboard(botEvent.getId(), messageText);
-        }
+        userVocabularyService.sendRandomWord(botEvent.getId(), appUser, UserWordState.LEARNING);
+
         log.debug("Finished handleLearnWord method for event: {}", botEvent);
     }
 
+    /**
+     * Handles the add word command.
+     *
+     * @param botEvent Event information from the bot.
+     * @param appUser  Associated application user.
+     */
     private void handleAddWord(BotEvent botEvent, AppUser appUser) {
         log.debug("Starting handleAddWord method for event: {}", botEvent);
         appUser.setUserState(UserStateEnum.ADD_MENU);
-        sendMessageForUserFactory
-                .createNewMessage()
-                .sendMessageWithReplyKeyboard(botEvent.getId(), """
-                        Можете отправлять слова, которые хотите добавить в свою коллекцию.\\s
 
-                        Если нужно добавить несколько слов, можете отправлять их по очереди.
-
-                        Можете отправлять также словосочетания
-
-                        Учтите, что слова переводятся автоматически, с помощью сервисов онлайн перевода и никак не проходят дополнительные проверки орфографии. Поэтому даже при небольших ошибках, перевод также будет ошибочный.""");
+        templateMessagesSender.sendAddWordMessage(botEvent.getId());
 
         log.debug("Finished handleAddWord method for event: {}", botEvent);
     }
 
+    /**
+     * Handles the answer command.
+     *
+     * @param botEvent Event information from the bot.
+     * @param appUser  Associated application user.
+     */
     private void handleAnswer(BotEvent botEvent, AppUser appUser) {
         log.debug("Starting handleAnswer method for event: {}", botEvent);
         appUser.setUserState(UserStateEnum.ANSWER);
-        sendMessageForUserFactory
-                .createNewMessage()
-                .sendMessageWithReplyKeyboard(botEvent.getId(), "Пришлите пожалуйста ваш вопрос. \\n\\nПримечание: получение ответа может занять некоторое время");
+
+        messageService
+                .sendMessage(botEvent.getId(), "Пришлите пожалуйста ваш вопрос. \\n\\n" +
+                        "Примечание: получение ответа может занять некоторое время");
 
         log.debug("Finished handleAnswer method for event: {}", botEvent);
     }
 
+    /**
+     * Handles the start and help commands.
+     *
+     * @param botEvent Event information from the bot.
+     * @param appUser  Associated application user.
+     */
     private void handleStartAndHelp(BotEvent botEvent, AppUser appUser) {
         log.debug("Starting handleStartAndHelp method for event: {}", botEvent);
         appUser.setUserState(UserStateEnum.MAIN);
-        String startAndHelpMessage = """
-                Привет! Я - Word Learning Bot, и я помогу тебе учить английские слова. Вот список доступных команд и функций, которые ты можешь использовать:
 
-                Команды, доступные из меню:
-
-                /start - начать общение с ботом и получить приветственное сообщение.
-                /answer - отправить вопрос о языке и получить ответ.
-                /help - получить список доступных команд и их описание.
-                /statistic - просмотреть статистику изучения слов.
-                /delete - удалить слово из вашего словаря.
-
-                Кнопки внизу телеграм бота:
-
-                📒 Добавить слова - добавить слова или словосочетания в ваш словарь.
-                👨🏻‍🎓 Учить слова - начать изучать новые слова из вашего словаря.
-                🔄 Повторять слова - повторять изученные слова из вашего словаря.
-                🔀 Смешанный режим - режим изучения и повторения слов в случайном порядке.
-                📓 Список изучаемых слов - просмотреть список слов, которые вы изучаете.
-                📓 Список слов на повторении - просмотреть список слов, которые вы повторяете.
-                📖 Добавить случайные слова - добавить случайные слова в ваш словарь.
-                Приятного обучения!
-
-                Если у вас возникли вопросы, жалобы или предложения, свяжитесь с администратором: @SturviBots
-                """;
-        var messageSender = sendMessageForUserFactory.createNewMessage();
-        messageSender.sendMessageWithReplyKeyboard(botEvent.getId(), startAndHelpMessage);
+        templateMessagesSender.sendStartAndHelpMessage(botEvent.getId());
 
         log.debug("Finished handleStartAndHelp method for event: {}", botEvent);
     }

@@ -1,10 +1,11 @@
-package com.example.englingbot.service.message.sendmessage;
+package com.example.englingbot.service.message.sendtextmessage;
 
 import com.example.englingbot.service.externalapi.telegram.TelegramBotApplication;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 
@@ -85,15 +86,18 @@ public abstract class AbstractMessageSender {
     /**
      * Sends the message to the user.
      */
-    protected void send() {
+    protected Message send() {
         sendMessage.enableMarkdown(true);
         sendMessage.enableHtml(true);
+        Message message = null;
 
         try {
-            telegramBotApplication.execute(sendMessage);
+            message = telegramBotApplication.execute(sendMessage);
             log.debug("Message sent to chat: {}", sendMessage.getChatId());
         } catch (Exception e) {
             log.error("An error occurred while sending the message: {}", e.getMessage());
         }
+
+        return message;
     }
 }

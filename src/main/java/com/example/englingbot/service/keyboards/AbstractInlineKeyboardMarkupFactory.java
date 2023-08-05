@@ -1,5 +1,7 @@
 package com.example.englingbot.service.keyboards;
 
+import com.example.englingbot.model.Word;
+import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -29,15 +31,18 @@ public abstract class AbstractInlineKeyboardMarkupFactory {
     }
 
     /**
-     * Adds a button to a new line in the given InlineKeyboardMarkup object.
+     * Adds a button to the InlineKeyboardMarkup object with the given parameters.
      *
      * @param inlineKeyboardMarkup InlineKeyboardMarkup object to add the button to.
-     * @param text Text to display on the button.
-     * @param data Callback data associated with the button.
+     * @param keyboardDataEnum     Enum representing the data for the button.
+     * @param word                 Word for the button text.
+     * @param isNewLine            Whether to add the button to a new line.
      */
-    protected static void addButtonToNewLine(InlineKeyboardMarkup inlineKeyboardMarkup, String text, String data) {
-        log.debug("Adding button to new line: text={}, data={}", text, data);
-        var keyboardRoad = getNewKeyboardRoad(inlineKeyboardMarkup);
+    protected static void addButton(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum, String word, boolean isNewLine) {
+        var data = word != null ? keyboardDataEnum.getData() + " " + word : keyboardDataEnum.getData();
+        var text = keyboardDataEnum.getText();
+        log.debug("Adding button to {} line: text={}, data={}", isNewLine ? "new" : "current", text, data);
+        var keyboardRoad = isNewLine ? getNewKeyboardRoad(inlineKeyboardMarkup) : getCurrentKeyboardRoad(inlineKeyboardMarkup);
 
         InlineKeyboardButton button = new InlineKeyboardButton(text);
         button.setCallbackData(data);
@@ -45,19 +50,45 @@ public abstract class AbstractInlineKeyboardMarkupFactory {
     }
 
     /**
-     * Adds a button to the current line in the given InlineKeyboardMarkup object.
+     * Adds a button to a new line in the InlineKeyboardMarkup object.
      *
      * @param inlineKeyboardMarkup InlineKeyboardMarkup object to add the button to.
-     * @param text Text to display on the button.
-     * @param data Callback data associated with the button.
+     * @param keyboardDataEnum     Enum representing the data for the button.
+     * @param word                 Word for the button text.
      */
-    protected static void addButtonToCurrentLine(InlineKeyboardMarkup inlineKeyboardMarkup, String text, String data) {
-        log.debug("Adding button to current line: text={}, data={}", text, data);
-        var keyboardRoad = getCurrentKeyboardRoad(inlineKeyboardMarkup);
+    protected static void addButtonToNewLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum, String word) {
+        addButton(inlineKeyboardMarkup, keyboardDataEnum, word, true);
+    }
 
-        InlineKeyboardButton button = new InlineKeyboardButton(text);
-        button.setCallbackData(data);
-        keyboardRoad.add(button);
+    /**
+     * Adds a button to a new line in the InlineKeyboardMarkup object without a specific word.
+     *
+     * @param inlineKeyboardMarkup InlineKeyboardMarkup object to add the button to.
+     * @param keyboardDataEnum     Enum representing the data for the button.
+     */
+    protected static void addButtonToNewLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum) {
+        addButton(inlineKeyboardMarkup, keyboardDataEnum, null, true);
+    }
+
+    /**
+     * Adds a button to the current line in the InlineKeyboardMarkup object without a specific word.
+     *
+     * @param inlineKeyboardMarkup InlineKeyboardMarkup object to add the button to.
+     * @param keyboardDataEnum     Enum representing the data for the button.
+     */
+    protected static void addButtonToCurrentLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum) {
+        addButton(inlineKeyboardMarkup, keyboardDataEnum, null, false);
+    }
+
+    /**
+     * Adds a button to the current line in the InlineKeyboardMarkup object.
+     *
+     * @param inlineKeyboardMarkup InlineKeyboardMarkup object to add the button to.
+     * @param keyboardDataEnum     Enum representing the data for the button.
+     * @param word                 Word for the button text.
+     */
+    protected static void addButtonToCurrentLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum, String word) {
+        addButton(inlineKeyboardMarkup, keyboardDataEnum, word, false);
     }
 
     /**

@@ -1,7 +1,7 @@
 package com.example.englingbot.service.sendmessage;
 
 import com.example.englingbot.service.externalapi.telegram.TelegramBotApplication;
-import com.example.englingbot.service.message.sendmessage.SendMessageForUser;
+import com.example.englingbot.service.message.sendtextmessage.SendMessageForUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

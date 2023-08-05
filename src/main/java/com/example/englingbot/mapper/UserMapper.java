@@ -41,13 +41,4 @@ public class UserMapper {
         userEntity.setUsername(user.getUserName());
         userEntity.setUserStatus(true);
     }
-
-    /**
-     * Deactivates a user in the system.
-     *
-     * @param userEntity User entity that needs to be deactivated
-     */
-    public static void deactivateUser(AppUser userEntity) {
-        userEntity.setUserStatus(false);
-    }
 }
