@@ -74,10 +74,8 @@ public class MessageService {
             log.error(e.toString());
         }
 
-        var keyboard = InlineKeyboardMarkupFactory.getKeyboardForCurrentWordInUserWordList(userWord);
+        var keyboard = InlineKeyboardMarkupFactory.getKeyboardForCurrentWordInUserWordList(userWord, userWord.getWord().toString());
 
         sendMessageWithInlineKeyboard(chatId, messageText, keyboard);
     }
-
-
 }

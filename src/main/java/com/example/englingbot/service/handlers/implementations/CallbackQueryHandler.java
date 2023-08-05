@@ -32,7 +32,7 @@ public class CallbackQueryHandler implements Handler {
     private final UserVocabularyService userVocabularyService;
 
     @PostConstruct
-    private void init(){
+    private void init() {
         callbackQueryHandlers = Map.of(
                 KeyboardDataEnum.TRANSLATOR, this::handleTranslator,
                 KeyboardDataEnum.NO, this::handleNoCommand,
@@ -44,6 +44,14 @@ public class CallbackQueryHandler implements Handler {
                 KeyboardDataEnum.LEARNED, this::handleLearned,
                 KeyboardDataEnum.NEXT, this::handleNext
         );
+    }
+
+    @Override
+    public void handle(BotEvent botEvent, AppUser appUser) {
+        var dataEnum = KeyboardDataEnum.fromData(botEvent.getData());
+        var handler = callbackQueryHandlers.get(dataEnum);
+
+        handler.accept(botEvent, appUser);
     }
 
     private void handleNext(BotEvent botEvent, AppUser appUser) {
@@ -61,20 +69,22 @@ public class CallbackQueryHandler implements Handler {
     }
 
     private void handleLearned(BotEvent botEvent, AppUser appUser) {
-        var word = wordService.getWordByTextMessage(botEvent.getText());
+        var wordText = KeyboardDataEnum.getWord(botEvent.getData());
+        var word = wordService.getWordByTextMessage(wordText);
 
         try {
             userVocabularyService.setLearnedState(appUser, word);
             var keyboard = InlineKeyboardMarkupFactory.getNextKeyboard();
             messageService.editMessageWithInlineKeyboard(botEvent, botEvent.getText(), keyboard);
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
             log.error("Ошибка обработки запроса ", e);
             templateMessagesSender.sendErrorMessage(botEvent.getId());
         }
     }
 
     private void handleUsageExamples(BotEvent botEvent, AppUser appUser) {
-        var word = wordService.getWordByTextMessage(botEvent.getText());
+        var wordText = KeyboardDataEnum.getWord(botEvent.getData());
+        var word = wordService.getWordByTextMessage(wordText);
 
         try {
             if (word.getUsageExamples() == null) {
@@ -88,7 +98,8 @@ public class CallbackQueryHandler implements Handler {
     }
 
     private void handleContext(BotEvent botEvent, AppUser appUser) {
-        var word = wordService.getWordByTextMessage(botEvent.getText());
+        var wordText = KeyboardDataEnum.getWord(botEvent.getData());
+        var word = wordService.getWordByTextMessage(wordText);
 
         try {
             if (word.getContext() == null) {
@@ -102,7 +113,8 @@ public class CallbackQueryHandler implements Handler {
     }
 
     private void handleRemembered(BotEvent botEvent, AppUser appUser) {
-        var word = wordService.getWordByTextMessage(botEvent.getText());
+        var wordText = KeyboardDataEnum.getWord(botEvent.getData());
+        var word = wordService.getWordByTextMessage(wordText);
 
         userVocabularyService.updateUserVocabulary(appUser, word);
 
@@ -118,19 +130,12 @@ public class CallbackQueryHandler implements Handler {
     }
 
 
-    @Override
-    public void handle(BotEvent botEvent, AppUser appUser) {
-        var dataEnum = KeyboardDataEnum.fromData(botEvent.getData());
-        var handler = callbackQueryHandlers.get(dataEnum);
-
-        handler.accept(botEvent, appUser);
-    }
-
     private void handleYesCommand(BotEvent botEvent, AppUser appUser) {
         var userState = appUser.getUserState();
 
         if (userState == ADD_MENU) {
-            var word = wordService.getWordByTextMessage(botEvent.getText());
+            var wordText = KeyboardDataEnum.getWord(botEvent.getData());
+            var word = wordService.getWordByTextMessage(wordText);
             userVocabularyService.addWordToUserVocabulary(word, appUser);
 
             String newTextForMessage = "Слово: " + botEvent.getText() + " добавлено в Ваш словарь.";
@@ -150,12 +155,10 @@ public class CallbackQueryHandler implements Handler {
         String wordString = wordService.getStringBetweenSpaces(botEvent.getText());
 
         var newWordsList = wordService.addNewWordFromExternalApi(wordString);
-        var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard();
 
-        for (Word word :
-                newWordsList) {
-            messageService
-                    .sendMessageWithInlineKeyboard(botEvent.getId(), word.toString(), keyboard);
+        for (Word word : newWordsList) {
+            var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard(word.toString());
+            messageService.sendMessageWithInlineKeyboard(botEvent.getId(), word.toString(), keyboard);
         }
     }
 }

@@ -41,20 +41,19 @@ public class DefaultMessageHandler implements Handler {
 
         var wordList = wordService.fetchWordList(incomingWord);
 
-        if (!wordList.isEmpty()){
-            var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard();
-            for (Word word :
-                    wordList) {
+        if (!wordList.isEmpty()) {
+            for (Word word : wordList) {
+                var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard(word.toString());
                 messageService
                         .sendMessageWithInlineKeyboard(botEvent.getId(), word.toString(), keyboard);
 
-                keyboard = InlineKeyboardMarkupFactory.getWordFromTranslatorKeyboard();
+                keyboard = InlineKeyboardMarkupFactory.getWordFromTranslatorKeyboard(incomingWord);
                 messageService.sendMessageWithInlineKeyboard(botEvent.getId(),
                         "Нет нужного перевода?",
                         keyboard);
             }
         } else {
-            var keyboard = InlineKeyboardMarkupFactory.getWordFromTranslatorKeyboard();
+            var keyboard = InlineKeyboardMarkupFactory.getWordFromTranslatorKeyboard(incomingWord);
             messageService
                     .sendMessageWithInlineKeyboard(
                             botEvent.getId(),
