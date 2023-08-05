@@ -6,6 +6,8 @@ import com.example.englingbot.model.UserVocabulary;
 import com.example.englingbot.model.Word;
 import com.example.englingbot.model.enums.UserWordState;
 import com.example.englingbot.repository.UserVocabularyRepository;
+import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TemplateMessagesSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,8 @@ import java.util.Random;
 public class UserVocabularyService {
 
     private final UserVocabularyRepository userVocabularyRepository;
+    private final MessageService messageService;
+    private final TemplateMessagesSender templateMessagesSender;
 
 
     public List<UserVocabulary> getUserVocabularies(AppUser user, UserWordState... types) {
@@ -54,7 +58,8 @@ public class UserVocabularyService {
 
         switch (userVocabulary.getListType()) {
             case LEARNING -> sb.append("Изучаемые слова");
-            case REPETITION -> sb.append("Слова на повторении ").append(userVocabulary.getTimerValue()).append(" уровня");
+            case REPETITION ->
+                    sb.append("Слова на повторении ").append(userVocabulary.getTimerValue()).append(" уровня");
             case LEARNED -> sb.append("Изученное слово");
         }
 
@@ -84,9 +89,41 @@ public class UserVocabularyService {
         return sb.toString();
     }
 
-    public void addWordToUserVocabulary(Word word, AppUser appUser){
+    public void addWordToUserVocabulary(Word word, AppUser appUser) {
         var newWordInUserWordList = UserWordListMapper.mapNewWordInUserWordList(word, appUser);
 
         userVocabularyRepository.save(newWordInUserWordList);
+    }
+
+    public void sendRandomWord(Long chatId, AppUser appUser, UserWordState... types) {
+        var userWord = getRandomUserVocabulary(appUser, types);
+
+        if (userWord == null) {
+            templateMessagesSender.sendNoWordToSendMessage(chatId, types);
+        } else {
+            String messageText = getWordWithStatus(userWord);
+            messageService.sendAudioWithWord(chatId, userWord, messageText);
+        }
+    }
+
+    public void updateUserVocabulary(AppUser appUser, Word word) {
+        var userVocabulary = userVocabularyRepository.findByUserAndWord(appUser, word);
+
+        if (userVocabulary.getTimerValue() == 0) {
+            userVocabulary.setListType(UserWordState.REPETITION);
+        }
+
+        userVocabulary.setTimerValue(userVocabulary.getTimerValue() + 1);
+
+        userVocabularyRepository.save(userVocabulary);
+    }
+
+    public void setLearnedState (AppUser appUser, Word word){
+        var userVocabulary = userVocabularyRepository.findByUserAndWord(appUser, word);
+
+        userVocabulary.setListType(UserWordState.LEARNED);
+        userVocabulary.setTimerValue(userVocabulary.getTimerValue() + 1);
+
+        userVocabularyRepository.save(userVocabulary);
     }
 }

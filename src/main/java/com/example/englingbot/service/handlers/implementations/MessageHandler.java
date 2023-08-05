@@ -7,7 +7,6 @@ import com.example.englingbot.service.UserVocabularyService;
 import com.example.englingbot.service.comandsenums.TextCommandsEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.handlers.Handler;
-import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
 import com.example.englingbot.service.message.MessageService;
 import com.example.englingbot.service.message.TemplateMessagesSender;
 import com.example.englingbot.service.voice.WordSpeaker;
@@ -16,8 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -75,17 +72,22 @@ class MessageHandler implements Handler {
     }
 
     private void handleMixedMode(BotEvent botEvent, AppUser appUser) {
-        sendRandomWord(botEvent.getId(), appUser, UserWordState.LEARNING, UserWordState.REPETITION);
+        appUser.setUserState(UserStateEnum.MIXED);
+
+        userVocabularyService.sendRandomWord(botEvent.getId(), appUser, UserWordState.LEARNING, UserWordState.REPETITION);
     }
 
     private void handleRepeatWord(BotEvent botEvent, AppUser appUser) {
-        sendRandomWord(botEvent.getId(), appUser, UserWordState.REPETITION);
+        appUser.setUserState(UserStateEnum.REPETITION);
+
+        userVocabularyService.sendRandomWord(botEvent.getId(), appUser, UserWordState.REPETITION);
     }
 
     private void handleLearnWord(BotEvent botEvent, AppUser appUser) {
         log.debug("Starting handleLearnWord method for event: {}", botEvent);
+        appUser.setUserState(UserStateEnum.LEARNING);
 
-        sendRandomWord(botEvent.getId(), appUser, UserWordState.LEARNING);
+        userVocabularyService.sendRandomWord(botEvent.getId(), appUser, UserWordState.LEARNING);
 
         log.debug("Finished handleLearnWord method for event: {}", botEvent);
     }
@@ -118,15 +120,4 @@ class MessageHandler implements Handler {
 
         log.debug("Finished handleStartAndHelp method for event: {}", botEvent);
     }
-
-    private void sendRandomWord(Long chatId, AppUser appUser, UserWordState... types) {
-        var userWord = userVocabularyService.getRandomUserVocabulary(appUser, types);
-
-        if (userWord == null) {
-            templateMessagesSender.sendNoWordToSendMessage(chatId, types);
-        }
-
-        messageService.sendAudioWithWord(chatId, userWord);
-    }
-
 }

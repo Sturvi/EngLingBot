@@ -28,7 +28,6 @@ public class MessageService {
     private final SendAudioForUserFactory sendAudioForUserFactory;
     private final SendMessageForUserFactory sendMessageForUserFactory;
     private final WordSpeaker wordSpeaker;
-    private final UserVocabularyService userVocabularyService;
 
 
     public Message sendMessage(Long chatId, String messageText) {
@@ -67,7 +66,7 @@ public class MessageService {
                 .sendAudio(chatId, audioFile);
     }
 
-    public void sendAudioWithWord (Long chatId, UserVocabulary userWord){
+    public void sendAudioWithWord (Long chatId, UserVocabulary userWord, String messageText){
         try {
             File audio = wordSpeaker.getVoice(userWord.getWord());
             sendAudio(chatId, audio);
@@ -75,7 +74,6 @@ public class MessageService {
             log.error(e.toString());
         }
 
-        var messageText = userVocabularyService.getWordWithStatus(userWord);
         var keyboard = InlineKeyboardMarkupFactory.getKeyboardForCurrentWordInUserWordList(userWord);
 
         sendMessageWithInlineKeyboard(chatId, messageText, keyboard);

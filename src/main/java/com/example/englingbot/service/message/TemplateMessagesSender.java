@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class TemplateMessagesSender {
     private final MessageService messageService;
 
-    public void sendStartAndHelpMessage (Long chatId){
+    public void sendStartAndHelpMessage(Long chatId) {
         String startAndHelpMessage = """
                 Привет! Я - Word Learning Bot, и я помогу тебе учить английские слова. Вот список доступных команд и функций, которые ты можешь использовать:
 
@@ -40,19 +40,19 @@ public class TemplateMessagesSender {
         messageService.sendMessage(chatId, startAndHelpMessage);
     }
 
-    public void sendAddWordMessage (Long chatId){
+    public void sendAddWordMessage(Long chatId) {
         String message = """
-                        Можете отправлять слова, которые хотите добавить в свою коллекцию.\\s
+                Можете отправлять слова, которые хотите добавить в свою коллекцию.\\s
 
-                        Если нужно добавить несколько слов, можете отправлять их по очереди.
+                Если нужно добавить несколько слов, можете отправлять их по очереди.
 
-                        Можете отправлять также словосочетания
+                Можете отправлять также словосочетания
 
-                        Учтите, что слова переводятся автоматически, с помощью сервисов онлайн перевода и никак не проходят дополнительные проверки орфографии. Поэтому даже при небольших ошибках, перевод также будет ошибочный.""";
+                Учтите, что слова переводятся автоматически, с помощью сервисов онлайн перевода и никак не проходят дополнительные проверки орфографии. Поэтому даже при небольших ошибках, перевод также будет ошибочный.""";
         messageService.sendMessage(chatId, message);
     }
 
-    public void sendNoWordToSendMessage (Long chatId, UserWordState... types){
+    public void sendNoWordToSendMessage(Long chatId, UserWordState... types) {
         if (types.length == 1) {
             if (types[0] == UserWordState.LEARNING) {
                 messageService.sendMessage(
@@ -73,5 +73,10 @@ public class TemplateMessagesSender {
                     "У вас нет слов для изучения или повторения в данный момент. Пожалуйста, " +
                             "добавьте новые слова, или воспользуйтесь нашим банком слов.");
         }
+    }
+
+    public void sendErrorMessage(Long chatId) {
+        messageService.sendMessage(chatId,
+                "Произошла непредвиденная ошибка. Постараемся решить ее в ближайшее время!");
     }
 }

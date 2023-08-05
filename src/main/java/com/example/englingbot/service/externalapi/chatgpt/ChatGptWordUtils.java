@@ -68,13 +68,15 @@ public class ChatGptWordUtils extends ChatGpt {
         return words;
     }
 
-    /**
-     * Fetches the transcription for the provided word using the ChatGPT API.
-     *
-     * @param word the word for which to fetch the transcription.
-     * @return a string containing the transcription of the word.
-     */
     public String fetchTranscription(String word) {
+        return fetchTranscription(word, RequestPriorityEnum.TRANSCRIPTION.getPriority());
+    }
+
+    public String fetchTranscriptionWithPriority(String word) {
+        return fetchTranscription(word, RequestPriorityEnum.PRIORITYTRANSCRIPTION.getPriority());
+    }
+
+    private String fetchTranscription(String word, int priority) {
         log.debug("Entering fetchTranscription(String word)");
 
         log.info("Getting transcription for: {}", word);
@@ -82,7 +84,7 @@ public class ChatGptWordUtils extends ChatGpt {
         String prompt = constructPrompt(word, ChatGptPromptsEnum.TRANSCRIPTIONS);
         log.debug("Created prompt: {}", prompt);
 
-        Request request = new Request(prompt, RequestPriorityEnum.TRANSCRIPTION.getPriority());
+        Request request = new Request(prompt, priority);
         addRequest(request);
         String response = waitingResponse(request);
 
@@ -93,45 +95,53 @@ public class ChatGptWordUtils extends ChatGpt {
             return null;
         }
 
+        response.replaceAll("\\[+", "[").replaceAll("\\]+", "]");
+
         log.info("Returning transcription: {}", response);
         log.debug("Returning response: {}", response);
         return response;
     }
 
-    /**
-     * Fetches usage examples for the provided word using the ChatGPT API.
-     *
-     * @param word the word for which to fetch usage examples.
-     * @return a string containing usage examples of the word.
-     */
+
     public String fetchUsageExamples(String word) {
-        log.debug("Entering fetchUsageExamples (String word)");
+        return fetchUsageExamples(word, RequestPriorityEnum.USAGEEXAMPLES.getPriority());
+    }
+
+    public String fetchUsageExamplesWithPriority(String word) {
+        return fetchUsageExamples(word, RequestPriorityEnum.PRIORITYUSAGEEXAMPLES.getPriority());
+    }
+
+    private String fetchUsageExamples(String word, int priority) {
+        log.debug("Entering fetchUsageExamples(String word)");
 
         String promt = constructPrompt(word, ChatGptPromptsEnum.USAGEEXAMPLES);
 
-        Request request = new Request(promt, RequestPriorityEnum.USAGEEXAMPLES.getPriority());
+        Request request = new Request(promt, priority);
         addRequest(request);
 
         return waitingResponse(request);
     }
 
-    /**
-     * Fetches the context for the provided English and Russian words using the ChatGPT API.
-     *
-     * @param englishWord the English word for which to fetch the context.
-     * @param russianWord the Russian word for which to fetch the context.
-     * @return a string containing the context of the words.
-     */
     public String fetchWordContext(String englishWord, String russianWord) {
-        log.debug("Entering fetchWordContext (String englishWord, String russianWord)");
+        return fetchWordContext(englishWord, russianWord, RequestPriorityEnum.CONTEXT.getPriority());
+    }
+
+    public String fetchWordContextWithPriority(String englishWord, String russianWord) {
+        return fetchWordContext(englishWord, russianWord, RequestPriorityEnum.PRIORITYCONTEXT.getPriority());
+    }
+
+    private String fetchWordContext(String englishWord, String russianWord, int priority) {
+        log.debug("Entering fetchWordContext(String englishWord, String russianWord)");
 
         String word = englishWord + " - " + russianWord;
         String promt = constructPrompt(word, ChatGptPromptsEnum.CONTEXT);
 
-        Request request = new Request(promt, RequestPriorityEnum.CONTEXT.getPriority());
+        Request request = new Request(promt, priority);
         addRequest(request);
+
         return waitingResponse(request);
     }
+
 
     /**
      * Constructs a prompt for the ChatGPT API based on the provided word and prompt type.

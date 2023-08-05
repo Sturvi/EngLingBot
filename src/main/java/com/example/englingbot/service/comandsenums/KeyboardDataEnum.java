@@ -9,7 +9,8 @@ public enum KeyboardDataEnum {
     USAGEEXAMPLES ("usage examples", "Примеры использования"),
     REMEMBERED ("Remembered", "✅ Вспомнил"),
     CONTEXT ("context", "Контекст"),
-    NOTREMEMBERED ("not remembered", "⛔️ Не вспомнил");
+    NOTREMEMBERED ("not remembered", "⛔️ Не вспомнил"),
+    NEXT ("next", "➡\uFE0F Следующее слово");
 
 
     private final String data;

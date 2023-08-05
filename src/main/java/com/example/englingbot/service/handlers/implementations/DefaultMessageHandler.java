@@ -47,6 +47,11 @@ public class DefaultMessageHandler implements Handler {
                     wordList) {
                 messageService
                         .sendMessageWithInlineKeyboard(botEvent.getId(), word.toString(), keyboard);
+
+                keyboard = InlineKeyboardMarkupFactory.getWordFromTranslatorKeyboard();
+                messageService.sendMessageWithInlineKeyboard(botEvent.getId(),
+                        "Нет нужного перевода?",
+                        keyboard);
             }
         } else {
             var keyboard = InlineKeyboardMarkupFactory.getWordFromTranslatorKeyboard();
