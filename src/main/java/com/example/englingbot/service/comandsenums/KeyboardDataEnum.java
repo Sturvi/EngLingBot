@@ -12,7 +12,7 @@ public enum KeyboardDataEnum {
     REMEMBERED ("Remembered", "✅ Вспомнил"),
     CONTEXT ("context", "Контекст"),
     NOTREMEMBERED ("not remembered", "⛔️ Не вспомнил"),
-    NEXT ("next", "➡\\uFE0F Следующее слово"),
+    NEXT ("next", "➡ Следующее слово"),
     YES ("YES", "✅"),
     NO ("NO", "⛔️"),;
 

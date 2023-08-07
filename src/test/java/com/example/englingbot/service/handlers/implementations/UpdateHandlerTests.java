@@ -35,7 +35,7 @@ class UpdateHandlerTests {
         when(botEvent.getFrom()).thenReturn(user);
         AppUser appUser = mock(AppUser.class);
         when(appUserService.saveOrUpdateAppUser(user)).thenReturn(appUser);
-        updateHandler = new UpdateHandler(appUserService, messageHandler, callbackQueryHandler);
+        updateHandler = new UpdateHandler(messageHandler, callbackQueryHandler);
     }
 
     @Test
