@@ -14,8 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
  */
 @Component
 @Slf4j
-// TODO Ошибка именования, от бота должен наследоваться другой бот
-public class TelegramBotApplication extends TelegramLongPollingBot {
+public class EnglishWordLearningBot extends TelegramLongPollingBot {
 
     private final String botUsername;
     private final UpdateHandler updateHandler;
@@ -29,7 +28,7 @@ public class TelegramBotApplication extends TelegramLongPollingBot {
      * @param updateHandler Handler for updates.
      * @param appUserService Service for handling AppUser.
      */
-    public TelegramBotApplication(@Value("${bot.token}") String botToken,
+    public EnglishWordLearningBot(@Value("${bot.token}") String botToken,
                                   @Value("${bot.username}") String botUsername,
                                   UpdateHandler updateHandler,
                                   AppUserService appUserService) {

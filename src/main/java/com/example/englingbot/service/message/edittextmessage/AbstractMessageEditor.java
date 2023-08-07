@@ -1,6 +1,6 @@
 package com.example.englingbot.service.message.edittextmessage;
 
-import com.example.englingbot.service.externalapi.telegram.TelegramBotApplication;
+import com.example.englingbot.service.externalapi.telegram.EnglishWordLearningBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -16,16 +16,16 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 @Scope("prototype")
 public abstract class AbstractMessageEditor {
 
-    private final TelegramBotApplication telegramBotApplication;
+    private final EnglishWordLearningBot englishWordLearningBot;
     private EditMessageText editMessageText;
 
     /**
      * Constructor for initializing the message editor with the given Telegram bot application.
      *
-     * @param telegramBotApplication the Telegram bot application
+     * @param englishWordLearningBot the Telegram bot application
      */
-    protected AbstractMessageEditor(TelegramBotApplication telegramBotApplication) {
-        this.telegramBotApplication = telegramBotApplication;
+    protected AbstractMessageEditor(EnglishWordLearningBot englishWordLearningBot) {
+        this.englishWordLearningBot = englishWordLearningBot;
         this.editMessageText = new EditMessageText();
         log.debug("AbstractMessageEditor initialized");
     }
@@ -97,7 +97,7 @@ public abstract class AbstractMessageEditor {
         editMessageText.enableHtml(true);
 
         try {
-            telegramBotApplication.execute(editMessageText);
+            englishWordLearningBot.execute(editMessageText);
             log.debug("Message edited in chat: {}", editMessageText.getChatId());
         } catch (Exception e) {
             log.error("An error occurred while editing the message: {}", e.getMessage());

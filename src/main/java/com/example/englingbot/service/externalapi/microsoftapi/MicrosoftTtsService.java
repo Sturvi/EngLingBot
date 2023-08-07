@@ -1,5 +1,7 @@
 package com.example.englingbot.service.externalapi.microsoftapi;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +13,9 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Base64;
 
 @Slf4j
 @Service
@@ -25,23 +30,14 @@ public class MicrosoftTtsService {
     private String voiceName;
 
     private final WebClient webClient;
+    private String cachedToken;
+    private Instant tokenExpiryTime;
 
-    /**
-     * Constructor for MicrosoftTtsService.
-     *
-     * @param webClient WebClient object.
-     */
     @Autowired
     public MicrosoftTtsService(WebClient webClient) {
         this.webClient = webClient;
     }
 
-    /**
-     * Converts text to speech and saves the audio data to a file.
-     *
-     * @param text           Text to be converted.
-     * @param outputFilePath Path to save the audio file.
-     */
     public void textToSpeech(String text, Path outputFilePath) {
         log.debug("Converting text to speech...");
         byte[] audioData = getAudioData(text).block();
@@ -49,18 +45,9 @@ public class MicrosoftTtsService {
         log.debug("Text to speech conversion completed.");
     }
 
-    /**
-     * Retrieves audio data from Microsoft Text to Speech API.
-     *
-     * @param text Text to be converted.
-     * @return Mono containing the audio data.
-     */
     private Mono<byte[]> getAudioData(String text) {
         String tokenEndpoint = getTokenEndpoint();
         String ttsEndpoint = getTtsEndpoint();
-        // TODO точно ли нужно перед каждым запросом выполнять аутентификацию?
-        //  Мне кажется можно один раз получать токен и при определённых ошибках от
-        //  сервиса TTS выполнять инвалидацию токена и повторять аутентификацию с сохранением нового токена
         return getAccessToken(tokenEndpoint)
                 .flatMap(token -> createRequest(token, ttsEndpoint, text)
                         .retrieve()
@@ -68,14 +55,6 @@ public class MicrosoftTtsService {
                 );
     }
 
-    /**
-     * Creates a request to the Microsoft Text to Speech API.
-     *
-     * @param token      Access token.
-     * @param ttsEndpoint API endpoint.
-     * @param text       Text to be converted.
-     * @return WebClient request object.
-     */
     private WebClient.RequestHeadersSpec<?> createRequest(String token, String ttsEndpoint, String text) {
         log.debug("Creating request to Microsoft Text to Speech API...");
         return webClient.post()
@@ -86,55 +65,52 @@ public class MicrosoftTtsService {
                 .body(BodyInserters.fromValue(getSsml(text)));
     }
 
-    /**
-     * Retrieves access token for Microsoft Text to Speech API.
-     *
-     * @param tokenEndpoint Token endpoint URL.
-     * @return Mono containing the access token.
-     */
     private Mono<String> getAccessToken(String tokenEndpoint) {
-        log.debug("Getting access token...");
+        if (cachedToken != null && Instant.now().isBefore(tokenExpiryTime)) {
+            return Mono.just(cachedToken);
+        }
+
         return webClient.post()
                 .uri(tokenEndpoint)
                 .header("Ocp-Apim-Subscription-Key", subscriptionKey)
+                .header("Content-Length", "0")
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToMono(String.class)
+                .doOnNext(token -> {
+                    // Декодирование токена
+                    String[] splitToken = token.split("\\.");
+                    String payload = new String(Base64.getDecoder().decode(splitToken[1]));
+
+                    // Извлечение поля exp (время истечения)
+                    try {
+                        JsonObject payloadJson = JsonParser.parseString(payload).getAsJsonObject();
+                        long expTimestamp = payloadJson.get("exp").getAsLong();
+
+                        // Установка времени истечения и кеширование токена
+                        tokenExpiryTime = Instant.ofEpochSecond(expTimestamp);
+                        cachedToken = token;
+                    } catch (Exception e) {
+                        tokenExpiryTime = Instant.now().plus(Duration.ofMinutes(9));
+                        cachedToken = token;
+                        log.error("Failed to parse token payload.", e);
+                    }
+                })
+                .doOnError(e -> log.error("Error occurred while retrieving access token.", e));
     }
 
-    /**
-     * Creates SSML (Speech Synthesis Markup Language) for the text.
-     *
-     * @param text Text to be converted.
-     * @return SSML string.
-     */
+
     private String getSsml(String text) {
         return "<speak version='1.0' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='" + voiceName + "'>" + text + "</voice></speak>";
     }
 
-    /**
-     * Returns token endpoint URL.
-     *
-     * @return Token endpoint URL string.
-     */
     private String getTokenEndpoint() {
         return "https://" + serviceRegion + ".api.cognitive.microsoft.com/sts/v1.0/issueToken";
     }
 
-    /**
-     * Returns TTS endpoint URL.
-     *
-     * @return TTS endpoint URL string.
-     */
     private String getTtsEndpoint() {
         return "https://" + serviceRegion + ".tts.speech.microsoft.com/cognitiveservices/v1";
     }
 
-    /**
-     * Saves audio data to a file.
-     *
-     * @param audioData      Audio data bytes.
-     * @param outputFilePath Path to save the audio file.
-     */
     private void saveAudioDataToFile(byte[] audioData, Path outputFilePath) {
         try {
             log.info("Saving audio data to file...");

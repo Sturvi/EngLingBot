@@ -196,7 +196,7 @@ public class WordService {
     //TODO какой-то функционал не реализован? Метод не вызывается
     public void addTranscription(Word word) {
         if (word.getTranscription() == null) {
-            String transcription = chatGptWordUtils.fetchTranscriptionWithPriority(word.getEnglishWord());
+            String transcription = chatGptWordUtils.fetchTranscription(word.getEnglishWord());
             if (transcription != null) {
                 word.setTranscription(transcription);
                 wordRepository.save(word);
@@ -206,7 +206,7 @@ public class WordService {
 
     public void addUsageExamples(Word word) {
         if (word.getUsageExamples() == null) {
-            String usageExamples = chatGptWordUtils.fetchUsageExamplesWithPriority(word.getEnglishWord());
+            String usageExamples = chatGptWordUtils.fetchUsageExamples(word.getEnglishWord());
             if (usageExamples != null) {
                 word.setUsageExamples(usageExamples);
                 wordRepository.save(word);
@@ -216,7 +216,7 @@ public class WordService {
 
     public void addWordContext(Word word) {
         if (word.getContext() == null) {
-            String wordContext = chatGptWordUtils.fetchWordContextWithPriority(word.getEnglishWord(), word.getRussianWord());
+            String wordContext = chatGptWordUtils.fetchWordContext(word.getEnglishWord(), word.getRussianWord());
             if (wordContext != null) {
                 word.setContext(wordContext);
                 wordRepository.save(word);

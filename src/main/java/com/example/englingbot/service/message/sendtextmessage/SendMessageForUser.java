@@ -1,6 +1,6 @@
 package com.example.englingbot.service.message.sendtextmessage;
 
-import com.example.englingbot.service.externalapi.telegram.TelegramBotApplication;
+import com.example.englingbot.service.externalapi.telegram.EnglishWordLearningBot;
 import com.example.englingbot.service.keyboards.ReplyKeyboardMarkupFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
@@ -16,8 +16,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 @Slf4j
 public class SendMessageForUser extends AbstractMessageSender {
 
-    public SendMessageForUser(TelegramBotApplication telegramBotApplication) {
-        super(telegramBotApplication);
+    public SendMessageForUser(EnglishWordLearningBot englishWordLearningBot) {
+        super(englishWordLearningBot);
     }
 
     /**

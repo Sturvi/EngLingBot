@@ -12,6 +12,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -23,7 +24,7 @@ import java.util.Map;
  * A service class to interact with the Google Translate API.
  */
 @Slf4j
-@Component
+@Service
 public class GoogleTranslator {
 
     @Value("${google.api.key}")

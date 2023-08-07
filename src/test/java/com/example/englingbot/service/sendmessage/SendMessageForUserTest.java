@@ -1,6 +1,6 @@
 package com.example.englingbot.service.sendmessage;
 
-import com.example.englingbot.service.externalapi.telegram.TelegramBotApplication;
+import com.example.englingbot.service.externalapi.telegram.EnglishWordLearningBot;
 import com.example.englingbot.service.message.sendtextmessage.SendMessageForUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ import static org.mockito.Mockito.*;
 public class SendMessageForUserTest {
 
     @Mock
-    private TelegramBotApplication telegramBotApplication;
+    private EnglishWordLearningBot englishWordLearningBot;
 
     @InjectMocks
     private SendMessageForUser sendMessageForUser;
@@ -23,7 +23,7 @@ public class SendMessageForUserTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        sendMessageForUser = new SendMessageForUser(telegramBotApplication);
+        sendMessageForUser = new SendMessageForUser(englishWordLearningBot);
     }
 
     @Test
@@ -32,10 +32,10 @@ public class SendMessageForUserTest {
         String messageText = "test message";
         Message returnedMessage = mock(Message.class);
 
-        when(telegramBotApplication.execute(any(SendMessage.class))).thenReturn(returnedMessage);
+        when(englishWordLearningBot.execute(any(SendMessage.class))).thenReturn(returnedMessage);
 
         sendMessageForUser.sendMessageWithReplyKeyboard(chatId, messageText);
 
-        verify(telegramBotApplication, times(1)).execute(any(SendMessage.class));
+        verify(englishWordLearningBot, times(1)).execute(any(SendMessage.class));
     }
 }

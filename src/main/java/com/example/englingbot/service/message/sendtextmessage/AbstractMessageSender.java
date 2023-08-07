@@ -1,9 +1,8 @@
 package com.example.englingbot.service.message.sendtextmessage;
 
-import com.example.englingbot.service.externalapi.telegram.TelegramBotApplication;
+import com.example.englingbot.service.externalapi.telegram.EnglishWordLearningBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -16,16 +15,16 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 @Scope("prototype")
 public abstract class AbstractMessageSender {
 
-    private final TelegramBotApplication telegramBotApplication;
+    private final EnglishWordLearningBot englishWordLearningBot;
     private SendMessage sendMessage;
 
     /**
      * MessageSender constructor.
      *
-     * @param telegramBotApplication Instance of the TelegramBot application.
+     * @param englishWordLearningBot Instance of the TelegramBot application.
      */
-    protected AbstractMessageSender(TelegramBotApplication telegramBotApplication) {
-        this.telegramBotApplication = telegramBotApplication;
+    protected AbstractMessageSender(EnglishWordLearningBot englishWordLearningBot) {
+        this.englishWordLearningBot = englishWordLearningBot;
         this.sendMessage = new SendMessage();
     }
 
@@ -91,7 +90,7 @@ public abstract class AbstractMessageSender {
         Message message = null;
 
         try {
-            message = telegramBotApplication.execute(sendMessage);
+            message = englishWordLearningBot.execute(sendMessage);
             log.debug("Message sent to chat: {}", sendMessage.getChatId());
         } catch (Exception e) {
             log.error("An error occurred while sending the message: {}", e.getMessage());

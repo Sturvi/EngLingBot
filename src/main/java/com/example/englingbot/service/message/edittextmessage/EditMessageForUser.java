@@ -1,7 +1,7 @@
 package com.example.englingbot.service.message.edittextmessage;
 
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
-import com.example.englingbot.service.externalapi.telegram.TelegramBotApplication;
+import com.example.englingbot.service.externalapi.telegram.EnglishWordLearningBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -20,10 +20,10 @@ public class EditMessageForUser extends AbstractMessageEditor {
     /**
      * Constructor for initializing the EditMessageForUser with the given Telegram bot application.
      *
-     * @param telegramBotApplication the Telegram bot application
+     * @param englishWordLearningBot the Telegram bot application
      */
-    public EditMessageForUser(TelegramBotApplication telegramBotApplication) {
-        super(telegramBotApplication);
+    public EditMessageForUser(EnglishWordLearningBot englishWordLearningBot) {
+        super(englishWordLearningBot);
     }
 
     /**

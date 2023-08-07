@@ -1,6 +1,6 @@
 package com.example.englingbot;
 
-import com.example.englingbot.service.externalapi.telegram.TelegramBotApplication;
+import com.example.englingbot.service.externalapi.telegram.EnglishWordLearningBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,7 +16,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 public class EngLingBotApplication {
 
     // TODO Вот это лучше в отдельный файл с конфигурацией, чтобы остался один main метод
-    private final TelegramBotApplication bot;
+    private final EnglishWordLearningBot bot;
 
 
     /**
@@ -24,7 +24,7 @@ public class EngLingBotApplication {
      *
      * @param bot  an instance of the TelegramBotApplication class.
      */
-    public EngLingBotApplication(TelegramBotApplication bot) {
+    public EngLingBotApplication(EnglishWordLearningBot bot) {
         this.bot = bot;
         log.debug("An instance of the EngLingBotApplication class has been created.");
     }

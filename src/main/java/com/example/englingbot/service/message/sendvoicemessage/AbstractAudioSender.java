@@ -1,6 +1,6 @@
 package com.example.englingbot.service.message.sendvoicemessage;
 
-import com.example.englingbot.service.externalapi.telegram.TelegramBotApplication;
+import com.example.englingbot.service.externalapi.telegram.EnglishWordLearningBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -19,16 +19,16 @@ import java.io.File;
 @Slf4j
 public abstract class AbstractAudioSender {
 
-    private final TelegramBotApplication telegramBotApplication;
+    private final EnglishWordLearningBot englishWordLearningBot;
     private SendAudio sendAudio;
 
     /**
      * Constructor for initializing the audio sender with the given Telegram bot application.
      *
-     * @param telegramBotApplication the Telegram bot application
+     * @param englishWordLearningBot the Telegram bot application
      */
-    protected AbstractAudioSender(TelegramBotApplication telegramBotApplication) {
-        this.telegramBotApplication = telegramBotApplication;
+    protected AbstractAudioSender(EnglishWordLearningBot englishWordLearningBot) {
+        this.englishWordLearningBot = englishWordLearningBot;
         this.sendAudio = new SendAudio();
         log.debug("AbstractAudioSender initialized");
     }
@@ -89,7 +89,7 @@ public abstract class AbstractAudioSender {
     protected Message send() {
         Message message = null;
         try {
-            message = telegramBotApplication.execute(sendAudio);
+            message = englishWordLearningBot.execute(sendAudio);
             log.debug("Audio sent to chat: {}", sendAudio.getChatId());
         } catch (Exception e) {
             log.error("An error occurred while sending the audio: {}", e.getMessage());
