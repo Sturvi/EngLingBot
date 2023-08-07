@@ -1,17 +1,15 @@
 package com.example.englingbot.service.comandsenums;
 
 import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public enum KeyboardDataEnum {
 
     TRANSLATOR ("get from translator", "Получить онлайн перевод"),
-    LEARNED ("learned", "\\uD83D\\uDC68\\u200D\\uD83C\\uDF93 Уже выучил слово"),
-    USAGEEXAMPLES ("usage examples", "Примеры использования"),
+    LEARNED ("learned", "\uD83D\uDC68\u200D\uD83C\uDF93 Уже выучил слово"),
+    USAGE_EXAMPLES("usage examples", "Примеры использования"),
     REMEMBERED ("Remembered", "✅ Вспомнил"),
     CONTEXT ("context", "Контекст"),
-    NOTREMEMBERED ("not remembered", "⛔️ Не вспомнил"),
+    NOT_REMEMBERED("not remembered", "⛔️ Не вспомнил"),
     NEXT ("next", "➡ Следующее слово"),
     YES ("YES", "✅"),
     NO ("NO", "⛔️"),;

@@ -71,10 +71,10 @@ public class CallbackQueryHandler implements Handler {
                 KeyboardDataEnum.TRANSLATOR, this::handleTranslator,
                 KeyboardDataEnum.NO, this::handleNoCommand,
                 KeyboardDataEnum.YES, this::handleYesCommand,
-                KeyboardDataEnum.NOTREMEMBERED, this::handleNotRemembered,
+                KeyboardDataEnum.NOT_REMEMBERED, this::handleNotRemembered,
                 KeyboardDataEnum.REMEMBERED, this::handleRemembered,
                 KeyboardDataEnum.CONTEXT, this::handleContext,
-                KeyboardDataEnum.USAGEEXAMPLES, this::handleUsageExamples,
+                KeyboardDataEnum.USAGE_EXAMPLES, this::handleUsageExamples,
                 KeyboardDataEnum.LEARNED, this::handleLearned,
                 KeyboardDataEnum.NEXT, this::handleNext
         );
