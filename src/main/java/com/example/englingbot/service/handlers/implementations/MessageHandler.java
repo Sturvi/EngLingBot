@@ -49,6 +49,35 @@ class MessageHandler implements Handler {
      */
     @PostConstruct
     void init() {
+
+        // Копия из другого места, но смысл такой же
+        // TODO: Я бы сделал отдельный класс с реализацией на каждый обработчик, те
+        //  interface SomeHandler {
+        //    AppUser handle(botEvent);
+        //    KeyboardDataEnum availableFor()
+        //  }
+        //
+        //  class SomeHandlerImpl {
+        //    AppUser handle (botEvent) {
+        //      ...
+        //    }
+        //    KeyboardDataEnum availableFor() {
+        //      return KeyboardDataEnum.TRANSLATOR
+        //    }
+        //  }
+        //
+        //  А в текущем классе:
+        //  class CallbackQueryHandler {
+        //    Map<...> callbackQueryHandlers;
+        //    @PostConstruct
+        //    void init(List<SomeHandler> handlers) {
+        //      callbackQueryHandlers = handlers.stream().collect(Collectors.toMap(
+        //        element -> element.availableFor(),
+        //        element -> element
+        //      ))
+        //    }
+        //  }
+
         log.debug("Initializing text commands handler");
         textCommandsHandler = new HashMap<>();
         textCommandsHandler.put(TextCommandsEnum.START, this::handleStartAndHelp);

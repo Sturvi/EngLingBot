@@ -22,6 +22,7 @@ import java.util.Optional;
 public class AppUserService {
 
     private final AppUserRepository appUserRepository;
+    private final UserMapper userMapper;
 
     /**
      * Saves or updates the user information.
@@ -54,7 +55,7 @@ public class AppUserService {
     private AppUser saveAppUser(User user) {
         log.debug("Saving user with ID: {}", user.getId());
 
-        AppUser userEntity = UserMapper.mapNewUserToUserEntity(user);
+        AppUser userEntity = userMapper.mapNewUserToUserEntity(user);
 
         appUserRepository.save(userEntity);
 
@@ -69,7 +70,7 @@ public class AppUserService {
      * @return The updated user.
      */
     private AppUser updateAppUserInDataBase(User user, AppUser userEntity) {
-        UserMapper.updateExistingUserEntityFromTelegramUser(user, userEntity);
+        userMapper.updateExistingUserEntityFromTelegramUser(user, userEntity);
         return userEntity;
     }
 
@@ -83,7 +84,7 @@ public class AppUserService {
         log.debug("Getting user with ID: {}", botEvent.getId());
         return appUserRepository
                 .findByTelegramChatId(botEvent.getId())
-                .orElseGet(() -> UserMapper.mapNewUserToUserEntity(botEvent.getFrom()));
+                .orElseGet(() -> userMapper.mapNewUserToUserEntity(botEvent.getFrom()));
     }
 
     /**

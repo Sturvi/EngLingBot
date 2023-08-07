@@ -19,7 +19,13 @@ import java.util.regex.Pattern;
  */
 @Component
 @Slf4j
+// TODO Утилитарный класс унаследован от чего-то? Видимо у класса какой-то другой смысл, это не утилита, а сервис
+// TODO-2 базовый класс помечен @Component. Текущий класс тоже помечен.
+//  Сколько раз будет создаваться очередь из базового класса? Подозреваю что 2, и 2 потока будут работать со своими очередями.
+//  А какие из них будут получать сообщения для работы?
 public class ChatGptWordUtils extends ChatGpt {
+
+    // TODO епонятно для чего нужна эта регулярка, возможно получится дать более говорящее имя полю
     private static final Pattern pattern = Pattern.compile("(ru:\\s?[а-яёА-ЯЁ]+,\\s?en:\\s?[a-zA-Z]+\\.\\s?)+");
 
     /**
@@ -41,16 +47,21 @@ public class ChatGptWordUtils extends ChatGpt {
     public List<Word> getTranslations(String incomingWord) {
         log.debug("Entering getTranslations (String incomingWord)");
 
-        String prompt = constructPrompt(incomingWord, ChatGptPromptsEnum.NEWWORD);
+        String prompt = constructPrompt(incomingWord, ChatGptPromptsEnum.NEW_WORD);
         Request request = new Request(prompt, RequestPriorityEnum.TRANSLATION.getPriority());
         addRequest(request);
 
+        // TODO Асинхронное взаимодействие придумано для неблокирующей работы программы,
+        //  а тут ты сам блокируешь поток выполнения. +1 к тому, что WebClient здесь не нужен,
+        //  достаточно FeignClient, либо нативного джавового HttpClient
         var apiResponse = waitingResponse(request);
         log.debug("Получен ответ из Chat Gpt: {}", apiResponse);
 
         List<Word> words = new ArrayList<>();
 
         if (doesMatchPattern(apiResponse)) {
+            // TODO непонятен смысл регулярки,
+            //  метод doesMatchPattern не добавляет понимания смысла, сообщение в дебаг тоже
             log.info("The string matches the pattern");
             String[] splitResponse = splitResponse(apiResponse);
 
@@ -95,7 +106,7 @@ public class ChatGptWordUtils extends ChatGpt {
      * @return the transcription of the word.
      */
     private String fetchTranscription(String word, int priority) {
-        log.debug("Entering fetchTranscription(String word)");
+        log.trace("Entering fetchTranscription(String word)");
 
         log.info("Getting transcription for: {}", word);
 
@@ -113,10 +124,9 @@ public class ChatGptWordUtils extends ChatGpt {
             return null;
         }
 
-        response.replaceAll("\\[+", "[").replaceAll("\\]+", "]");
+        response = response.replaceAll("\\[+", "[").replaceAll("\\]+", "]");
 
         log.info("Returning transcription: {}", response);
-        log.debug("Returning response: {}", response);
         return response;
     }
 
@@ -150,7 +160,7 @@ public class ChatGptWordUtils extends ChatGpt {
     private String fetchUsageExamples(String word, int priority) {
         log.debug("Entering fetchUsageExamples(String word)");
 
-        String promt = constructPrompt(word, ChatGptPromptsEnum.USAGEEXAMPLES);
+        String promt = constructPrompt(word, ChatGptPromptsEnum.USAGE_EXAMPLES);
 
         Request request = new Request(promt, priority);
         addRequest(request);

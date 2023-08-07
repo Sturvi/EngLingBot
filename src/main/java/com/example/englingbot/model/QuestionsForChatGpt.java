@@ -1,16 +1,18 @@
 package com.example.englingbot.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "questions_for_chatGpt")
-@Data
+@Setter
+@Getter
+
+// TODO джава по-умолчанию генерирует пустой конструктор, если в классе не определены другие конструкторы
+//  NoArgsConstructor здесь не нужна
 @NoArgsConstructor
 @SuperBuilder
 public class QuestionsForChatGpt extends AbstractEntity {

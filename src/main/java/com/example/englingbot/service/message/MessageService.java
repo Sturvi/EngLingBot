@@ -35,6 +35,9 @@ public class MessageService {
      * @return the sent Message object
      */
     public Message sendMessage(Long chatId, String messageText) {
+        // TODO: Лучше выделить все данные отсылаемого сообщения в отдельный класс,
+        //  а в сендере получать объект этого класса и отправлять сообщение.
+        //  Нарушен принцип единой ответственности
         return sendMessageForUserFactory
                 .createNewMessage()
                 .sendMessageWithReplyKeyboard(chatId, messageText);

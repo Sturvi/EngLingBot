@@ -145,6 +145,25 @@ public class WordService {
     }
 
     private void addExtraInformation(Word word) {
+        // TODO Зачем для этого создавать отдельный поток?
+        //  Здесь мог бы пригодится вебклиент.
+        //  Можно вызывать методы fetchXXXXX
+        //  и не ждать возвращения ответов каждого из них по отдельности,
+        //  а вызвать каждый без блокировки и после этого ожидать возврата всех результатов.
+        /*
+        * Последовательность операций сейчас
+        * fetchTranscription->fetchWordContext->fetchUsageExamples
+        * А могло бы быть
+        * fetchTranscription->\
+        * fetchWordContext------> wait
+        * fetchUsageExamples->/
+        *
+        * Это бы ускорило выполнение метода
+        *
+        *
+        * */
+
+
         Runnable runnable = () -> {
 
             if (word.getTranscription() == null) {
@@ -174,6 +193,7 @@ public class WordService {
         chatGPTExecutorService.submit(runnable);
     }
 
+    //TODO какой-то функционал не реализован? Метод не вызывается
     public void addTranscription(Word word) {
         if (word.getTranscription() == null) {
             String transcription = chatGptWordUtils.fetchTranscriptionWithPriority(word.getEnglishWord());
@@ -204,6 +224,7 @@ public class WordService {
         }
     }
 
+    // TODO именование, по смыслу вытаскивается слово между пробелами, а по факту нет
     public String getStringBetweenSpaces(String input) {
         int startIndex = input.indexOf('\'') + 1;
         int endIndex = input.lastIndexOf('\'');
@@ -215,10 +236,13 @@ public class WordService {
         return input.substring(startIndex, endIndex);
     }
 
+    // TODO Если это сервис, то зачем делать в нём публичные статические методы?
+    //  Пусть это будут обычные методы, а в вызывающих классах этот сервис можно заинжектить
     public static String capitalizeFirstLetter(String str) {
         if (str == null || str.length() == 0) {
             return str;
         }
+        // TODO: Нужно ли приводить к нижнему регистру остальную часть слова?
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 }

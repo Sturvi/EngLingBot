@@ -21,6 +21,8 @@ public class SendMessageForUserFactory {
      * @return A new instance of MessageSender.
      */
     public SendMessageForUser createNewMessage() {
+        // TODO В бизнесовую логику замешался небизнесовый код, это не хорошо,
+        //  стоит как-то по-другому отправлять сообщение пользователю
         return context.getBean(SendMessageForUser.class);
     }
 }

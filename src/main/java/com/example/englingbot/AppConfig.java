@@ -16,11 +16,16 @@ public class AppConfig {
         return WebClient.create();
     }
 
+    // TODO Не замечание, просто комментарий, можно ничего не менять.
+    //  В корпоративном мире разработки обычно используется jackson,
+    //  который поставляется стартером spring-boot-starter-web
     @Bean
     public Gson gson() {
         return new Gson();
     }
 
+    // TODO параметр nThreads лучше перенести в проперти и устанавливать
+    //  его значение из переменных окружения, это позволит подтюнить производительность без перекомпиляции
     @Bean
     public ExecutorService chatGPTExecutorService() {
         return Executors.newFixedThreadPool(2);

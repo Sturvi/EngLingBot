@@ -16,10 +16,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.*;
 
 /**
  * ChatGpt class for interacting with OpenAI ChatGPT API.
@@ -32,9 +29,14 @@ public class ChatGpt {
     private String apiKey;
     private final WebClient webClient;
     private final Gson gson;
+
+    //TODO по хорошему это бы тоже вынести в конфигурацию и
+    // параметры для настройки вытаскивать из переменных окружения.
+    // Здесь же можно было бы просто заавтоварить его
     private final RateLimiter rateLimiter = RateLimiter.create(0.047);
 
-    private PriorityQueue<Request> requestQueue = new PriorityQueue<>((r1, r2) -> Integer.compare(r1.getPriority(), r2.getPriority()));
+    private final PriorityQueue<Request> requestQueue = new PriorityQueue<>((r1, r2) -> Integer.compare(r1.getPriority(), r2.getPriority()));
+
     private Thread processRequestThread;
     private volatile boolean running = false;
 
@@ -84,6 +86,11 @@ public class ChatGpt {
         log.debug("Adding request to the queue: {}", request);
         synchronized (requestQueue) {
             requestQueue.add(request);
+            // TODO Очередь блокируется в методе processRequests
+            //  По сути здесь сделано синхронное взаимодействие с очередью, поверх асинхронного?
+            //  Зачем так усложнять? Почему бы не сделать это просто одним синхронным методом,
+            //  по которому в бота улетит синхронный запрос и после ответа вернётся результат запроса?
+            //  Пока что не вижу смысла в такой реализации, сложность ради сложности
             requestQueue.notify();
         }
     }
@@ -98,6 +105,13 @@ public class ChatGpt {
         log.info("Sending word {} to OpenAI ChatGPT API", promt);
         var requestEntity = createRequestEntity(promt);
         Mono<String> response = sendHttpRequest(requestEntity);
+        // TODO: Если вебклиент используется в синхронном стиле, зачем тогда он нужен?
+        //  Возможно лучше заменить на Feign client из библиотеки openfeign
+        //  https://www.baeldung.com/spring-cloud-openfeign
+        //  Тогда бы не пришлось пользоваться мапой, можно было бы описать объект
+        //  с аннотациями из библы с jackson object mapper.
+        //  К тому же с ним можно не парсить ответ, он умеет делать это сам,
+        //  достаточно просто описать интерфейс с методом и всё
         return parseResponse(response.block());
     }
 
@@ -136,7 +150,7 @@ public class ChatGpt {
                         if (response.statusCode().isError()) {
                             return response.bodyToMono(String.class)
                                     .doOnNext(errorBody -> log.error("Error Body: {}", errorBody))
-                                    .flatMap(errorBody -> Mono.<String>error(new RuntimeException("Error retrieving word from ChatGPT. Status: " + response.statusCode() + " Error Body: " + errorBody)));
+                                    .flatMap(errorBody -> Mono.error(new RuntimeException("Error retrieving word from ChatGPT. Status: " + response.statusCode() + " Error Body: " + errorBody)));
                         } else {
                             return response.bodyToMono(String.class);
                         }

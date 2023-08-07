@@ -2,16 +2,15 @@ package com.example.englingbot.model;
 
 import com.example.englingbot.model.enums.UserWordState;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "users_vocabulary")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @SuperBuilder
 public class UserVocabulary extends AbstractEntity {

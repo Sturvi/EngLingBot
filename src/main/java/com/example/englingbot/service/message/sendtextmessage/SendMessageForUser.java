@@ -33,6 +33,15 @@ public class SendMessageForUser extends AbstractMessageSender {
         log.debug("Message text: {}", messageText);
         log.debug("Using default ReplyKeyboardMarkup");
 
+        // TODO newMessage возвращает не сообщение, а сервис для отправки сообщения.
+        //  Что-то не то намешано, нужно отделить отправку сообщения от самого сообщения
+        //  То-есть делать что-то вроде
+        //  var message = newMessage()
+        //                .setChatId(chatId)
+        //                .setText(messageText)
+        //                .setKeyboardMarkup(keyboard);
+        //  messageSendingService.send(message);
+
         return newMessage()
                 .setChatId(chatId)
                 .setText(messageText)

@@ -3,9 +3,7 @@ package com.example.englingbot.model;
 import com.example.englingbot.model.enums.UserRoleEnum;
 import com.example.englingbot.model.enums.UserStateEnum;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(callSuper = true)
@@ -13,7 +11,8 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "telegram_chat_id", name = "telegram_chat_id_unique")
 })
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @SuperBuilder
 public class AppUser extends AbstractEntity {

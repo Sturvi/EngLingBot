@@ -1,6 +1,6 @@
 package com.example.englingbot.service;
 
-import com.example.englingbot.mapper.UserWordListMapper;
+import com.example.englingbot.mapper.UserVocabularyMapper;
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.UserVocabulary;
 import com.example.englingbot.model.Word;
@@ -24,6 +24,7 @@ public class UserVocabularyService {
     private final UserVocabularyRepository userVocabularyRepository;
     private final MessageService messageService;
     private final TemplateMessagesSender templateMessagesSender;
+    private final UserVocabularyMapper userVocabularyMapper;
 
     /**
      * Retrieves user vocabularies by user and word state types.
@@ -51,6 +52,7 @@ public class UserVocabularyService {
             log.warn("User id: {} has no word lists of the requested types", user.getId());
             return null;
         }
+        // TODO Random можно вынести в поле сервиса
         Random rand = new Random();
         return userVocabularies.get(rand.nextInt(userVocabularies.size()));
     }
@@ -79,6 +81,7 @@ public class UserVocabularyService {
         Word word = userVocabulary.getWord();
 
         // Randomly generate the word format
+        // TODO опять создаём рандом, можно в поле вынести и создать 1 раз
         Random rand = new Random();
         if (rand.nextBoolean()) {
             sb.append(word.getEnglishWord())
@@ -107,7 +110,7 @@ public class UserVocabularyService {
      * @param appUser the user to whom the word will be added
      */
     public void addWordToUserVocabulary(Word word, AppUser appUser) {
-        var newWordInUserWordList = UserWordListMapper.mapNewWordInUserWordList(word, appUser);
+        var newWordInUserWordList = userVocabularyMapper.mapNewWordInUserWordList(word, appUser);
 
         userVocabularyRepository.save(newWordInUserWordList);
     }

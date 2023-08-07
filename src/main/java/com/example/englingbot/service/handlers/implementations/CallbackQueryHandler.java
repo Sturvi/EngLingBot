@@ -40,6 +40,33 @@ public class CallbackQueryHandler implements Handler {
     @PostConstruct
     private void init() {
         log.debug("Initializing CallbackQueryHandler");
+        // TODO: Я бы сделал отдельный класс с реализацией на каждый обработчик, те
+        //  interface SomeHandler {
+        //    AppUser handle(botEvent);
+        //    KeyboardDataEnum availableFor()
+        //  }
+        //
+        //  class SomeHandlerImpl {
+        //    AppUser handle (botEvent) {
+        //      ...
+        //    }
+        //    KeyboardDataEnum availableFor() {
+        //      return KeyboardDataEnum.TRANSLATOR
+        //    }
+        //  }
+        //
+        //  А в текущем классе:
+        //  class CallbackQueryHandler {
+        //    Map<...> callbackQueryHandlers;
+        //    @PostConstruct
+        //    void init(List<SomeHandler> handlers) {
+        //      callbackQueryHandlers = handlers.stream().collect(Collectors.toMap(
+        //        element -> element.availableFor(),
+        //        element -> element
+        //      ))
+        //    }
+        //  }
+
         callbackQueryHandlers = Map.of(
                 KeyboardDataEnum.TRANSLATOR, this::handleTranslator,
                 KeyboardDataEnum.NO, this::handleNoCommand,

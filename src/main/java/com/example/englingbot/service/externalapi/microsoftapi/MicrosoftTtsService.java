@@ -58,6 +58,9 @@ public class MicrosoftTtsService {
     private Mono<byte[]> getAudioData(String text) {
         String tokenEndpoint = getTokenEndpoint();
         String ttsEndpoint = getTtsEndpoint();
+        // TODO точно ли нужно перед каждым запросом выполнять аутентификацию?
+        //  Мне кажется можно один раз получать токен и при определённых ошибках от
+        //  сервиса TTS выполнять инвалидацию токена и повторять аутентификацию с сохранением нового токена
         return getAccessToken(tokenEndpoint)
                 .flatMap(token -> createRequest(token, ttsEndpoint, text)
                         .retrieve()

@@ -13,7 +13,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
  * The MessageSender class provides functionality to send messages to the user.
  */
 @Slf4j
-@Component
 @Scope("prototype")
 public abstract class AbstractMessageSender {
 

@@ -15,6 +15,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 @Slf4j
 public class EngLingBotApplication {
 
+    // TODO Вот это лучше в отдельный файл с конфигурацией, чтобы остался один main метод
     private final TelegramBotApplication bot;
 
 
@@ -47,6 +48,7 @@ public class EngLingBotApplication {
      */
     @Bean
     public TelegramBotsApi telegramBotsApi() {
+        // TODO  не критично, но я бы перенёс конфигурацию в отдельный файлик
         try {
             log.info("Creating and registering the bot with the API.");
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);

@@ -52,6 +52,8 @@ public class Word extends AbstractEntity {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         Word word = (Word) o;
+        // TODO: различается семантика эквивалентности на бд и в приложении, лучше делать как в PK бд,
+        //  те же поля для идентификации
         return Objects.equals(russianWord, word.russianWord) && Objects.equals(englishWord, word.englishWord);
     }
 

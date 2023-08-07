@@ -13,6 +13,7 @@ import java.io.File;
 /**
  * Abstract class for sending audio messages through Telegram.
  */
+// TODO Абстрактный класс нельзя инстанцировать, компонент тут не имеет смысла
 @Component
 @Scope("prototype")
 @Slf4j

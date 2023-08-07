@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
  * Abstract class for editing Telegram messages.
  */
 @Slf4j
+// TODO Как и в остальных случаях, компонент не имеет смысла над абстрактным классом
 @Component
 @Scope("prototype")
 public abstract class AbstractMessageEditor {
