@@ -7,6 +7,7 @@ import com.example.englingbot.model.enums.UserWordState;
 import com.example.englingbot.service.UserVocabularyService;
 import com.example.englingbot.service.comandsenums.TextCommandsEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
+import com.example.englingbot.service.handlers.implementations.messagehandlers.MessageHandler;
 import com.example.englingbot.service.message.sendtextmessage.SendMessageForUser;
 import com.example.englingbot.service.message.sendtextmessage.SendMessageForUserFactory;
 import org.junit.jupiter.api.BeforeEach;

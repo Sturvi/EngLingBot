@@ -4,15 +4,15 @@ import java.util.Arrays;
 
 public enum KeyboardDataEnum {
 
-    TRANSLATOR ("get from translator", "Получить онлайн перевод"),
-    LEARNED ("learned", "\uD83D\uDC68\u200D\uD83C\uDF93 Уже выучил слово"),
-    USAGE_EXAMPLES("usage examples", "Примеры использования"),
-    REMEMBERED ("Remembered", "✅ Вспомнил"),
-    CONTEXT ("context", "Контекст"),
-    NOT_REMEMBERED("not remembered", "⛔️ Не вспомнил"),
-    NEXT ("next", "➡ Следующее слово"),
-    YES ("YES", "✅"),
-    NO ("NO", "⛔️"),;
+    TRANSLATOR ("get from translator ", "Получить онлайн перевод"),
+    LEARNED ("learned ", "\uD83D\uDC68\u200D\uD83C\uDF93 Уже выучил слово"),
+    USAGE_EXAMPLES("usage examples ", "Примеры использования"),
+    REMEMBERED ("Remembered ", "✅ Вспомнил"),
+    CONTEXT ("context ", "Контекст"),
+    NOT_REMEMBERED("not remembered ", "⛔️ Не вспомнил"),
+    NEXT ("next ", "➡ Следующее слово"),
+    YES ("YES ", "✅"),
+    NO ("NO ", "⛔️"),;
 
     private final String data;
     private final String text;

@@ -1,9 +1,10 @@
 package com.example.englingbot.service.handlers.implementations;
 
 import com.example.englingbot.model.AppUser;
-import com.example.englingbot.service.AppUserService;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
-import com.example.englingbot.service.handlers.Handler;
+import com.example.englingbot.service.handlers.implementations.callbackqueryhandlers.CallbackQueryHandler;
+import com.example.englingbot.service.handlers.implementations.messagehandlers.MessageHandler;
+import com.example.englingbot.service.handlers.interfaces.Handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
