@@ -19,7 +19,7 @@ public class UserVocabulary extends AbstractEntity {
     @Column(name = "list_type", columnDefinition = "varchar(255) default 'LEARNING'")
     private UserWordState listType;
 
-    @Column(name = "timer_value")
+    @Column(name = "timer_value", columnDefinition = "0")
     private Integer timerValue;
 
     @ManyToOne

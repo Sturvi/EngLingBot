@@ -10,9 +10,6 @@ import org.jetbrains.annotations.NotNull;
 @Table(name = "questions_for_chatGpt")
 @Setter
 @Getter
-
-// TODO джава по-умолчанию генерирует пустой конструктор, если в классе не определены другие конструкторы
-//  NoArgsConstructor здесь не нужна
 @NoArgsConstructor
 @SuperBuilder
 public class QuestionsForChatGpt extends AbstractEntity {

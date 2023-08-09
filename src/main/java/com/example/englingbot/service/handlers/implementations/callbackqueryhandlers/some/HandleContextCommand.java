@@ -1,6 +1,7 @@
 package com.example.englingbot.service.handlers.implementations.callbackqueryhandlers.some;
 
 import com.example.englingbot.model.AppUser;
+import com.example.englingbot.model.Word;
 import com.example.englingbot.service.WordService;
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
@@ -19,22 +20,24 @@ public class HandleContextCommand implements SomeCallbackQueryHandler {
     private final MessageService messageService;
     private final TemplateMessagesSender templateMessagesSender;
 
-    @Override
     public void handle(BotEvent botEvent, AppUser appUser) {
-        log.debug("Handling 'Context' command for bot event: {}", botEvent);
+        log.trace("Handling 'Context' command for bot event: {}", botEvent);
         var wordText = KeyboardDataEnum.getWord(botEvent.getData());
-        var word = wordService.getWordByTextMessage(wordText);
+        var wordOptional = wordService.getWordByTextMessage(wordText);
 
-        try {
+        if (wordOptional.isPresent()) {
+            Word word = wordOptional.get();
+
             if (word.getContext() == null) {
                 wordService.addWordContext(word);
             }
             messageService.sendMessage(botEvent.getId(), word.getContext());
-        } catch (NullPointerException e) {
-            log.error("Произошла ошибка во время отправки контекста ", e);
+        } else {
+            log.error("Failed to find the word '{}' in the database", wordText);
             templateMessagesSender.sendErrorMessage(botEvent.getId());
         }
     }
+
 
     @Override
     public KeyboardDataEnum availableFor() {

@@ -1,5 +1,7 @@
 package com.example.englingbot.service;
 
+import com.example.englingbot.dto.WordDto;
+import com.example.englingbot.dto.converter.WordConverter;
 import com.example.englingbot.model.Word;
 import com.example.englingbot.repository.WordRepository;
 import com.example.englingbot.service.externalapi.chatgpt.ChatGptWordUtils;
@@ -10,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 @Slf4j
 @Service
@@ -29,61 +33,95 @@ public class WordService {
     }
 
     public List<Word> addNewWordFromExternalApi(String incomingWord) {
+        log.debug("Processing incomingWord: {}", incomingWord);
         incomingWord = capitalizeFirstLetter(incomingWord);
-        log.debug("Starting translation for incoming word: {}", incomingWord);
+
         Set<Word> newWordsSet = new HashSet<>();
-        List<Word> availableWords = wordRepository.findByRussianWordOrEnglishWord(incomingWord);
 
         Word googleResponse = translateGoogle(incomingWord);
-        if (googleResponse != null && !availableWords.contains(googleResponse)) {
+        if (googleResponse == null) {
+            log.warn("No response received from Google translate for word: {}", incomingWord);
+        } else {
             newWordsSet.add(googleResponse);
         }
 
-        var wordsFromChatGpt = translateChatGpt(incomingWord);
+        List<Word> wordsFromChatGpt = translateChatGpt(incomingWord);
 
-        for (Word word :
-                wordsFromChatGpt) {
-            if (!availableWords.contains(word)) {
-                newWordsSet.add(word);
-            }
-        }
+        newWordsSet.addAll(wordsFromChatGpt);
 
-        var newWordsList = newWordsSet.stream().toList();
-
+        var newWordsList = new ArrayList<>(newWordsSet);
+        log.info("Saving {} new words to the repository", newWordsList.size());
         saveNewWords(newWordsList);
 
-        log.debug("Translation completed for incoming word: {}. New words list size: {}", incomingWord, newWordsSet.size());
         return newWordsList;
     }
 
+
     public List<Word> fetchWordList(String word) {
         word = capitalizeFirstLetter(word);
+        log.trace("Fetching word list for word: {}", word);
         return wordRepository.findByRussianWordOrEnglishWord(word);
     }
 
-    public Word getWordByTextMessage(String textMessage) {
-        String[] splitedMessage = textMessage.split("  -  ");
-        splitedMessage[0] = splitedMessage[0].trim();
-        splitedMessage[1] = splitedMessage[1].trim();
+    public Optional<Word> getWordByTextMessage(String textMessage) {
+        log.trace("Getting word by text message: {}", textMessage);
 
-        var wordOptional = wordRepository.findByRussianWordAndEnglishWord(splitedMessage[1], splitedMessage[0])
-                .or(() -> wordRepository.findByRussianWordAndEnglishWord(splitedMessage[0], splitedMessage[1]));
+        String[] splitedMessage = textMessage.split(" {2}- {2}");
 
-        Word word = null;
-        if (wordOptional.isPresent()) {
-            word = wordOptional.get();
-
-            if (word.getTranscription() == null ||
-                    word.getContext() == null ||
-                    word.getUsageExamples() == null) {
-                addExtraInformation(word);
-            }
+        if (splitedMessage.length != 2) {
+            log.debug("Text message format is incorrect. Expected 2 words separated by ' - ', but got: {}", textMessage);
+            return Optional.empty();  // Return empty optional if we don't have exactly 2 words.
         }
 
-        return word;
+        String firstWord = splitedMessage[0].trim();
+        String secondWord = splitedMessage[1].trim();
+        log.trace("Parsed words: First word - {}, Second word - {}", firstWord, secondWord);
+
+        var wordOptional = findWord(firstWord, secondWord);
+
+        wordOptional.ifPresent(word -> log.debug("Found word: {}", word));
+        wordOptional.ifPresentOrElse(
+                word -> log.trace("Adding extra information to word if necessary"),
+                () -> log.warn("No word found for the provided text message")
+        );
+
+        wordOptional.ifPresent(this::addExtraInformationIfNecessary);
+
+        return wordOptional;
     }
 
+    private Optional<Word> findWord(String first, String second) {
+        log.trace("Finding word by Russian and English combination: {} and {}", first, second);
+
+        return wordRepository.findByRussianWordAndEnglishWord(second, first)
+                .or(() -> {
+                    log.debug("Did not find word with Russian: {} and English: {}. Trying opposite combination.", second, first);
+                    return wordRepository.findByRussianWordAndEnglishWord(first, second);
+                });
+    }
+
+    private void addExtraInformationIfNecessary(Word word) {
+        log.trace("Checking if extra information needs to be added for word: {}", word);
+
+        if (word.getTranscription() == null ||
+                word.getContext() == null ||
+                word.getUsageExamples() == null) {
+            log.debug("Adding extra information to word: {}", word);
+            addExtraInformation(word);
+        } else {
+            log.trace("Word already contains necessary information. No need to add extra.");
+        }
+    }
+
+
     private void saveNewWords(List<Word> newWordsList) {
+        if (newWordsList == null || newWordsList.isEmpty()) {
+            log.warn("The newWordsList provided for saving is empty or null.");
+            return;
+        }
+
+        log.info("Starting to save new words.");
+
         for (Word word : newWordsList) {
             try {
                 var wordFromDB = wordRepository.findByRussianWordAndEnglishWord(word.getRussianWord(), word.getEnglishWord());
@@ -94,18 +132,26 @@ public class WordService {
 
             } catch (DataIntegrityViolationException e) {
                 log.error("Failed to save the word due to integrity violation: {}", word, e);
+            } catch (Exception e) {
+                log.error("Unexpected error while saving the word: {}", word, e);
             }
         }
+
+        log.info("Finished saving new words.");
     }
 
     private Word translateGoogle(String incomingWord) {
-        incomingWord = capitalizeFirstLetter(incomingWord);
-        Map<String, String> translation = googleTranslator.translate(incomingWord);
-        Word word = getWordFromMap(translation);
+        log.trace("Entering translateGoogle method");
 
-        Optional<Word> wordFromDBOpt = wordRepository.findByRussianWordAndEnglishWord(word.getRussianWord(), word.getEnglishWord());
-        if (wordFromDBOpt.isEmpty()) {
+        var wordDto = googleTranslator.translate(incomingWord);
+        Word word = WordConverter.toEntity(wordDto);
+        Optional<Word> wordFromDBOpt = wordRepository.findByRussianWordAndEnglishWord(wordDto.getRussianWord(), wordDto.getEnglishWord());
+
+        if (wordFromDBOpt.isEmpty() &&
+                (wordDto.getEnglishWord().equals(incomingWord) ||
+                wordDto.getRussianWord().equals(incomingWord))) {
             log.info("New word from Google translate: {}", word);
+
             return word;
         } else {
             log.warn("Word from Google translate already exists in database: {}", word);
@@ -114,19 +160,19 @@ public class WordService {
     }
 
     private List<Word> translateChatGpt(String incomingWord) {
-        incomingWord = capitalizeFirstLetter(incomingWord);
-        List<Word> newWordsList = new ArrayList<>();
-        List<Word> chatGptResponse = chatGptWordUtils.getTranslations(incomingWord);
+        log.trace("Entering translateChatGpt method");
 
-        for (Word word : chatGptResponse) {
-            Optional<Word> wordFromDBOpt = wordRepository.findByRussianWordAndEnglishWord(word.getRussianWord(), word.getEnglishWord());
+        List<Word> newWordsList = new ArrayList<>();
+        List<WordDto> chatGptResponse = chatGptWordUtils.getTranslations(incomingWord);
+
+        for (WordDto wordDto : chatGptResponse) {
+            Optional<Word> wordFromDBOpt = wordRepository.findByRussianWordAndEnglishWord(wordDto.getRussianWord(), wordDto.getEnglishWord());
             if (wordFromDBOpt.isEmpty()) {
-                log.info("New word from ChatGpt: {}", word);
-                if (word.getRussianWord().equals(incomingWord) || word.getEnglishWord().equals(incomingWord)) {
-                    newWordsList.add(word);
-                }
+                log.info("New word from ChatGpt: {}", wordDto);
+                Word word = WordConverter.toEntity(wordDto);
+                newWordsList.add(word);
             } else {
-                log.warn("Word from ChatGpt already exists in database: {}", word);
+                log.warn("Word from ChatGpt already exists in database: {}", wordDto);
             }
         }
 
@@ -137,112 +183,135 @@ public class WordService {
         return newWordsList;
     }
 
-    private Word getWordFromMap(Map<String, String> wordMap) {
-        return Word.builder()
-                .russianWord(wordMap.get("ru"))
-                .englishWord(wordMap.get("en"))
-                .build();
-    }
-
+    /**
+     * Adds supplementary information to a given word object including its transcription, context, and usage examples.
+     *
+     * <p>It has been observed that certain pieces of data might be missing, but they are not critical for the
+     * immediate operations of the program. Since reaching out to the API to fetch this data can be time-consuming,
+     * the method is designed to run these fetch operations in a separate thread. This ensures the main execution thread
+     * remains unblocked, offering a more responsive user experience.</p>
+     *
+     * @param word The word object to be updated. This object may already have some fields populated.
+     */
     private void addExtraInformation(Word word) {
-        // TODO Зачем для этого создавать отдельный поток?
-        //  Здесь мог бы пригодится вебклиент.
-        //  Можно вызывать методы fetchXXXXX
-        //  и не ждать возвращения ответов каждого из них по отдельности,
-        //  а вызвать каждый без блокировки и после этого ожидать возврата всех результатов.
-        /*
-        * Последовательность операций сейчас
-        * fetchTranscription->fetchWordContext->fetchUsageExamples
-        * А могло бы быть
-        * fetchTranscription->\
-        * fetchWordContext------> wait
-        * fetchUsageExamples->/
-        *
-        * Это бы ускорило выполнение метода
-        *
-        *
-        * */
-
+        log.trace("Adding extra information for word: {}", word.getEnglishWord());
 
         Runnable runnable = () -> {
+            try {
+                fetchAndSetIfAbsent(word,
+                        Word::getTranscription,
+                        w -> fetchTranscription(w.getEnglishWord()),
+                        Word::setTranscription,
+                        "Transcription");
 
-            if (word.getTranscription() == null) {
-                String transcription = chatGptWordUtils.fetchTranscription(word.getEnglishWord());
-                if (transcription != null) {
-                    word.setTranscription(transcription);
-                }
+                fetchAndSetIfAbsent(word,
+                        Word::getContext,
+                        this::fetchContext,
+                        Word::setContext,
+                        "Context");
+
+                fetchAndSetIfAbsent(word,
+                        Word::getUsageExamples,
+                        this::fetchUsageExamples,
+                        Word::setUsageExamples,
+                        "Usage examples");
+
+                log.trace("Saving word information to repository for word: {}", word.getEnglishWord());
+                wordRepository.save(word);
+            } catch (Exception e) {
+                log.error("Error while adding extra information for word: {}", word.getEnglishWord(), e);
             }
-
-            if (word.getContext() == null) {
-                String context = chatGptWordUtils.fetchWordContext(word.getEnglishWord(), word.getRussianWord());
-                if (context != null) {
-                    word.setContext(context);
-                }
-            }
-
-            if (word.getUsageExamples() == null) {
-                String usageExamples = chatGptWordUtils.fetchUsageExamples(word.getEnglishWord());
-                if (usageExamples != null) {
-                    word.setUsageExamples(usageExamples);
-                }
-            }
-
-            wordRepository.save(word);
         };
 
+        log.trace("Submitting task to executor service for word: {}", word.getEnglishWord());
         chatGPTExecutorService.submit(runnable);
     }
 
-    //TODO какой-то функционал не реализован? Метод не вызывается
-    public void addTranscription(Word word) {
-        if (word.getTranscription() == null) {
-            String transcription = chatGptWordUtils.fetchTranscription(word.getEnglishWord());
-            if (transcription != null) {
-                word.setTranscription(transcription);
-                wordRepository.save(word);
+    /**
+     * Fetches data if it is absent in the word object and sets the fetched data.
+     *
+     * @param <T>     The type of data to be fetched and set.
+     * @param word    The word object to be updated.
+     * @param getter  A function to get the current value from the word object.
+     * @param fetcher A function to fetch the data.
+     * @param setter  A function to set the fetched data to the word object.
+     * @param type    Type of the data for logging purposes.
+     */
+    private <T> void fetchAndSetIfAbsent(Word word,
+                                         Function<Word, T> getter,
+                                         Function<Word, T> fetcher,
+                                         BiConsumer<Word, T> setter,
+                                         String type) {
+        if (getter.apply(word) == null) {
+            log.trace("Fetching {} for word: {}", type, word.getEnglishWord());
+            T data = fetcher.apply(word);
+            if (data != null) {
+                setter.accept(word, data);
             }
+            log.debug("{} for word {} is: {}", type, word.getEnglishWord(), data);
         }
+    }
+
+    /**
+     * Fetches the transcription of the given English word.
+     *
+     * @param englishWord English word for which transcription needs to be fetched.
+     * @return Transcription of the given English word.
+     */
+    private String fetchTranscription(String englishWord) {
+        return chatGptWordUtils.fetchTranscription(englishWord);
+    }
+
+    private String fetchContext(Word word) {
+        return chatGptWordUtils.fetchWordContext(word.toString());
+    }
+
+    private String fetchUsageExamples(Word word) {
+        return chatGptWordUtils.fetchUsageExamples(word.toString());
     }
 
     public void addUsageExamples(Word word) {
         if (word.getUsageExamples() == null) {
+            log.trace("Checking if usage examples are available for word: {}", word.getEnglishWord());
             String usageExamples = chatGptWordUtils.fetchUsageExamples(word.getEnglishWord());
             if (usageExamples != null) {
+                log.debug("Usage examples found for word: {}", word.getEnglishWord());
                 word.setUsageExamples(usageExamples);
                 wordRepository.save(word);
+                log.info("Saved updated word with usage examples: {}", word.getEnglishWord());
+            } else {
+                log.debug("No usage examples found for word: {}", word.getEnglishWord());
             }
         }
     }
 
     public void addWordContext(Word word) {
+        log.trace("Entering addWordContext method");
         if (word.getContext() == null) {
-            String wordContext = chatGptWordUtils.fetchWordContext(word.getEnglishWord(), word.getRussianWord());
+            log.debug("Word context is null. Fetching word context from chatGptWordUtils.");
+            String wordContext = chatGptWordUtils.fetchWordContext(word.toString());
             if (wordContext != null) {
+                log.debug("Word context fetched successfully. Setting word context and saving word to repository.");
                 word.setContext(wordContext);
                 wordRepository.save(word);
+            } else {
+                log.debug("Failed to fetch word context. Word context remains null.");
             }
         }
+        log.trace("Exiting addWordContext method");
     }
 
-    // TODO именование, по смыслу вытаскивается слово между пробелами, а по факту нет
-    public String getStringBetweenSpaces(String input) {
-        int startIndex = input.indexOf('\'') + 1;
-        int endIndex = input.lastIndexOf('\'');
-
-        if (startIndex >= endIndex) {
-            return "";
-        }
-
-        return input.substring(startIndex, endIndex);
-    }
-
-    // TODO Если это сервис, то зачем делать в нём публичные статические методы?
-    //  Пусть это будут обычные методы, а в вызывающих классах этот сервис можно заинжектить
     public static String capitalizeFirstLetter(String str) {
-        if (str == null || str.length() == 0) {
+        log.trace("Entering capitalizeFirstLetter method");
+        if (str == null || str.isEmpty()) {
+            log.debug("Input string is null or empty");
             return str;
         }
-        // TODO: Нужно ли приводить к нижнему регистру остальную часть слова?
-        return str.substring(0, 1).toUpperCase() + str.substring(1);
+
+        String capitalizedStr = str.substring(0, 1).toUpperCase() + str.substring(1);
+        log.debug("Capitalized string: " + capitalizedStr);
+
+        log.trace("Exiting capitalizeFirstLetter method");
+        return capitalizedStr;
     }
 }

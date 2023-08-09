@@ -23,20 +23,29 @@ public class HandleUsageExamplesCommand implements SomeCallbackQueryHandler {
 
     @Override
     public void handle(BotEvent botEvent, AppUser appUser) {
-        log.debug("Handling 'Usage Examples' command for bot event: {}", botEvent);
-        var wordText = KeyboardDataEnum.getWord(botEvent.getData());
-        var word = wordService.getWordByTextMessage(wordText);
+        log.trace("Handling event for user: {}", appUser.getUsername());
 
-        try {
+        var wordText = KeyboardDataEnum.getWord(botEvent.getData());
+        log.debug("Retrieved wordText: {}", wordText);
+
+        var wordOptional = wordService.getWordByTextMessage(wordText);
+
+        if (wordOptional.isPresent()) {
+            var word = wordOptional.get();
+            log.debug("Found word: {}", word);
+
             if (word.getUsageExamples() == null) {
+                log.debug("Usage examples not found for word: {}. Adding...", word);
                 wordService.addUsageExamples(word);
             }
+
             messageService.sendMessage(botEvent.getId(), word.getUsageExamples());
-        } catch (NullPointerException e) {
-            log.error("Произошла ошибка во время отправки Примеров использования ", e);
+        } else {
+            log.warn("Word not found for text: {}. Sending error message.", wordText);
             templateMessagesSender.sendErrorMessage(botEvent.getId());
         }
     }
+
 
     public KeyboardDataEnum availableFor() {
         return KeyboardDataEnum.USAGE_EXAMPLES;

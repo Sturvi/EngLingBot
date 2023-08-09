@@ -15,7 +15,7 @@ import java.util.Optional;
 @Repository
 public interface UserVocabularyRepository extends JpaRepository<UserVocabulary, Long> {
 
-    @Query("SELECT uwl FROM UserVocabulary uwl WHERE uwl.user = :user AND uwl.listType IN :types")
+    @Query("SELECT uwl FROM UserVocabulary uwl WHERE uwl.user = :user AND uwl.listType IN :types AND uwl.updatedAt <= CURRENT_DATE - uwl.timerValue")
     List<UserVocabulary> findByUserAndListTypeIn(@Param("user") AppUser user, @Param("types") List<UserWordState> types);
 
     UserVocabulary findByUserAndWord(AppUser user, Word word);

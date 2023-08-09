@@ -8,6 +8,7 @@ import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.handlers.interfaces.SomeCallbackQueryHandler;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
 import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TemplateMessagesSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,19 +20,27 @@ public class HandleRememberedCommand implements SomeCallbackQueryHandler {
     private final WordService wordService;
     private final UserVocabularyService userVocabularyService;
     private final MessageService messageService;
+    private final TemplateMessagesSender templateMessagesSender;
 
 
     @Override
     public void handle(BotEvent botEvent, AppUser appUser) {
         log.debug("Handling 'Remembered' command for bot event: {}", botEvent);
         var wordText = KeyboardDataEnum.getWord(botEvent.getData());
-        var word = wordService.getWordByTextMessage(wordText);
+        var wordOptional = wordService.getWordByTextMessage(wordText);
 
-        userVocabularyService.updateUserVocabulary(appUser, word);
+        if (wordOptional.isPresent()) {
+            var word = wordOptional.get();
+            userVocabularyService.updateUserVocabulary(appUser, word);
 
-        var keyboard = InlineKeyboardMarkupFactory.getNextKeyboard();
+            var keyboard = InlineKeyboardMarkupFactory.getNextKeyboard();
 
-        messageService.editMessageWithInlineKeyboard(botEvent, botEvent.getText(), keyboard);
+            messageService.editMessageWithInlineKeyboard(botEvent, botEvent.getText(), keyboard);
+        } else {
+            templateMessagesSender.sendErrorMessage(botEvent.getId());
+        }
+
+
     }
 
     @Override

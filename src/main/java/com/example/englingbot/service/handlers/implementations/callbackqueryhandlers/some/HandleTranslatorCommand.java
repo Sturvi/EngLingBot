@@ -28,6 +28,11 @@ public class HandleTranslatorCommand implements SomeCallbackQueryHandler {
 
         var newWordsList = wordService.addNewWordFromExternalApi(wordString);
 
+        if (newWordsList.isEmpty()){
+            messageService.sendMessage(botEvent.getId(), "Не получено новых переводов слов.");
+            return;
+        }
+
         for (Word word : newWordsList) {
             var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard(word.toString());
             messageService.sendMessageWithInlineKeyboard(botEvent.getId(), word.toString(), keyboard);

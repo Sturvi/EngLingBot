@@ -2,6 +2,7 @@ package com.example.englingbot.service.handlers.implementations.callbackqueryhan
 
 
 import com.example.englingbot.model.AppUser;
+import com.example.englingbot.model.Word;
 import com.example.englingbot.service.UserVocabularyService;
 import com.example.englingbot.service.WordService;
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
@@ -25,19 +26,31 @@ public class HandleLearnedCommand implements SomeCallbackQueryHandler {
 
     @Override
     public void handle(BotEvent botEvent, AppUser appUser) {
-        log.debug("Handling 'Learned' command for bot event: {}", botEvent);
-        var wordText = KeyboardDataEnum.getWord(botEvent.getData());
-        var word = wordService.getWordByTextMessage(wordText);
+        log.trace("Starting handle method for BotEvent with ID: {}", botEvent.getId());
 
-        try {
+        var wordText = KeyboardDataEnum.getWord(botEvent.getData());
+        log.debug("Retrieved wordText: {}", wordText);
+
+        var wordOptional = wordService.getWordByTextMessage(wordText);
+
+        if (wordOptional.isPresent()) {
+            var word = wordOptional.get();
+            log.debug("Word found: {}", word);
+
             userVocabularyService.setLearnedState(appUser, word);
+            log.debug("Set learned state for user: {}", appUser.getId());
+
             var keyboard = InlineKeyboardMarkupFactory.getNextKeyboard();
             messageService.editMessageWithInlineKeyboard(botEvent, botEvent.getText(), keyboard);
-        } catch (NullPointerException e) {
-            log.error("Ошибка обработки запроса ", e);
+            log.debug("Edited message with inline keyboard for BotEvent with ID: {}", botEvent.getId());
+        } else {
+            log.warn("Word not found for wordText: {}", wordText);
             templateMessagesSender.sendErrorMessage(botEvent.getId());
         }
+
+        log.trace("Finished handle method for BotEvent with ID: {}", botEvent.getId());
     }
+
 
     @Override
     public KeyboardDataEnum availableFor() {

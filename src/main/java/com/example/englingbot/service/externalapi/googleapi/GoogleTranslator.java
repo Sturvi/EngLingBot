@@ -1,6 +1,6 @@
 package com.example.englingbot.service.externalapi.googleapi;
 
-import com.example.englingbot.service.WordService;
+import com.example.englingbot.dto.WordDto;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -11,13 +11,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -32,6 +30,7 @@ public class GoogleTranslator {
     private final WebClient webClient;
     private final Gson gson;
 
+
     @Autowired
     public GoogleTranslator(WebClient webClient, Gson gson) {
         this.webClient = webClient;
@@ -39,25 +38,18 @@ public class GoogleTranslator {
     }
 
 
-    /**
-     * Translates the given word to Russian and English, then stores and returns the results in a Map.
-     * To retrieve the Russian translation from the map, use the key "ru". For the English translation, use the key "en".
-     *
-     * @param word       The word to be translated.
-     * @return           A map containing the translations of the word in Russian and English.
-     */
-    public Map<String, String> translate(String word) {
-        var resultMap = new HashMap <String, String>();
+    public WordDto translate(String word) {
+        WordDto wordDto = new WordDto();
         String[] languages = {"ru", "en"};
         for (String language : languages) {
             log.info("Translating word {} to language {}", word, language);
             HttpEntity<Map<String, String>> entity = createRequestEntity(word, language);
             Mono<String> response = sendHttpRequest(entity);
-            parseResponse(response.block(), resultMap, language);
+            parseResponseToWordDto(response.block(), wordDto, language);
             log.info("Translation completed for language {}", language);
         }
 
-        return resultMap;
+        return wordDto;
     }
 
     /**
@@ -93,19 +85,18 @@ public class GoogleTranslator {
         }
     }
 
-    /**
-     * Parses the response from Google Translate API and puts the translations into the provided resultMap.
-     * @param response The response from Google Translate API as a String.
-     * @param resultMap The map where the translations will be stored with language codes as keys.
-     * @param language The language code of the translation.
-     */
-    private void parseResponse(String response, Map<String, String> resultMap, String language) {
+    private void parseResponseToWordDto(String response, WordDto wordDto, String language) {
         JsonObject root = gson.fromJson(response, JsonObject.class);
         JsonArray translations = root.getAsJsonObject("data").getAsJsonArray("translations");
 
         for (JsonElement translation : translations) {
             String translatedText = translation.getAsJsonObject().get("translatedText").getAsString();
-            resultMap.put(language, WordService.capitalizeFirstLetter(translatedText));
+
+            if (language.equals("ru")) {
+                wordDto.setRussianWord(translatedText);
+            } else if (language.equals("en")) {
+                wordDto.setEnglishWord(translatedText);
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.englingbot.service.externalapi.chatgpt;
 
+import com.example.englingbot.dto.WordDto;
 import com.example.englingbot.model.Word;
 import com.example.englingbot.service.WordService;
 import com.google.gson.Gson;
@@ -17,7 +18,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class ChatGptWordUtils extends ChatGpt {
 
-    private static final Pattern pattern = Pattern.compile("(ru:\\s?[а-яёА-ЯЁ]+,\\s?en:\\s?[a-zA-Z]+\\.\\s?)+");
+    private final Pattern pattern = Pattern.compile("(ru:\\s?[а-яёА-ЯЁ]+,\\s?en:\\s?[a-zA-Z]+\\.\\s?)+");
 
 
     public ChatGptWordUtils(WebClient webClient, Gson gson) {
@@ -25,7 +26,7 @@ public class ChatGptWordUtils extends ChatGpt {
     }
 
 
-    public List<Word> getTranslations(String incomingWord) {
+    public List<WordDto> getTranslations(String incomingWord) {
         log.debug("Entering getTranslations (String incomingWord)");
 
         String prompt = constructPrompt(incomingWord, ChatGptPromptsEnum.NEW_WORD);
@@ -33,14 +34,14 @@ public class ChatGptWordUtils extends ChatGpt {
         var apiResponse = chat(prompt);
         log.debug("Получен ответ из Chat Gpt: {}", apiResponse);
 
-        List<Word> words = new ArrayList<>();
+        List<WordDto> words = new ArrayList<>();
 
         if (doesMatchPattern(apiResponse)) {
             log.info("The string matches the pattern");
             String[] splitResponse = splitResponse(apiResponse);
 
             for (String str : splitResponse) {
-                Word word = extractWordFromResponse(str);
+                WordDto word = extractWordFromResponse(str);
 
                 if (wordMatchesIncomingWord(word, incomingWord)) {
                     words.add(word);
@@ -88,10 +89,9 @@ public class ChatGptWordUtils extends ChatGpt {
         return chat(promt);
     }
 
-    public String fetchWordContext(String englishWord, String russianWord) {
+    public String fetchWordContext(String word) {
         log.debug("Entering fetchWordContext(String englishWord, String russianWord)");
 
-        String word = englishWord + " - " + russianWord;
         String promt = constructPrompt(word, ChatGptPromptsEnum.CONTEXT);
 
         return chat(promt);
@@ -141,21 +141,25 @@ public class ChatGptWordUtils extends ChatGpt {
      * @param str the string from which to extract the Word object.
      * @return a Word object containing the extracted words.
      */
-    private Word extractWordFromResponse(String str) {
+    private WordDto extractWordFromResponse(String str) {
         log.debug("Entering extractWordFromResponse(String str)");
 
-        String[] splitStr = str.replaceAll("\\.", "").split(", ");
+        String[] splitStr = str.replace(".", "").split(", ");
 
-        String russianWord = WordService.capitalizeFirstLetter(splitStr[0].substring(4)); // 4 - длина строки "ru: "
-        String englishWord = WordService.capitalizeFirstLetter(splitStr[1].substring(4)); // 4 - длина строки "en: "
+        String russianWord = splitStr[0].substring(4); // 4 - длина строки "ru: "
+        String englishWord = splitStr[1].substring(4); // 4 - длина строки "en: "
 
-        Word word = Word.builder().russianWord(russianWord).englishWord(englishWord).build();
+        WordDto word = WordDto.builder()
+                .russianWord(russianWord.trim())
+                .englishWord(englishWord.trim())
+                .build();
+
         log.debug("Returning word: {}", word);
         return word;
     }
 
 
-    private boolean wordMatchesIncomingWord(Word word, String incomingWord) {
+    private boolean wordMatchesIncomingWord(WordDto word, String incomingWord) {
         return word.getRussianWord().equalsIgnoreCase(incomingWord) ||
                 word.getEnglishWord().equalsIgnoreCase(incomingWord);
     }

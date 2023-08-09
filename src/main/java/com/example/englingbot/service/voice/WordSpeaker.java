@@ -9,6 +9,10 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Optional;
 
 /**
  * A class responsible for handling voice files for words.
@@ -20,23 +24,21 @@ public class WordSpeaker {
     private File directory;
     private final MicrosoftTtsService microsoftTtsService;
 
-    /**
-     * Gets the voice file for the given word. If the file does not exist, it uses the Microsoft TTS service to create it.
-     * @param word The word for which the voice file is needed.
-     * @return The voice file.
-     * @throws IOException If an I/O error occurs.
-     */
-    public File getVoice(Word word) throws IOException {
+
+    public Optional<File> getVoice(Word word) {
+        log.trace("Checking if voice file exists for word: {}", word.getEnglishWord());
         File voice = new File(directory, word.getEnglishWord() + ".wav");
 
         if (!voice.exists()) {
             log.debug("Voice file does not exist for word {}. Creating it using Microsoft TTS service.", word.getEnglishWord());
             microsoftTtsService.textToSpeech(word.getEnglishWord(), voice.toPath());
+            log.info("Voice file created for word: {}", word.getEnglishWord());
         } else {
-            log.debug("Voice file found for word {}", word.getEnglishWord());
+            log.debug("Voice file found for word: {}", word.getEnglishWord());
         }
 
-        return voice;
+        log.trace("Returning voice file: {}", voice.getAbsolutePath());
+        return Optional.of(voice);
     }
 
     /**
@@ -45,19 +47,20 @@ public class WordSpeaker {
     @PostConstruct
     private void getFreeVoiceDirectory() {
         int i = 0;
+        Path dirPath;
 
-        while (true) {
+        do {
             String dirName = i == 0 ? "voice" : "voice" + i;
-            File tempDirectory = new File(dirName);
+            dirPath = Paths.get(dirName);
+            i++;
+        } while (Files.exists(dirPath));
 
-            if (!tempDirectory.exists() || tempDirectory.isDirectory()) {
-                log.debug("Creating voice directory {}", dirName);
-                tempDirectory.mkdirs();
-                directory = tempDirectory;
-                return;
-            } else {
-                i++;
-            }
+        log.trace("Creating directory: {}", dirPath.toString());
+        try {
+            Files.createDirectories(dirPath);
+            directory = dirPath.toFile();
+        } catch (IOException e) {
+            log.error("Error creating directory {}", dirPath, e);
         }
     }
 }

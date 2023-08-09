@@ -14,6 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -54,15 +55,20 @@ public class MessageService {
     }
 
     public void sendAudioWithWord(Long chatId, UserVocabulary userWord, String messageText) {
-        try {
-            File audio = wordSpeaker.getVoice(userWord.getWord());
-            sendAudio(chatId, "Произношение слова", audio);
-        } catch (Exception e) {
-            log.error(e.toString());
+        log.trace("Entering sendAudioWithWord method");
+        Optional<File> audio = wordSpeaker.getVoice(userWord.getWord());
+
+        if (audio.isPresent()) {
+            log.debug("Audio file found for word: {}", userWord.getWord());
+            sendAudio(chatId, "Произношение слова", audio.get());
+        } else {
+            log.debug("No audio file found for word: {}", userWord.getWord());
         }
 
         var keyboard = InlineKeyboardMarkupFactory.getKeyboardForCurrentWordInUserWordList(userWord, userWord.getWord().toString());
+        log.debug("Inline keyboard created for word: {}", userWord.getWord());
 
         sendMessageWithInlineKeyboard(chatId, messageText, keyboard);
+        log.trace("Exiting sendAudioWithWord method");
     }
 }
