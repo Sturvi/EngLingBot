@@ -53,14 +53,19 @@ public class WordSpeaker {
             String dirName = i == 0 ? "voice" : "voice" + i;
             dirPath = Paths.get(dirName);
             i++;
-        } while (Files.exists(dirPath));
+        } while (Files.exists(dirPath) && !Files.isDirectory(dirPath));
 
-        log.trace("Creating directory: {}", dirPath.toString());
-        try {
-            Files.createDirectories(dirPath);
+        if (!Files.exists(dirPath)) {
+            log.trace("Creating directory: {}", dirPath.toString());
+            try {
+                Files.createDirectories(dirPath);
+                directory = dirPath.toFile();
+            } catch (IOException e) {
+                log.error("Error creating directory {}", dirPath, e);
+            }
+        } else {
             directory = dirPath.toFile();
-        } catch (IOException e) {
-            log.error("Error creating directory {}", dirPath, e);
         }
     }
+
 }
