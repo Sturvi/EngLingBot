@@ -1,5 +1,9 @@
 package com.example.englingbot.service.comandsenums;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public enum TextCommandsEnum {
     START("/start"),
     HELP("/help"),
@@ -12,8 +16,7 @@ public enum TextCommandsEnum {
     LIST_REPETITION_WORDS("\uD83D\uDCD3 Список слов на повторении"),
     ADD_RANDOM_WORDS("\uD83D\uDCD6 Добавить случайные слова"),
     STATISTIC("/statistic"),
-    DELETE("/delete"),
-    ;
+    DELETE("/delete");
 
     private final String command;
 
@@ -25,12 +28,16 @@ public enum TextCommandsEnum {
         return command;
     }
 
+    private static final Map<String, TextCommandsEnum> commands =
+            Arrays.stream(TextCommandsEnum.values())
+                    .collect(Collectors.toMap(
+                            element -> element.getCommand().toUpperCase(),
+                            element -> element
+                    ));
+
     public static TextCommandsEnum fromString(String textCommand) {
-        for (TextCommandsEnum b : TextCommandsEnum.values()) {
-            if (b.command.equalsIgnoreCase(textCommand)) {
-                return b;
-            }
-        }
-        return null;
+        System.out.println(textCommand);
+        System.out.println(commands);
+        return commands.get(textCommand.toUpperCase());
     }
 }

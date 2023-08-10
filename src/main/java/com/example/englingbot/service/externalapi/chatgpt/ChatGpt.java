@@ -4,8 +4,6 @@ import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,10 +14,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.*;
 
 /**
  * ChatGpt class for interacting with OpenAI ChatGPT API.
@@ -32,11 +27,7 @@ public class ChatGpt {
     private String apiKey;
     private final WebClient webClient;
     private final Gson gson;
-    private final RateLimiter rateLimiter = RateLimiter.create(0.047);
 
-    private PriorityQueue<Request> requestQueue = new PriorityQueue<>((r1, r2) -> Integer.compare(r1.getPriority(), r2.getPriority()));
-    private Thread processRequestThread;
-    private volatile boolean running = false;
 
     /**
      * Constructs a ChatGpt instance.
@@ -51,50 +42,12 @@ public class ChatGpt {
     }
 
     /**
-     * Initializes request processing thread.
-     */
-    @PostConstruct
-    private void startProcessRequests() {
-        log.debug("Starting request processing thread");
-        Runnable runnable = this::processRequests;
-
-        running = true;
-        processRequestThread = new Thread(runnable);
-        processRequestThread.start();
-    }
-
-    /**
-     * Stops request processing thread.
-     */
-    @PreDestroy
-    private void stopProcessRequests() {
-        log.debug("Stopping request processing thread");
-        running = false;
-        if (processRequestThread != null) {
-            processRequestThread.interrupt();
-        }
-    }
-
-    /**
-     * Adds a request to the request queue.
-     *
-     * @param request The request to be added
-     */
-    public void addRequest(Request request) {
-        log.debug("Adding request to the queue: {}", request);
-        synchronized (requestQueue) {
-            requestQueue.add(request);
-            requestQueue.notify();
-        }
-    }
-
-    /**
      * Sends chat prompt to OpenAI API and returns the response.
      *
      * @param promt The prompt to be sent
      * @return The response from the OpenAI API
      */
-    private String chat(String promt) {
+    public String chat(String promt) {
         log.info("Sending word {} to OpenAI ChatGPT API", promt);
         var requestEntity = createRequestEntity(promt);
         Mono<String> response = sendHttpRequest(requestEntity);
@@ -136,7 +89,7 @@ public class ChatGpt {
                         if (response.statusCode().isError()) {
                             return response.bodyToMono(String.class)
                                     .doOnNext(errorBody -> log.error("Error Body: {}", errorBody))
-                                    .flatMap(errorBody -> Mono.<String>error(new RuntimeException("Error retrieving word from ChatGPT. Status: " + response.statusCode() + " Error Body: " + errorBody)));
+                                    .flatMap(errorBody -> Mono.error(new RuntimeException("Error retrieving word from ChatGPT. Status: " + response.statusCode() + " Error Body: " + errorBody)));
                         } else {
                             return response.bodyToMono(String.class);
                         }
@@ -168,39 +121,5 @@ public class ChatGpt {
         }
 
         return null;
-    }
-
-    /**
-     * Processes requests from the request queue.
-     */
-    public void processRequests() {
-        log.debug("Processing requests");
-        while (running) {
-            Request request = null;
-            rateLimiter.acquire();
-            synchronized (requestQueue) {
-                while (requestQueue.isEmpty() && running) {
-                    try {
-                        requestQueue.wait();
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        return;
-                    }
-                }
-                if (running) {
-                    request = requestQueue.poll();
-                }
-            }
-
-            if (request != null && running) {
-                try {
-                    String response = chat(request.getPromt());
-                    request.setResponse(response);
-                } catch (Exception e) {
-                    request.setResponse("An error occurred while sending the request.");
-                    log.error("Error processing request", e);
-                }
-            }
-        }
     }
 }

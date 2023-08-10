@@ -2,16 +2,15 @@ package com.example.englingbot.model;
 
 import com.example.englingbot.model.enums.UserWordState;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "users_vocabulary")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @SuperBuilder
 public class UserVocabulary extends AbstractEntity {
@@ -20,7 +19,7 @@ public class UserVocabulary extends AbstractEntity {
     @Column(name = "list_type", columnDefinition = "varchar(255) default 'LEARNING'")
     private UserWordState listType;
 
-    @Column(name = "timer_value")
+    @Column(name = "timer_value", columnDefinition = "0")
     private Integer timerValue;
 
     @ManyToOne

@@ -3,6 +3,8 @@ package com.example.englingbot.service.handlers.implementations;
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.service.AppUserService;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
+import com.example.englingbot.service.handlers.implementations.callbackqueryhandlers.CallbackQueryHandler;
+import com.example.englingbot.service.handlers.implementations.messagehandlers.MessageHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -35,7 +37,7 @@ class UpdateHandlerTests {
         when(botEvent.getFrom()).thenReturn(user);
         AppUser appUser = mock(AppUser.class);
         when(appUserService.saveOrUpdateAppUser(user)).thenReturn(appUser);
-        updateHandler = new UpdateHandler(appUserService, messageHandler, callbackQueryHandler);
+        updateHandler = new UpdateHandler(messageHandler, callbackQueryHandler);
     }
 
     @Test

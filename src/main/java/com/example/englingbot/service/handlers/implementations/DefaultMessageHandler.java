@@ -5,10 +5,9 @@ import com.example.englingbot.model.Word;
 import com.example.englingbot.model.enums.UserStateEnum;
 import com.example.englingbot.service.WordService;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
-import com.example.englingbot.service.handlers.Handler;
+import com.example.englingbot.service.handlers.interfaces.Handler;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
 import com.example.englingbot.service.message.MessageService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -65,12 +64,12 @@ public class DefaultMessageHandler implements Handler {
                 var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard(word.toString());
                 messageService
                         .sendMessageWithInlineKeyboard(botEvent.getId(), word.toString(), keyboard);
-
-                keyboard = InlineKeyboardMarkupFactory.getWordFromTranslatorKeyboard(incomingWord);
-                messageService.sendMessageWithInlineKeyboard(botEvent.getId(),
-                        "Нет нужного перевода?",
-                        keyboard);
             }
+
+            var keyboard = InlineKeyboardMarkupFactory.getWordFromTranslatorKeyboard(incomingWord);
+            messageService.sendMessageWithInlineKeyboard(botEvent.getId(),
+                    "Нет нужного перевода?",
+                    keyboard);
         } else {
             var keyboard = InlineKeyboardMarkupFactory.getWordFromTranslatorKeyboard(incomingWord);
             messageService

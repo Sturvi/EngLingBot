@@ -22,6 +22,7 @@ import java.util.Optional;
 public class AppUserService {
 
     private final AppUserRepository appUserRepository;
+    private final UserMapper userMapper;
 
     /**
      * Saves or updates the user information.
@@ -30,18 +31,19 @@ public class AppUserService {
      * @return The saved or updated user.
      */
     public AppUser saveOrUpdateAppUser(User user) {
-        log.debug("Starting saveOrUpdateAppUser method for ID: {}", user.getId());
+        log.trace("Saving or updating AppUser");
 
         AppUser appUser = appUserRepository.findByTelegramChatId(user.getId()).map(existingUserEntity -> {
-            log.debug("User with ID: {} found in the database, updating...", user.getId());
+            log.debug("Updating existing AppUser in the database");
             updateAppUserInDataBase(user, existingUserEntity);
             return appUserRepository.save(existingUserEntity);
         }).orElseGet(() -> {
-            log.debug("User with ID: {} not found in the database, creating a new user...", user.getId());
+            log.debug("Saving new AppUser to the database");
             return saveAppUser(user);
         });
 
-        log.debug("Ending saveOrUpdateAppUser method for ID: {}", user.getId());
+        log.trace("AppUser saved or updated successfully");
+
         return appUser;
     }
 
@@ -52,14 +54,12 @@ public class AppUserService {
      * @return The saved user.
      */
     private AppUser saveAppUser(User user) {
-        log.debug("Saving user with ID: {}", user.getId());
-
-        AppUser userEntity = UserMapper.mapNewUserToUserEntity(user);
-
-        appUserRepository.save(userEntity);
-
-        return userEntity;
+        log.trace("Saving AppUser");
+        AppUser appUser = appUserRepository.saveAndFlush(userMapper.mapNewUserToUserEntity(user));
+        log.debug("AppUser saved successfully");
+        return appUser;
     }
+
 
     /**
      * Updates an existing user in the database.
@@ -69,7 +69,11 @@ public class AppUserService {
      * @return The updated user.
      */
     private AppUser updateAppUserInDataBase(User user, AppUser userEntity) {
-        UserMapper.updateExistingUserEntityFromTelegramUser(user, userEntity);
+        log.trace("Updating AppUser in the database");
+        log.debug("Updating user entity from Telegram user: {}", user);
+        userMapper.updateExistingUserEntityFromTelegramUser(user, userEntity);
+        log.debug("Updated user entity: {}", userEntity);
+        log.trace("AppUser updated successfully");
         return userEntity;
     }
 
@@ -80,10 +84,15 @@ public class AppUserService {
      * @return The user entity.
      */
     public AppUser getAppUser(BotEvent botEvent) {
-        log.debug("Getting user with ID: {}", botEvent.getId());
-        return appUserRepository
+        log.trace("Entering getAppUser method");
+        AppUser appUser = appUserRepository
                 .findByTelegramChatId(botEvent.getId())
-                .orElseGet(() -> UserMapper.mapNewUserToUserEntity(botEvent.getFrom()));
+                .orElseGet(() -> {
+                    log.debug("Telegram chat ID not found in the database. Creating a new user.");
+                    return userMapper.mapNewUserToUserEntity(botEvent.getFrom());
+                });
+        log.trace("Exiting getAppUser method");
+        return appUser;
     }
 
     /**
@@ -93,9 +102,12 @@ public class AppUserService {
      * @return The user entity.
      */
     public Optional<AppUser> getAppUser(Long chatId) {
+        log.trace("Entering getAppUser method");
         log.debug("Getting user with chat ID: {}", chatId);
-        return appUserRepository
-                .findByTelegramChatId(chatId);
+        Optional<AppUser> user = appUserRepository.findByTelegramChatId(chatId);
+        log.trace("Exiting getAppUser method");
+        return user;
+
     }
 
     /**
@@ -105,8 +117,10 @@ public class AppUserService {
      * @return The saved user.
      */
     public AppUser save(AppUser appUser) {
+        log.trace("Entering save method");
         log.debug("Saving user entity...");
         appUserRepository.save(appUser);
+        log.trace("Exiting save method");
         return appUser;
     }
 }

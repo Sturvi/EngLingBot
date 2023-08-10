@@ -1,7 +1,6 @@
 package com.example.englingbot.service.keyboards;
 
 import com.example.englingbot.model.UserVocabulary;
-import com.example.englingbot.model.Word;
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
@@ -51,11 +50,11 @@ public class InlineKeyboardMarkupFactory extends AbstractInlineKeyboardMarkupFac
             addButtonToNewLine(keyboard, KeyboardDataEnum.LEARNED, word);
         }
 
-        addButtonToNewLine(keyboard, KeyboardDataEnum.USAGEEXAMPLES, word);
+        addButtonToNewLine(keyboard, KeyboardDataEnum.USAGE_EXAMPLES, word);
 
         addButtonToNewLine(keyboard, KeyboardDataEnum.REMEMBERED, word);
         addButtonToCurrentLine(keyboard, KeyboardDataEnum.CONTEXT, word);
-        addButtonToCurrentLine(keyboard, KeyboardDataEnum.NOTREMEMBERED, word);
+        addButtonToCurrentLine(keyboard, KeyboardDataEnum.NOT_REMEMBERED, word);
 
         return keyboard;
     }
