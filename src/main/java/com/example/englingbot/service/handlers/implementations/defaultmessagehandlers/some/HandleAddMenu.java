@@ -28,7 +28,7 @@ public class HandleAddMenu implements SomeDefaultMessageHandler {
 
         if (!wordList.isEmpty()) {
             for (Word word : wordList) {
-                var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard(word.toString());
+                var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard(word.getId().toString());
                 messageService
                         .sendMessageWithInlineKeyboard(botEvent.getId(), word.toString(), keyboard);
             }

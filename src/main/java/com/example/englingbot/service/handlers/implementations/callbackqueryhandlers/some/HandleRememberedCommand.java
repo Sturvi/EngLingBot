@@ -26,8 +26,8 @@ public class HandleRememberedCommand implements SomeCallbackQueryHandler {
     @Override
     public void handle(BotEvent botEvent, AppUser appUser) {
         log.debug("Handling 'Remembered' command for bot event: {}", botEvent);
-        var wordText = KeyboardDataEnum.getWord(botEvent.getData());
-        var wordOptional = wordService.getWordByTextMessage(wordText);
+        var wordId = KeyboardDataEnum.getWordId(botEvent.getData());
+        var wordOptional = wordService.getWord(wordId);
 
         if (wordOptional.isPresent()) {
             var word = wordOptional.get();

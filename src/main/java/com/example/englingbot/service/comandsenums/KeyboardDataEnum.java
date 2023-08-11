@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public enum KeyboardDataEnum {
 
-    TRANSLATOR ("get from translator ", "Получить онлайн перевод"),
+    TRANSLATOR ("tr ", "Получить онлайн перевод"),
     LEARNED ("learned ", "\uD83D\uDC68\u200D\uD83C\uDF93 Уже выучил слово"),
     USAGE_EXAMPLES("usage examples ", "Примеры использования"),
     REMEMBERED ("Remembered ", "✅ Вспомнил"),
@@ -42,6 +42,15 @@ public enum KeyboardDataEnum {
                 .filter(b -> data.toLowerCase().startsWith(b.getData().toLowerCase()))
                 .map(b -> data.replaceAll(b.getData(), "").trim())
                 .findFirst()
+                .orElse(null);
+    }
+
+    public static Long getWordId(String data) {
+        return Arrays.stream(KeyboardDataEnum.values())
+                .filter(b -> data.toLowerCase().startsWith(b.getData().toLowerCase()))
+                .map(b -> data.replaceAll(b.getData(), "").trim())
+                .findFirst()
+                .map(Long::parseLong)
                 .orElse(null);
     }
 }

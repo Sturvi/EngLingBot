@@ -34,11 +34,11 @@ public abstract class AbstractInlineKeyboardMarkupFactory {
      *
      * @param inlineKeyboardMarkup InlineKeyboardMarkup object to add the button to.
      * @param keyboardDataEnum     Enum representing the data for the button.
-     * @param word                 Word for the button text.
+     * @param identifierInData                 Word for the button text.
      * @param isNewLine            Whether to add the button to a new line.
      */
-    protected static void addButton(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum, String word, boolean isNewLine) {
-        var data = word != null ? keyboardDataEnum.getData() + " " + word : keyboardDataEnum.getData();
+    protected static void addButton(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum, String identifierInData, boolean isNewLine) {
+        var data = identifierInData != null ? keyboardDataEnum.getData() + " " + identifierInData : keyboardDataEnum.getData();
         var text = keyboardDataEnum.getText();
         log.debug("Adding button to {} line: text={}, data={}", isNewLine ? "new" : "current", text, data);
         var keyboardRoad = isNewLine ? getNewKeyboardRoad(inlineKeyboardMarkup) : getCurrentKeyboardRoad(inlineKeyboardMarkup);

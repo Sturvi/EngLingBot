@@ -42,14 +42,14 @@ public class HandleYesCommand implements SomeCallbackQueryHandler {
     }
 
     private Word getWordFromEvent(BotEvent botEvent) {
-        var wordText = KeyboardDataEnum.getWord(botEvent.getData());
-        var wordOptional = wordService.getWordByTextMessage(wordText);
+        var wordId = KeyboardDataEnum.getWordId(botEvent.getData());
+        var wordOptional = wordService.getWord(wordId);
 
         if (wordOptional.isPresent()) {
-            log.debug("Successfully retrieved word: {}", wordText);
+            log.debug("Successfully retrieved word: {}", wordId);
             return wordOptional.get();
         } else {
-            log.warn("Unable to find word for text: {}", wordText);
+            log.warn("Unable to find word for text: {}", wordId);
             templateMessagesSender.sendErrorMessage(botEvent.getId());
             return null;
         }

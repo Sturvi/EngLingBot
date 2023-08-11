@@ -22,8 +22,8 @@ public class HandleContextCommand implements SomeCallbackQueryHandler {
 
     public void handle(BotEvent botEvent, AppUser appUser) {
         log.trace("Handling 'Context' command for bot event: {}", botEvent);
-        var wordText = KeyboardDataEnum.getWord(botEvent.getData());
-        var wordOptional = wordService.getWordByTextMessage(wordText);
+        var wordId = KeyboardDataEnum.getWordId(botEvent.getData());
+        var wordOptional = wordService.getWord(wordId);
 
         if (wordOptional.isPresent()) {
             Word word = wordOptional.get();
@@ -33,7 +33,7 @@ public class HandleContextCommand implements SomeCallbackQueryHandler {
             }
             messageService.sendMessage(botEvent.getId(), word.getContext());
         } else {
-            log.error("Failed to find the word '{}' in the database", wordText);
+            log.error("Failed to find the word '{}' in the database", wordId);
             templateMessagesSender.sendErrorMessage(botEvent.getId());
         }
     }
