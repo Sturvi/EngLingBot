@@ -9,6 +9,7 @@ import com.example.englingbot.service.externalapi.chatgpt.ChatGptWordUtils;
 import com.example.englingbot.service.externalapi.googleapi.GoogleTranslator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -19,13 +20,24 @@ import java.util.function.Function;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class WordService {
 
     private final GoogleTranslator googleTranslator;
     private final ChatGptWordUtils chatGptWordUtils;
+
     private final ExecutorService chatGPTExecutorService;
     private final WordRepository wordRepository;
+
+    public WordService(GoogleTranslator googleTranslator,
+                       ChatGptWordUtils chatGptWordUtils,
+                       @Qualifier("chatGPTExecutorService")
+                       ExecutorService chatGPTExecutorService,
+                       WordRepository wordRepository) {
+        this.googleTranslator = googleTranslator;
+        this.chatGptWordUtils = chatGptWordUtils;
+        this.chatGPTExecutorService = chatGPTExecutorService;
+        this.wordRepository = wordRepository;
+    }
 
     public List<Word> addNewWordFromExternalApi(String incomingWord) {
         log.debug("Processing incomingWord: {}", incomingWord);
