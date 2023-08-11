@@ -1,13 +1,10 @@
 package com.example.englingbot.service.message;
 
-import com.example.englingbot.model.UserVocabulary;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
-import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
 import com.example.englingbot.service.message.publishers.implementations.DeleteMessageForUser;
 import com.example.englingbot.service.message.publishers.implementations.EditMessageForUser;
-import com.example.englingbot.service.message.publishers.implementations.SendMessageForUser;
 import com.example.englingbot.service.message.publishers.implementations.SendAudioForUser;
-import com.example.englingbot.service.voice.WordSpeaker;
+import com.example.englingbot.service.message.publishers.implementations.SendMessageForUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,7 +12,6 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import java.io.File;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 

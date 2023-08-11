@@ -1,8 +1,6 @@
 package com.example.englingbot.service.externalapi.chatgpt;
 
 import com.example.englingbot.dto.WordDto;
-import com.example.englingbot.model.Word;
-import com.example.englingbot.service.WordService;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
