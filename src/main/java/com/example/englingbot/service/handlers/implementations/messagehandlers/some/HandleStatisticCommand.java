@@ -2,6 +2,7 @@ package com.example.englingbot.service.handlers.implementations.messagehandlers.
 
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.enums.UserStateEnum;
+import com.example.englingbot.service.UserVocabularyService;
 import com.example.englingbot.service.comandsenums.TextCommandsEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.handlers.interfaces.SomeMessageHandler;
@@ -10,26 +11,27 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-@Slf4j
 @Service
+@Slf4j
 @RequiredArgsConstructor
-public class HandleAnswerCommand implements SomeMessageHandler {
+public class HandleStatisticCommand implements SomeMessageHandler {
     private final MessageService messageService;
+    private final UserVocabularyService userVocabularyService;
+
 
     @Override
     public void handle(BotEvent botEvent, AppUser appUser) {
-        log.trace("Starting handle Answer Command for event: {}", botEvent);
-        appUser.setUserState(UserStateEnum.ANSWER);
+        log.trace("Entering handle method");
+        appUser.setUserState(UserStateEnum.STATISTICS);
 
-        messageService
-                .sendMessage(botEvent.getId(), "Пришлите пожалуйста ваш вопрос. \\n\\n" +
-                        "Примечание: получение ответа может занять некоторое время");
+        String messageText = userVocabularyService.getUserStatistics(appUser);
 
-        log.trace("Finished handle Answer Command for event: {}", botEvent);
+        messageService.sendMessage(botEvent.getId(), messageText);
+        log.trace("Exiting handle method");
     }
 
     @Override
     public TextCommandsEnum availableFor() {
-        return TextCommandsEnum.ANSWER;
+        return TextCommandsEnum.STATISTIC;
     }
 }

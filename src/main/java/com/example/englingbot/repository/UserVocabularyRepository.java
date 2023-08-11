@@ -15,8 +15,19 @@ import java.util.Optional;
 @Repository
 public interface UserVocabularyRepository extends JpaRepository<UserVocabulary, Long> {
 
-    @Query("SELECT uwl FROM UserVocabulary uwl WHERE uwl.user = :user AND uwl.listType IN :types AND uwl.updatedAt <= CURRENT_DATE - uwl.timerValue")
+    @Query("SELECT uwl FROM UserVocabulary uwl WHERE uwl.user = :user AND uwl.listType IN :types")
     List<UserVocabulary> findByUserAndListTypeIn(@Param("user") AppUser user, @Param("types") List<UserWordState> types);
 
     UserVocabulary findByUserAndWord(AppUser user, Word word);
+
+    Long countByUserAndListType(AppUser user, UserWordState listType);
+
+    Long countByUserAndListTypeAndTimerValue(AppUser user, UserWordState listType, Integer timerValue);
+
+    @Query("SELECT MAX(uv.timerValue) FROM UserVocabulary uv WHERE uv.user = :user AND uv.listType = :listType")
+    Optional<Integer> findTopTimerValueByUserAndListType(AppUser user, UserWordState listType);
+
+    List<UserVocabulary> findByUserAndWordIn(AppUser user, List<Word> words);
+
+    void deleteByUserAndWord(AppUser user, Word word);
 }

@@ -6,22 +6,25 @@ import org.springframework.context.ApplicationEvent;
 import org.telegram.telegrambots.meta.api.methods.send.SendAudio;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.util.concurrent.CompletableFuture;
 
 @Getter
-public class MessageEvent extends ApplicationEvent {
+public class MessageEvent<T> extends ApplicationEvent {
     public enum MessageType {
         SEND_MESSAGE,
         EDIT_MESSAGE_TEXT,
-        SEND_AUDIO
+        SEND_AUDIO,
+        DELETE_MESSAGE
     }
 
     private final MessageType messageType;
     private SendMessage sendMessage;
     private EditMessageText editMessageText;
     private SendAudio sendAudio;
+    private DeleteMessage deleteMessage;
     @Setter
     private CompletableFuture<Message> futureMessage;
 
@@ -41,6 +44,12 @@ public class MessageEvent extends ApplicationEvent {
         super(source);
         this.messageType = MessageType.SEND_AUDIO;
         this.sendAudio = message;
+    }
+
+    public MessageEvent(Object source, DeleteMessage message) {
+        super(source);
+        this.messageType = MessageType.DELETE_MESSAGE;
+        this.deleteMessage = message;
     }
 
     public void setResponse(Message response) {

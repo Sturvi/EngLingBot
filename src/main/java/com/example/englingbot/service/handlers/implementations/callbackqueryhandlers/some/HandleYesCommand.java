@@ -11,11 +11,7 @@ import com.example.englingbot.service.message.MessageService;
 import com.example.englingbot.service.message.TemplateMessagesSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.jdbc.WorkExecutor;
 import org.springframework.stereotype.Service;
-
-import static com.example.englingbot.model.enums.UserStateEnum.ADD_MENU;
-import static com.example.englingbot.model.enums.UserStateEnum.DELETE_MENU;
 
 @Slf4j
 @Service
@@ -30,35 +26,51 @@ public class HandleYesCommand implements SomeCallbackQueryHandler {
     public void handle(BotEvent botEvent, AppUser appUser) {
         log.trace("Handling bot event for user: {}", appUser.getId());
 
-        var userState = appUser.getUserState();
+        var word = getWordFromEvent(botEvent);
+        if (word == null) {
+            return;
+        }
 
-        if (userState == ADD_MENU) {
-            log.trace("User state is ADD_MENU");
-
-            var wordText = KeyboardDataEnum.getWord(botEvent.getData());
-            var wordOptional = wordService.getWordByTextMessage(wordText);
-            Word word;
-
-            if (wordOptional.isPresent()){
-                word = wordOptional.get();
-                log.debug("Successfully retrieved word: {}", wordText);
-            } else {
-                log.warn("Unable to find word for text: {}", wordText);
-                templateMessagesSender.sendErrorMessage(botEvent.getId());
-                return;
-            }
-
-            userVocabularyService.addWordToUserVocabulary(word, appUser);
-            log.debug("Added word to user's vocabulary: {}", wordText);
-
-            String newTextForMessage = "Слово: " + botEvent.getText() + " добавлено в Ваш словарь.";
-
-            messageService.editTextAndDeleteInlineKeyboard(botEvent, newTextForMessage);
-        } else if (userState == DELETE_MENU) {
-            log.trace("User state is DELETE_MENU");
-            // Handle delete menu logic here
+        switch (appUser.getUserState()) {
+            case ADD_MENU:
+                processUserWordAndSendResponse(word, botEvent, appUser, true);
+                break;
+            case DELETE_MENU:
+                processUserWordAndSendResponse(word, botEvent, appUser, false);
+                break;
         }
     }
+
+    private Word getWordFromEvent(BotEvent botEvent) {
+        var wordText = KeyboardDataEnum.getWord(botEvent.getData());
+        var wordOptional = wordService.getWordByTextMessage(wordText);
+
+        if (wordOptional.isPresent()) {
+            log.debug("Successfully retrieved word: {}", wordText);
+            return wordOptional.get();
+        } else {
+            log.warn("Unable to find word for text: {}", wordText);
+            templateMessagesSender.sendErrorMessage(botEvent.getId());
+            return null;
+        }
+    }
+
+    private void processUserWordAndSendResponse(Word word, BotEvent botEvent, AppUser appUser, boolean isAdd) {
+        String action = isAdd ? "Added" : "Deleted";
+        log.trace("User state is {}", isAdd ? "ADD_MENU" : "DELETE_MENU");
+
+        if (isAdd) {
+            userVocabularyService.addWordToUserVocabulary(word, appUser);
+        } else {
+            userVocabularyService.deleteWordFromUserVocabulary(word, appUser);
+        }
+
+        log.debug("{} word to user's vocabulary: {}", action, word.toString());
+
+        String newTextForMessage = "Слово: " + word.toString() + (isAdd ? " добавлено в Ваш словарь." : " удалено из вашего словаря.");
+        messageService.editTextAndDeleteInlineKeyboard(botEvent, newTextForMessage);
+    }
+
 
 
     @Override

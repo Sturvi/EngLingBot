@@ -6,18 +6,16 @@ import com.example.englingbot.model.UserVocabulary;
 import com.example.englingbot.model.Word;
 import com.example.englingbot.model.enums.UserWordState;
 import com.example.englingbot.repository.UserVocabularyRepository;
-import com.example.englingbot.service.message.MessageService;
-import com.example.englingbot.service.message.TemplateMessagesSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +23,6 @@ import java.util.stream.Collectors;
 public class UserVocabularyService {
 
     private final UserVocabularyRepository userVocabularyRepository;
-    private final MessageService messageService;
-    private final TemplateMessagesSender templateMessagesSender;
     private final UserVocabularyMapper userVocabularyMapper;
     private final Random random = new Random();
 
@@ -45,7 +41,6 @@ public class UserVocabularyService {
         return userVocabularies;
     }
 
-
     public Optional<UserVocabulary> getRandomUserVocabulary(AppUser user, UserWordState... types) {
         log.trace("Entering getRandomUserVocabulary method");
         List<UserVocabulary> userVocabularies = getUserVocabularies(user, types);
@@ -58,6 +53,11 @@ public class UserVocabularyService {
                 .filter(u -> u.getUpdatedAt().plusDays(u.getTimerValue()).isBefore(LocalDateTime.now()))
                 .toList();
 
+        if (userVocabularies.isEmpty()) {
+            log.debug("No user vocabularies found");
+            return Optional.empty();
+        }
+
         int randomIndex = random.nextInt(userVocabularies.size());
         UserVocabulary randomUserVocabulary = userVocabularies.get(randomIndex);
         log.debug("Selected random user vocabulary: {}", randomUserVocabulary);
@@ -65,53 +65,6 @@ public class UserVocabularyService {
         log.trace("Exiting getRandomUserVocabulary method");
         return Optional.ofNullable(randomUserVocabulary);
     }
-
-    /**
-     * Generates a string representation of the user word list.
-     *
-     * @param userVocabulary the UserWordList object
-     * @return a string representation of the UserWordList
-     */
-    public String getWordWithStatus(UserVocabulary userVocabulary) {
-        log.trace("Entering getWordWithStatus method");
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Слово из словаря \"");
-
-        switch (userVocabulary.getListType()) {
-            case LEARNING -> sb.append("Изучаемые слова");
-            case REPETITION -> sb.append("Слова на повторении ").append(userVocabulary.getTimerValue()).append(" уровня");
-            case LEARNED -> sb.append("Изученное слово");
-            default -> {
-                log.error("Invalid list type encountered: " + userVocabulary.getListType());
-            }
-        }
-
-        sb.append("\"\n\n");
-
-        Word word = userVocabulary.getWord();
-        log.trace("Got the word from userVocabulary");
-
-        var transcription = word.getTranscription() == null ? "" : word.getTranscription();
-        var englishWord = word.getEnglishWord() + " " + transcription;
-        var russianWord = word.getRussianWord();
-
-        boolean showEnglishFirst = random.nextBoolean();
-        if (showEnglishFirst) {
-            sb.append(englishWord)
-                    .append(" - ")
-                    .append(formatSpoiler(russianWord));
-        } else {
-            sb.append(russianWord)
-                    .append("   -   ")
-                    .append(formatSpoiler(englishWord));
-        }
-
-        log.trace("Returning the formatted word");
-        return sb.toString();
-    }
-
-
 
     /**
      * Adds a word to user vocabulary.
@@ -129,26 +82,20 @@ public class UserVocabularyService {
         log.debug("Saved new word in user vocabulary repository");
     }
 
-    /**
-     * Sends a random word to the user.
-     *
-     * @param chatId  the chat ID to send the word to
-     * @param appUser the user to whom the word will be sent
-     * @param types   the word state types to filter by
-     */
-    public void sendRandomWord(Long chatId, AppUser appUser, UserWordState... types) {
-        log.trace("Getting random user vocabulary");
-        var userWord = getRandomUserVocabulary(appUser, types);
-        log.debug("Random user vocabulary: {}", userWord);
+    @Transactional
+    public void deleteWordFromUserVocabulary (Word word, AppUser appUser){
+        log.trace("Deleting word from user vocabulary: {}", word);
+        userVocabularyRepository.deleteByUserAndWord(appUser, word);
+        log.debug("Word deleted successfully");
+    }
 
-        if (userWord.isEmpty()) {
-            log.info("No word found for user");
-            templateMessagesSender.sendNoWordToSendMessage(chatId, types);
+    public Optional<String> getMessageText (Optional<UserVocabulary> userWordOpt){
+        if (userWordOpt.isEmpty()) {
+            return Optional.empty();
         } else {
-            log.info("Word found for user: {}", userWord);
-            String messageText = getWordWithStatus(userWord.get());
+            String messageText = getWordWithStatus(userWordOpt.get());
             log.debug("Message text: {}", messageText);
-            messageService.sendAudioWithWord(chatId, userWord.get(), messageText);
+            return messageText.describeConstable();
         }
     }
 
@@ -196,6 +143,91 @@ public class UserVocabularyService {
 
         userVocabularyRepository.save(userVocabulary);
         log.debug("Saved updated user vocabulary");
+    }
+
+    public List<Word> getUserWordListByType(AppUser appUser, UserWordState... types) {
+        var userVocabularyList = userVocabularyRepository.findByUserAndListTypeIn(appUser, List.of(types));
+
+        return userVocabularyList.stream()
+                .map(UserVocabulary::getWord)
+                .toList();
+    }
+
+    public String getUserStatistics(AppUser user) {
+        log.trace("Fetching statistics for user: {}", user.getId());
+
+        StringBuilder statistics = new StringBuilder();
+
+        long learningCount = userVocabularyRepository.countByUserAndListType(user, UserWordState.LEARNING);
+        long learnedCount = userVocabularyRepository.countByUserAndListType(user, UserWordState.LEARNED);
+        statistics.append("Слова на изучении: ").append(learningCount).append("\n");
+
+        Optional<Integer> maxTimerValueOpt = userVocabularyRepository.findTopTimerValueByUserAndListType(user, UserWordState.REPETITION);
+
+        int maxTimerValue = maxTimerValueOpt.orElse(0);
+        for (int i = 1; i <= maxTimerValue; i++) {
+            long repetitionCount = userVocabularyRepository.countByUserAndListTypeAndTimerValue(user, UserWordState.REPETITION, i);
+
+            if (repetitionCount != 0) {
+                statistics.append("Слова на повторении ").append(i).append(" уровня: ").append(repetitionCount).append("\n");
+            }
+
+        }
+
+        statistics.append("Изученные слова: ").append(learnedCount);
+
+        log.trace("Statistics for user {} fetched successfully", user.getId());
+
+        return statistics.toString();
+    }
+
+    public List<UserVocabulary> getUserVocabularies(AppUser user, List<Word> words) {
+        return userVocabularyRepository.findByUserAndWordIn(user, words);
+    }
+
+    /**
+     * Generates a string representation of the user word list.
+     *
+     * @param userVocabulary the UserWordList object
+     * @return a string representation of the UserWordList
+     */
+    private String getWordWithStatus(UserVocabulary userVocabulary) {
+        log.trace("Entering getWordWithStatus method");
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Слово из словаря \"");
+
+        switch (userVocabulary.getListType()) {
+            case LEARNING -> sb.append("Изучаемые слова");
+            case REPETITION -> sb.append("Слова на повторении ").append(userVocabulary.getTimerValue()).append(" уровня");
+            case LEARNED -> sb.append("Изученное слово");
+            default -> {
+                log.error("Invalid list type encountered: " + userVocabulary.getListType());
+            }
+        }
+
+        sb.append("\"\n\n");
+
+        Word word = userVocabulary.getWord();
+        log.trace("Got the word from userVocabulary");
+
+        var transcription = word.getTranscription() == null ? "" : word.getTranscription();
+        var englishWord = word.getEnglishWord() + " " + transcription;
+        var russianWord = word.getRussianWord();
+
+        boolean showEnglishFirst = random.nextBoolean();
+        if (showEnglishFirst) {
+            sb.append(englishWord)
+                    .append(" - ")
+                    .append(formatSpoiler(russianWord));
+        } else {
+            sb.append(russianWord)
+                    .append("   -   ")
+                    .append(formatSpoiler(englishWord));
+        }
+
+        log.trace("Returning the formatted word");
+        return sb.toString();
     }
 
     private String formatSpoiler(String content) {

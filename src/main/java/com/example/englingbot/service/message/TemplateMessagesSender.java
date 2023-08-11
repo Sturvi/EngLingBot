@@ -1,11 +1,18 @@
 package com.example.englingbot.service.message;
 
+import com.example.englingbot.model.UserVocabulary;
+import com.example.englingbot.model.Word;
 import com.example.englingbot.model.enums.UserWordState;
+import com.example.englingbot.service.WordService;
+import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
+import com.example.englingbot.service.voice.WordSpeaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * A class responsible for sending template messages to users.
@@ -15,6 +22,7 @@ import java.util.Arrays;
 @Slf4j
 public class TemplateMessagesSender {
     private final MessageService messageService;
+    private final WordSpeaker wordSpeaker;
 
     /**
      * Sends a start and help message to the specified chat.
@@ -102,5 +110,25 @@ public class TemplateMessagesSender {
     public void sendErrorMessage(Long chatId) {
         log.error("Sending error message to chat ID {}", chatId);
         messageService.sendMessage(chatId, "Произошла непредвиденная ошибка. Постараемся решить ее в ближайшее время!");
+    }
+
+    public void sendAudioWithWord(Long chatId, UserVocabulary userWord, String messageText) {
+        log.trace("Entering sendAudioWithWord method");
+
+        Optional<File> audio = wordSpeaker.getVoice(userWord.getWord());
+
+        if (audio.isPresent()) {
+            log.debug("Audio file found for word: {}", userWord.getWord());
+            messageService.sendAudio(chatId, "Произношение слова", audio.get());
+        } else {
+            log.warn("Audio file not found for word: {}", userWord.getWord());
+        }
+
+        var keyboard = InlineKeyboardMarkupFactory.getKeyboardForCurrentWordInUserWordList(userWord, userWord.getWord().toString());
+
+        messageService.sendMessageWithInlineKeyboard(chatId, messageText, keyboard);
+
+        log.trace("Exiting sendAudioWithWord method");
+
     }
 }

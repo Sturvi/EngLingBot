@@ -2,10 +2,12 @@ package com.example.englingbot.service;
 
 import com.example.englingbot.dto.WordDto;
 import com.example.englingbot.dto.converter.WordConverter;
+import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.Word;
 import com.example.englingbot.repository.WordRepository;
 import com.example.englingbot.service.externalapi.chatgpt.ChatGptWordUtils;
 import com.example.englingbot.service.externalapi.googleapi.GoogleTranslator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -17,20 +19,13 @@ import java.util.function.Function;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class WordService {
 
     private final GoogleTranslator googleTranslator;
     private final ChatGptWordUtils chatGptWordUtils;
     private final ExecutorService chatGPTExecutorService;
     private final WordRepository wordRepository;
-
-
-    public WordService(GoogleTranslator googleTranslator, ChatGptWordUtils chatGptWordUtils, ExecutorService chatGPTExecutorService, WordRepository wordRepository) {
-        this.googleTranslator = googleTranslator;
-        this.chatGptWordUtils = chatGptWordUtils;
-        this.chatGPTExecutorService = chatGPTExecutorService;
-        this.wordRepository = wordRepository;
-    }
 
     public List<Word> addNewWordFromExternalApi(String incomingWord) {
         log.debug("Processing incomingWord: {}", incomingWord);
@@ -55,7 +50,6 @@ public class WordService {
 
         return newWordsList;
     }
-
 
     public List<Word> fetchWordList(String word) {
         word = capitalizeFirstLetter(word);
@@ -113,7 +107,6 @@ public class WordService {
         }
     }
 
-
     private void saveNewWords(List<Word> newWordsList) {
         if (newWordsList == null || newWordsList.isEmpty()) {
             log.warn("The newWordsList provided for saving is empty or null.");
@@ -149,7 +142,7 @@ public class WordService {
 
         if (wordFromDBOpt.isEmpty() &&
                 (wordDto.getEnglishWord().equals(incomingWord) ||
-                wordDto.getRussianWord().equals(incomingWord))) {
+                        wordDto.getRussianWord().equals(incomingWord))) {
             log.info("New word from Google translate: {}", word);
 
             return word;
@@ -313,5 +306,9 @@ public class WordService {
 
         log.trace("Exiting capitalizeFirstLetter method");
         return capitalizedStr;
+    }
+
+    public List<Word> getTenRandomNewWord(AppUser appUser) {
+        return wordRepository.findTenRandomWordsNotInUserVocabulary(appUser.getId());
     }
 }

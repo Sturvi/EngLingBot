@@ -3,6 +3,7 @@ package com.example.englingbot.service.message;
 import com.example.englingbot.model.UserVocabulary;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
+import com.example.englingbot.service.message.publishers.implementations.DeleteMessageForUser;
 import com.example.englingbot.service.message.publishers.implementations.EditMessageForUser;
 import com.example.englingbot.service.message.publishers.implementations.SendMessageForUser;
 import com.example.englingbot.service.message.publishers.implementations.SendAudioForUser;
@@ -25,7 +26,7 @@ public class MessageService {
     private final EditMessageForUser editMessageForUser;
     private final SendAudioForUser sendAudioForUser;
     private final SendMessageForUser sendMessageForUser;
-    private final WordSpeaker wordSpeaker;
+    private final DeleteMessageForUser deleteMessageForUser;
 
 
     public CompletableFuture<Message> sendMessage(Long chatId, String messageText) {
@@ -50,25 +51,14 @@ public class MessageService {
         editMessageForUser.editTextAndDeleteInlineKeyboard(botEvent.getId(), botEvent.getMessageId(), messageText);
     }
 
+    public void deleteMessage (Long chatId, Integer messageId) {
+        deleteMessageForUser.deleteMessage(chatId, messageId);
+    }
+
     public CompletableFuture<Message> sendAudio(Long chatId, String title, File audioFile) {
         return sendAudioForUser.sendAudio(chatId, title, audioFile);
     }
 
-    public void sendAudioWithWord(Long chatId, UserVocabulary userWord, String messageText) {
-        log.trace("Entering sendAudioWithWord method");
-        Optional<File> audio = wordSpeaker.getVoice(userWord.getWord());
 
-        if (audio.isPresent()) {
-            log.debug("Audio file found for word: {}", userWord.getWord());
-            sendAudio(chatId, "Произношение слова", audio.get());
-        } else {
-            log.debug("No audio file found for word: {}", userWord.getWord());
-        }
 
-        var keyboard = InlineKeyboardMarkupFactory.getKeyboardForCurrentWordInUserWordList(userWord, userWord.getWord().toString());
-        log.debug("Inline keyboard created for word: {}", userWord.getWord());
-
-        sendMessageWithInlineKeyboard(chatId, messageText, keyboard);
-        log.trace("Exiting sendAudioWithWord method");
-    }
 }
