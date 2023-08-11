@@ -7,7 +7,6 @@ import com.example.englingbot.model.Word;
 import com.example.englingbot.repository.WordRepository;
 import com.example.englingbot.service.externalapi.chatgpt.ChatGptWordUtils;
 import com.example.englingbot.service.externalapi.googleapi.GoogleTranslator;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -94,6 +93,14 @@ public class WordService {
         wordOptional.ifPresent(this::addExtraInformationIfNecessary);
 
         return wordOptional;
+    }
+
+    public Optional<Word> getWord (Long wordId) {
+        var wordOpt = wordRepository.findById(wordId);
+
+        wordOpt.ifPresent(this::addExtraInformationIfNecessary);
+
+        return wordOpt;
     }
 
     private Optional<Word> findWord(String first, String second) {

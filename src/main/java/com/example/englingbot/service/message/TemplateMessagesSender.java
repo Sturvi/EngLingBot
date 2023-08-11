@@ -62,7 +62,7 @@ public class TemplateMessagesSender {
     public void sendAddWordMessage(Long chatId) {
         log.debug("Sending add word message to chat ID {}", chatId);
         String message = """
-                Можете отправлять слова, которые хотите добавить в свою коллекцию.\\s
+                Можете отправлять слова, которые хотите добавить в свою коллекцию.
 
                 Если нужно добавить несколько слов, можете отправлять их по очереди.
 
@@ -122,7 +122,7 @@ public class TemplateMessagesSender {
             log.warn("Audio file not found for word: {}", userWord.getWord());
         }
 
-        var keyboard = InlineKeyboardMarkupFactory.getKeyboardForCurrentWordInUserWordList(userWord, userWord.getWord().toString());
+        var keyboard = InlineKeyboardMarkupFactory.getKeyboardForCurrentWordInUserWordList(userWord, userWord.getWord().getId().toString());
 
         messageService.sendMessageWithInlineKeyboard(chatId, messageText, keyboard);
 

@@ -40,7 +40,7 @@ public class HandleDeleteMenu implements SomeDefaultMessageHandler {
         } else {
             for (UserVocabulary userVocabulary : userVocabularyList) {
                 var word = userVocabulary.getWord();
-                var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard(word.toString());
+                var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard(word.getId().toString());
                 log.debug("Sending message with inline keyboard for word: {}", word);
                 messageService.sendMessageWithInlineKeyboard(botEvent.getId(), word.toString(), keyboard);
             }

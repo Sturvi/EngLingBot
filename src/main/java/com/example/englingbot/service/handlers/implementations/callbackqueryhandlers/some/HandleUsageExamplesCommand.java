@@ -25,10 +25,10 @@ public class HandleUsageExamplesCommand implements SomeCallbackQueryHandler {
     public void handle(BotEvent botEvent, AppUser appUser) {
         log.trace("Handling event for user: {}", appUser.getUsername());
 
-        var wordText = KeyboardDataEnum.getWord(botEvent.getData());
-        log.debug("Retrieved wordText: {}", wordText);
+        var wordId = KeyboardDataEnum.getWordId(botEvent.getData());
+        log.debug("Retrieved wordId: {}", wordId);
 
-        var wordOptional = wordService.getWordByTextMessage(wordText);
+        var wordOptional = wordService.getWord(wordId);
 
         if (wordOptional.isPresent()) {
             var word = wordOptional.get();
@@ -41,7 +41,7 @@ public class HandleUsageExamplesCommand implements SomeCallbackQueryHandler {
 
             messageService.sendMessage(botEvent.getId(), word.getUsageExamples());
         } else {
-            log.warn("Word not found for text: {}. Sending error message.", wordText);
+            log.warn("Word not found for text: {}. Sending error message.", wordId);
             templateMessagesSender.sendErrorMessage(botEvent.getId());
         }
     }

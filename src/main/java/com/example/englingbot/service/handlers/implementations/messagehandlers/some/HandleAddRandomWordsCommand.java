@@ -27,7 +27,7 @@ public class HandleAddRandomWordsCommand implements SomeMessageHandler {
 
         for (Word word :
                 newWordList) {
-            var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard(word.toString());
+            var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard(word.getId().toString());
             messageService.sendMessageWithInlineKeyboard(botEvent.getId(), word.toString(), keyboard);
         }
     }

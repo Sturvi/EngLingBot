@@ -22,7 +22,7 @@ public class HandleAnswerCommand implements SomeMessageHandler {
         appUser.setUserState(UserStateEnum.ANSWER);
 
         messageService
-                .sendMessage(botEvent.getId(), "Пришлите пожалуйста ваш вопрос. \\n\\n" +
+                .sendMessage(botEvent.getId(), "Пришлите пожалуйста ваш вопрос. \n\n" +
                         "Примечание: получение ответа может занять некоторое время");
 
         log.trace("Finished handle Answer Command for event: {}", botEvent);

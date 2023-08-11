@@ -27,10 +27,10 @@ public class HandleLearnedCommand implements SomeCallbackQueryHandler {
     public void handle(BotEvent botEvent, AppUser appUser) {
         log.trace("Starting handle method for BotEvent with ID: {}", botEvent.getId());
 
-        var wordText = KeyboardDataEnum.getWord(botEvent.getData());
-        log.debug("Retrieved wordText: {}", wordText);
+        var wordId = KeyboardDataEnum.getWordId(botEvent.getData());
+        log.debug("Retrieved wordId: {}", wordId);
 
-        var wordOptional = wordService.getWordByTextMessage(wordText);
+        var wordOptional = wordService.getWord(wordId);
 
         if (wordOptional.isPresent()) {
             var word = wordOptional.get();
@@ -43,7 +43,7 @@ public class HandleLearnedCommand implements SomeCallbackQueryHandler {
             messageService.editMessageWithInlineKeyboard(botEvent, botEvent.getText(), keyboard);
             log.debug("Edited message with inline keyboard for BotEvent with ID: {}", botEvent.getId());
         } else {
-            log.warn("Word not found for wordText: {}", wordText);
+            log.warn("Word not found for wordId: {}", wordId);
             templateMessagesSender.sendErrorMessage(botEvent.getId());
         }
 
