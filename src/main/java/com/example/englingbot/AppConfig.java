@@ -30,5 +30,10 @@ public class AppConfig {
     public ExecutorService chatGPTExecutorService(@Value("${chatGPT.executorService.nThreads}") int nGptThreads) {
         return Executors.newFixedThreadPool(nGptThreads);
     }
+
+    @Bean
+    public ExecutorService botExecutorService(@Value("${bot.executorService.nThreads}") int nBotThreads) {
+        return Executors.newFixedThreadPool(nBotThreads);
+    }
 }
 

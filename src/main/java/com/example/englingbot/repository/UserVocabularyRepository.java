@@ -30,4 +30,7 @@ public interface UserVocabularyRepository extends JpaRepository<UserVocabulary, 
     List<UserVocabulary> findByUserAndWordIn(AppUser user, List<Word> words);
 
     void deleteByUserAndWord(AppUser user, Word word);
+
+    @Query("SELECT uwl FROM UserVocabulary uwl WHERE uwl.listType IN :types")
+    List<UserVocabulary> findByListTypeIn(@Param("types") List<UserWordState> types);
 }
