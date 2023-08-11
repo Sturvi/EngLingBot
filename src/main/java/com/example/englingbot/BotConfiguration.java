@@ -3,7 +3,6 @@ package com.example.englingbot;
 import com.example.englingbot.service.externalapi.telegram.EnglishWordLearningBot;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.telegram.telegrambots.meta.TelegramBotsApi;

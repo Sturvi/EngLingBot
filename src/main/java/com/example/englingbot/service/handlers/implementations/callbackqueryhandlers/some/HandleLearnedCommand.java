@@ -2,7 +2,6 @@ package com.example.englingbot.service.handlers.implementations.callbackqueryhan
 
 
 import com.example.englingbot.model.AppUser;
-import com.example.englingbot.model.Word;
 import com.example.englingbot.service.UserVocabularyService;
 import com.example.englingbot.service.WordService;
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;

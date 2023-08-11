@@ -1,6 +1,5 @@
 package com.example.englingbot.service.keyboards;
 
-import com.example.englingbot.model.Word;
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;

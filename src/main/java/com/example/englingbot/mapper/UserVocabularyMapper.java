@@ -1,10 +1,10 @@
 package com.example.englingbot.mapper;
 
-import lombok.extern.slf4j.Slf4j;
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.UserVocabulary;
 import com.example.englingbot.model.Word;
 import com.example.englingbot.model.enums.UserWordState;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**

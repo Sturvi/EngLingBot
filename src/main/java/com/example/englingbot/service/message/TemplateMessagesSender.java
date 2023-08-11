@@ -1,9 +1,7 @@
 package com.example.englingbot.service.message;
 
 import com.example.englingbot.model.UserVocabulary;
-import com.example.englingbot.model.Word;
 import com.example.englingbot.model.enums.UserWordState;
-import com.example.englingbot.service.WordService;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
 import com.example.englingbot.service.voice.WordSpeaker;
 import lombok.RequiredArgsConstructor;

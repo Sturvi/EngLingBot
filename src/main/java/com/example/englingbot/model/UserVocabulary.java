@@ -2,7 +2,10 @@ package com.example.englingbot.model;
 
 import com.example.englingbot.model.enums.UserWordState;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
 
