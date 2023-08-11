@@ -2,33 +2,33 @@ package com.example.englingbot.service.handlers.implementations.messagehandlers.
 
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.enums.UserStateEnum;
-import com.example.englingbot.model.enums.UserWordState;
-import com.example.englingbot.service.UserVocabularyService;
 import com.example.englingbot.service.comandsenums.TextCommandsEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.handlers.interfaces.SomeMessageHandler;
+import com.example.englingbot.service.message.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
+@Component
 @Slf4j
-@Service
 @RequiredArgsConstructor
-public class HandleLearnWord implements SomeMessageHandler {
-    private final UserVocabularyService userVocabularyService;
+public class HandleDeleteCommand implements SomeMessageHandler {
+    private final MessageService messageService;
 
     @Override
     public void handle(BotEvent botEvent, AppUser appUser) {
-        log.debug("Starting handle LearnWord command for event: {}", botEvent);
-        appUser.setUserState(UserStateEnum.LEARNING);
+        log.trace("Entering handle method");
+        appUser.setUserState(UserStateEnum.DELETE_MENU);
 
-        userVocabularyService.sendRandomWord(botEvent.getId(), appUser, UserWordState.LEARNING);
+        messageService.sendMessage(botEvent.getId(),
+                "Отправьте в виде сообщения слово, которое вы хотите удалить из вашего словаря!");
 
-        log.debug("Finished handle LearnWord command for event: {}", botEvent);
+        log.trace("Exiting handle method");
     }
 
     @Override
     public TextCommandsEnum availableFor() {
-        return TextCommandsEnum.LEARN_WORD;
+        return TextCommandsEnum.DELETE;
     }
 }

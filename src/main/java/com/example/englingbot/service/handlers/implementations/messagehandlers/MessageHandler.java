@@ -3,7 +3,7 @@ package com.example.englingbot.service.handlers.implementations.messagehandlers;
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.service.comandsenums.TextCommandsEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
-import com.example.englingbot.service.handlers.implementations.DefaultMessageHandler;
+import com.example.englingbot.service.handlers.implementations.defaultmessagehandlers.DefaultMessageHandler;
 import com.example.englingbot.service.handlers.interfaces.Handler;
 import com.example.englingbot.service.handlers.interfaces.SomeMessageHandler;
 import jakarta.annotation.PostConstruct;

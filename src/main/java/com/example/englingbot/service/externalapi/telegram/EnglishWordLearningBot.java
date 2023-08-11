@@ -74,7 +74,7 @@ public class EnglishWordLearningBot extends TelegramLongPollingBot {
 
 
     @EventListener
-    public void handleMessageEvent(MessageEvent event) {
+    public void handleMessageEvent(MessageEvent<?> event) {
         log.trace("Handling message event: {}", event);
 
         try {
@@ -91,9 +91,14 @@ public class EnglishWordLearningBot extends TelegramLongPollingBot {
                     log.trace("Processing SEND_AUDIO");
                     event.setResponse(execute(event.getSendAudio()));
                 }
+                case DELETE_MESSAGE -> {
+                    log.trace("Processing DELETE_MESSAGE");
+                    execute(event.getDeleteMessage());
+                }
             }
         } catch (TelegramApiException e) {
             log.error("Error handling message event", e);
         }
     }
+
 }

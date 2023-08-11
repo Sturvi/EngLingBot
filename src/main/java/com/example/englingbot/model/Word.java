@@ -8,7 +8,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.Objects;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "words", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"russian_word", "english_word"}, name = "unique_word_pair_idx")

@@ -8,7 +8,8 @@ import org.jetbrains.annotations.NotNull;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "users_vocabulary")
+@Table(name = "users_vocabulary",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "word_id"}))
 @Getter
 @Setter
 @NoArgsConstructor

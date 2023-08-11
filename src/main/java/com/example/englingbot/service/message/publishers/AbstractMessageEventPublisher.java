@@ -7,6 +7,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.telegram.telegrambots.meta.api.methods.send.SendAudio;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.util.concurrent.CompletableFuture;
@@ -36,8 +37,13 @@ public abstract class AbstractMessageEventPublisher {
         return sendEvent(new MessageEvent(this, sendAudio));
     }
 
-    private CompletableFuture<Message> sendEvent(MessageEvent event) {
-        CompletableFuture<Message> futureMessage = new CompletableFuture<>();
+    protected CompletableFuture<Message> send(DeleteMessage deleteMessage) {
+        log.trace("Deleting message with ID: {}", deleteMessage.getMessageId());
+        return sendEvent(new MessageEvent(this, deleteMessage));
+    }
+
+    private <T> CompletableFuture<T> sendEvent(MessageEvent event) {
+        CompletableFuture<T> futureMessage = new CompletableFuture<>();
         // Set the future in the event, so it can be completed later
         event.setFutureMessage(futureMessage);
         log.trace("Publishing message event: {}", event);
@@ -46,4 +52,3 @@ public abstract class AbstractMessageEventPublisher {
     }
 
 }
-
