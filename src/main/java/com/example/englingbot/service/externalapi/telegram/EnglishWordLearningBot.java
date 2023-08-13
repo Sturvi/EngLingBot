@@ -2,7 +2,7 @@ package com.example.englingbot.service.externalapi.telegram;
 
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.service.AppUserService;
-import com.example.englingbot.service.handlers.implementations.UpdateHandler;
+import com.example.englingbot.service.handlers.interfaces.Handler;
 import com.example.englingbot.service.message.MessageEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,6 +13,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -22,8 +23,8 @@ import java.util.concurrent.ExecutorService;
 @Slf4j
 public class EnglishWordLearningBot extends TelegramLongPollingBot {
 
+    private final List<Handler> handlers;
     private final String botUsername;
-    private final UpdateHandler updateHandler;
     private final AppUserService appUserService;
     private final ExecutorService botExecutorService;
 
@@ -32,18 +33,17 @@ public class EnglishWordLearningBot extends TelegramLongPollingBot {
      *
      * @param botToken           The token for the bot.
      * @param botUsername        The username for the bot.
-     * @param updateHandler      Handler for updates.
+     * @param handlers
      * @param appUserService     Service for handling AppUser.
      * @param botExecutorService The executor service for handling updates.
      */
     public EnglishWordLearningBot(@Value("${bot.token}") String botToken,
                                   @Value("${bot.username}") String botUsername,
-                                  UpdateHandler updateHandler,
-                                  AppUserService appUserService,
+                                  List<Handler> handlers, AppUserService appUserService,
                                   @Qualifier("botExecutorService") ExecutorService botExecutorService) {
         super(botToken);
         this.botUsername = botUsername;
-        this.updateHandler = updateHandler;
+        this.handlers = handlers;
         this.appUserService = appUserService;
         this.botExecutorService = botExecutorService;
     }
@@ -62,7 +62,12 @@ public class EnglishWordLearningBot extends TelegramLongPollingBot {
             log.debug("Update or save user information: {}", botEvent.getFrom());
 
             try {
-                updateHandler.handle(botEvent, appUser);
+                for (Handler handler : handlers) {
+                    if (handler.canHandle(botEvent, appUser)) {
+                        handler.handle(botEvent, appUser);
+                        break;
+                    }
+                }
             } catch (Exception e) {
                 log.error("An error occurred: ", e);
                 e.printStackTrace();

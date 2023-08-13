@@ -43,7 +43,7 @@ public class SendMessageForUser extends AbstractMessageEventPublisher {
     }
 
 
-    public CompletableFuture<Message> sendMessageWithInlineKeyboard(Long chatId, String messageText, InlineKeyboardMarkup keyboard) {
+    public CompletableFuture<Message> sendMessageWithInlineKeyboard(Long chatId, String messageText, ReplyKeyboard keyboard) {
         log.trace("Sending message with inline keyboard: {}", messageText);
         return send(createMessage(chatId, messageText, keyboard));
     }

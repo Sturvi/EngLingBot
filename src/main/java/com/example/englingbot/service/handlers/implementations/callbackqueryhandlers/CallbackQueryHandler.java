@@ -1,6 +1,7 @@
 package com.example.englingbot.service.handlers.implementations.callbackqueryhandlers;
 
 import com.example.englingbot.model.AppUser;
+import com.example.englingbot.model.enums.UserRoleEnum;
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.handlers.interfaces.Handler;
@@ -51,5 +52,12 @@ public class CallbackQueryHandler implements Handler {
         var handler = callbackQueryHandlers.get(dataEnum);
 
         handler.accept(botEvent, appUser);
+    }
+
+    @Override
+    public boolean canHandle(BotEvent botEvent, AppUser appUser) {
+        return appUser.getRole() == UserRoleEnum.USER &&
+                botEvent.isCallbackQuery() &&
+                !botEvent.isDeactivationQuery();
     }
 }

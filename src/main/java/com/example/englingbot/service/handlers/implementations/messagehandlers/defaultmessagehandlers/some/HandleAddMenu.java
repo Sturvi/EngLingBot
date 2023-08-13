@@ -1,4 +1,4 @@
-package com.example.englingbot.service.handlers.implementations.defaultmessagehandlers.some;
+package com.example.englingbot.service.handlers.implementations.messagehandlers.defaultmessagehandlers.some;
 
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.Word;
@@ -30,17 +30,17 @@ public class HandleAddMenu implements SomeDefaultMessageHandler {
             for (Word word : wordList) {
                 var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard(word.getId().toString());
                 messageService
-                        .sendMessageWithInlineKeyboard(botEvent.getId(), word.toString(), keyboard);
+                        .sendMessageWithKeyboard(botEvent.getId(), word.toString(), keyboard);
             }
 
             var keyboard = InlineKeyboardMarkupFactory.getWordFromTranslatorKeyboard(incomingWord);
-            messageService.sendMessageWithInlineKeyboard(botEvent.getId(),
+            messageService.sendMessageWithKeyboard(botEvent.getId(),
                     "Нет нужного перевода?",
                     keyboard);
         } else {
             var keyboard = InlineKeyboardMarkupFactory.getWordFromTranslatorKeyboard(incomingWord);
             messageService
-                    .sendMessageWithInlineKeyboard(
+                    .sendMessageWithKeyboard(
                             botEvent.getId(),
                             "К сожалению у нас в базе не нашлось слова '" + botEvent.getText() + "'.",
                             keyboard);

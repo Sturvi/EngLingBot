@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 
 import java.io.File;
 import java.util.concurrent.CompletableFuture;
@@ -30,7 +31,7 @@ public class MessageService {
         return sendMessageForUser.sendMessage(chatId, messageText);
     }
 
-    public CompletableFuture<Message> sendMessageWithInlineKeyboard(Long chatId, String messageText, InlineKeyboardMarkup keyboard) {
+    public CompletableFuture<Message> sendMessageWithKeyboard(Long chatId, String messageText, ReplyKeyboard keyboard) {
         log.trace("Sending message with inline keyboard: {}", messageText);
         return sendMessageForUser.sendMessageWithInlineKeyboard(chatId, messageText, keyboard);
     }
@@ -54,7 +55,4 @@ public class MessageService {
     public CompletableFuture<Message> sendAudio(Long chatId, String title, File audioFile) {
         return sendAudioForUser.sendAudio(chatId, title, audioFile);
     }
-
-
-
 }

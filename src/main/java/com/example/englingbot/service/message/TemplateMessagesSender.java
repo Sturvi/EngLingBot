@@ -124,7 +124,7 @@ public class TemplateMessagesSender {
 
         var keyboard = InlineKeyboardMarkupFactory.getKeyboardForCurrentWordInUserWordList(userWord, userWord.getWord().getId().toString());
 
-        messageService.sendMessageWithInlineKeyboard(chatId, messageText, keyboard);
+        messageService.sendMessageWithKeyboard(chatId, messageText, keyboard);
 
         log.trace("Exiting sendAudioWithWord method");
 

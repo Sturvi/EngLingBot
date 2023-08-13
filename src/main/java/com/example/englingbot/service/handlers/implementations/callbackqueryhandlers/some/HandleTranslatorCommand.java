@@ -35,7 +35,7 @@ public class HandleTranslatorCommand implements SomeCallbackQueryHandler {
 
         for (Word word : newWordsList) {
             var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard(word.getId().toString());
-            messageService.sendMessageWithInlineKeyboard(botEvent.getId(), word.toString(), keyboard);
+            messageService.sendMessageWithKeyboard(botEvent.getId(), word.toString(), keyboard);
         }
     }
 

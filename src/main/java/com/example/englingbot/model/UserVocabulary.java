@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.jetbrains.annotations.NotNull;
 
 @EqualsAndHashCode(callSuper = true)
@@ -34,5 +36,6 @@ public class UserVocabulary extends AbstractEntity {
     @ManyToOne
     @NotNull
     @JoinColumn(name = "word_id", referencedColumnName = "id")
+    @Cascade(CascadeType.REMOVE)
     private Word word;
 }

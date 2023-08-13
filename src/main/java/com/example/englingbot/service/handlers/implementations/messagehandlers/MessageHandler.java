@@ -1,9 +1,10 @@
 package com.example.englingbot.service.handlers.implementations.messagehandlers;
 
 import com.example.englingbot.model.AppUser;
+import com.example.englingbot.model.enums.UserRoleEnum;
 import com.example.englingbot.service.comandsenums.TextCommandsEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
-import com.example.englingbot.service.handlers.implementations.defaultmessagehandlers.DefaultMessageHandler;
+import com.example.englingbot.service.handlers.implementations.messagehandlers.defaultmessagehandlers.DefaultMessageHandler;
 import com.example.englingbot.service.handlers.interfaces.Handler;
 import com.example.englingbot.service.handlers.interfaces.SomeMessageHandler;
 import jakarta.annotation.PostConstruct;
@@ -21,7 +22,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MessageHandler implements Handler {
     private final List<SomeMessageHandler> handlers;
-    private final DefaultMessageHandler defaultMessageHandler;
     private Map<TextCommandsEnum, BiConsumer<BotEvent, AppUser>> textCommandsHandler;
 
     /**
@@ -36,12 +36,14 @@ public class MessageHandler implements Handler {
 
         var handlerMethod = textCommandsHandler.get(incomingCommand);
 
-        if (handlerMethod == null) {
-            defaultMessageHandler.handle(botEvent, appUser);
-            return;
-        }
-
         handlerMethod.accept(botEvent, appUser);
+    }
+
+    @Override
+    public boolean canHandle(BotEvent botEvent, AppUser appUser) {
+        return appUser.getRole() == UserRoleEnum.USER
+                && botEvent.isMessage()
+                && !botEvent.isDeactivationQuery();
     }
 
     /**
@@ -49,7 +51,7 @@ public class MessageHandler implements Handler {
      */
     @PostConstruct
     private void init() {
-        log.debug("Initializing CallbackQueryHandler");
+
         textCommandsHandler = handlers.stream().collect(Collectors.toMap(
                 SomeMessageHandler::availableFor,
                 element -> element::handle

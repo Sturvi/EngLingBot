@@ -1,4 +1,4 @@
-package com.example.englingbot.service.handlers.implementations.defaultmessagehandlers.some;
+package com.example.englingbot.service.handlers.implementations.messagehandlers.defaultmessagehandlers.some;
 
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.enums.UserStateEnum;

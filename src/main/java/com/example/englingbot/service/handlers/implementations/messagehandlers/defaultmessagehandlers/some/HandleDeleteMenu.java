@@ -1,4 +1,4 @@
-package com.example.englingbot.service.handlers.implementations.defaultmessagehandlers.some;
+package com.example.englingbot.service.handlers.implementations.messagehandlers.defaultmessagehandlers.some;
 
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.UserVocabulary;
@@ -42,7 +42,7 @@ public class HandleDeleteMenu implements SomeDefaultMessageHandler {
                 var word = userVocabulary.getWord();
                 var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard(word.getId().toString());
                 log.debug("Sending message with inline keyboard for word: {}", word);
-                messageService.sendMessageWithInlineKeyboard(botEvent.getId(), word.toString(), keyboard);
+                messageService.sendMessageWithKeyboard(botEvent.getId(), word.toString(), keyboard);
             }
         }
     }

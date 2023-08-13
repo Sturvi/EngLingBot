@@ -1,11 +1,13 @@
-package com.example.englingbot.service.handlers.implementations.defaultmessagehandlers;
+package com.example.englingbot.service.handlers.implementations.messagehandlers.defaultmessagehandlers;
 
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.enums.UserStateEnum;
 import com.example.englingbot.service.WordService;
+import com.example.englingbot.service.comandsenums.TextCommandsEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.handlers.interfaces.Handler;
 import com.example.englingbot.service.handlers.interfaces.SomeDefaultMessageHandler;
+import com.example.englingbot.service.handlers.interfaces.SomeMessageHandler;
 import com.example.englingbot.service.message.MessageService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +22,8 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class DefaultMessageHandler implements Handler {
+public class DefaultMessageHandler implements SomeMessageHandler {
     private final List<SomeDefaultMessageHandler> userStateHandlersList;
-    private final WordService wordService;
-    private final MessageService messageService;
     private Map<UserStateEnum, BiConsumer<BotEvent, AppUser>> userStateHandlers;
 
     /**
@@ -43,6 +43,11 @@ public class DefaultMessageHandler implements Handler {
             // Handle case when there's no specific handler for the user's state.
             // This is similar to how the 'defaultMessageHandler' was used before.
         }
+    }
+
+    @Override
+    public TextCommandsEnum availableFor() {
+        return null;
     }
 
     @PostConstruct

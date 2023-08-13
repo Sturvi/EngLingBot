@@ -15,4 +15,6 @@ public interface Handler {
      * @param appUser The user associated with the bot event.
      */
     void handle(BotEvent botEvent, AppUser appUser);
+
+    boolean canHandle(BotEvent botEvent, AppUser appUser);
 }
