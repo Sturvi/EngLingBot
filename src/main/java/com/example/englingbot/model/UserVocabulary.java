@@ -36,6 +36,5 @@ public class UserVocabulary extends AbstractEntity {
     @ManyToOne
     @NotNull
     @JoinColumn(name = "word_id", referencedColumnName = "id")
-    @Cascade(CascadeType.REMOVE)
     private Word word;
 }

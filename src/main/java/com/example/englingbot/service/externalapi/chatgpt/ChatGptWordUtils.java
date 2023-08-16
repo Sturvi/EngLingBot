@@ -109,7 +109,6 @@ public class ChatGptWordUtils extends ChatGpt {
 
         wordReview.setChatGptResponseText(responseEnglishWord + "\n" + responseRussianWord);
         wordReview.setWord(word);
-        wordReview.setIsVerified(false);
 
         return wordReview;
     }

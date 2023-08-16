@@ -1,13 +1,12 @@
 package com.example.englingbot.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Cascade;
 
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -18,6 +17,12 @@ import java.util.Objects;
 @SuperBuilder
 @Data
 public class Word extends AbstractEntity {
+
+    @OneToOne(mappedBy = "word", cascade = CascadeType.REMOVE)
+    private WordReview wordReview;
+
+    @OneToMany(mappedBy = "word", cascade = CascadeType.REMOVE)
+    private List<UserVocabulary> userVocabularies;
 
     @Column(name = "russian_word", nullable = false)
     private String russianWord;
@@ -46,7 +51,6 @@ public class Word extends AbstractEntity {
         }
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -54,7 +58,6 @@ public class Word extends AbstractEntity {
         Word word = (Word) o;
         return Objects.equals(russianWord, word.russianWord) && Objects.equals(englishWord, word.englishWord);
     }
-
 
     @Override
     public int hashCode() {

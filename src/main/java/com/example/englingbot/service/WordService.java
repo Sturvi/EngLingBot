@@ -344,4 +344,8 @@ public class WordService {
     public List<Word> getTenRandomNewWord(AppUser appUser) {
         return wordRepository.findTenRandomWordsNotInUserVocabulary(appUser.getId());
     }
+
+    public void deleteWord (Word word) {
+        wordRepository.delete(word);
+    }
 }

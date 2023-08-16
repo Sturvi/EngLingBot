@@ -13,5 +13,6 @@ public enum UserStateEnum {
     ADD_RANDOM_WORDS,
     STATISTICS,
     DELETE_MENU,
-    ALL_FALSE
+    ALL_FALSE,
+    WORD_REVIEW
 }

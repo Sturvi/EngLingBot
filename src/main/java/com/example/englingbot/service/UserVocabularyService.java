@@ -233,4 +233,8 @@ public class UserVocabularyService {
     private String formatSpoiler(String content) {
         return "<span class='tg-spoiler'>" + content + "</span>";
     }
+
+    public List<AppUser>  getAppUserListByWord (Word word) {
+        return userVocabularyRepository.findUsersByWord(word);
+    }
 }

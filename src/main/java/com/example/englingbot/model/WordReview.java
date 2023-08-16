@@ -3,7 +3,6 @@ package com.example.englingbot.model;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Cascade;
 
 @Entity
 @Table(name = "word_review")
@@ -16,11 +15,7 @@ public class WordReview extends AbstractEntity {
 
     @OneToOne
     @JoinColumn(name = "word_id", referencedColumnName = "id")
-    @Cascade(org.hibernate.annotations.CascadeType.REMOVE)
     private Word word;
-
-    @Column(name = "is_verified")
-    private Boolean isVerified;
 
     @Column(name = "chat_gpt_response")
     private Boolean chatGptResponse;

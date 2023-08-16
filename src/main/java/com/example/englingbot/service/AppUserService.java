@@ -2,6 +2,7 @@ package com.example.englingbot.service;
 
 import com.example.englingbot.mapper.UserMapper;
 import com.example.englingbot.model.AppUser;
+import com.example.englingbot.model.Word;
 import com.example.englingbot.model.enums.UserRoleEnum;
 import com.example.englingbot.repository.AppUserRepository;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
