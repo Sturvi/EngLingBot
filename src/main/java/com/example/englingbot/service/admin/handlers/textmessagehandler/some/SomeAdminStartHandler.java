@@ -1,10 +1,10 @@
 package com.example.englingbot.service.admin.handlers.textmessagehandler.some;
 
 import com.example.englingbot.model.AppUser;
-import com.example.englingbot.service.admin.SendMessageToAdmin;
 import com.example.englingbot.service.admin.comandsenums.AdminTextComandsEnum;
 import com.example.englingbot.service.admin.handlers.textmessagehandler.SomeAdminMessageHandler;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
+import com.example.englingbot.service.message.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,10 +13,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 public class SomeAdminStartHandler implements SomeAdminMessageHandler {
-    private final SendMessageToAdmin message;
+    private final MessageService messageService;
     @Override
     public void handle(BotEvent botEvent, AppUser appUser) {
-        message.sendMessage(botEvent.getId(),"Выберите меню:");
+        messageService.sendMessageToAdmin(botEvent.getId(),"Выберите меню:");
     }
 
     @Override

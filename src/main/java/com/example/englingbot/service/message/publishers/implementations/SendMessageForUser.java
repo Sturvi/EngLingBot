@@ -7,7 +7,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 
 import java.util.concurrent.CompletableFuture;
@@ -37,9 +36,14 @@ public class SendMessageForUser extends AbstractMessageEventPublisher {
         return message;
     }
 
-    public CompletableFuture<Message> sendMessage(Long chatId, String messageText) {
+    public CompletableFuture<Message> sendMessageToUserWithKeyboard(Long chatId, String messageText) {
         log.trace("Sending message: {}", messageText);
-        return send(createMessage(chatId, messageText, ReplyKeyboardMarkupFactory.getReplyKeyboardMarkup()));
+        return send(createMessage(chatId, messageText, ReplyKeyboardMarkupFactory.getUserReplyKeyboardMarkup()));
+    }
+
+    public CompletableFuture<Message> sendMessageToAdminWithKeyboard(Long chatId, String messageText) {
+        log.trace("Sending message: {}", messageText);
+        return send(createMessage(chatId, messageText, ReplyKeyboardMarkupFactory.getAdminReplyKeyboardMarkup()));
     }
 
 

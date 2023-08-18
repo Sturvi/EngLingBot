@@ -25,7 +25,7 @@ public class HandleRepetitionWordsListCommand implements SomeMessageHandler {
 
         var messageTextList = textMessageComposer.RepetitionWordsMessageText(wordList);
 
-        messageTextList.forEach(m -> messageService.sendMessage(botEvent.getId(), m));
+        messageTextList.forEach(m -> messageService.sendMessageToUser(botEvent.getId(), m));
     }
 
     @Override

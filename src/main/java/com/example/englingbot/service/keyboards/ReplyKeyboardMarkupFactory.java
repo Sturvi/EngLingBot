@@ -1,5 +1,6 @@
 package com.example.englingbot.service.keyboards;
 
+import com.example.englingbot.service.admin.comandsenums.AdminTextComandsEnum;
 import com.example.englingbot.service.comandsenums.TextCommandsEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -20,7 +21,7 @@ public class ReplyKeyboardMarkupFactory {
      *
      * @return a ReplyKeyboardMarkup object representing a specific keyboard layout.
      */
-    public static ReplyKeyboardMarkup getReplyKeyboardMarkup() {
+    public static ReplyKeyboardMarkup getUserReplyKeyboardMarkup() {
         log.debug("Start creating a new keyboard markup");
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
@@ -46,6 +47,33 @@ public class ReplyKeyboardMarkupFactory {
         keyboardRowList.add(keyboardFirstRow);
         keyboardRowList.add(keyboardSecondRow);
         keyboardRowList.add(keyboardThirdRow);
+
+        replyKeyboardMarkup.setKeyboard(keyboardRowList);
+
+        log.debug("Successfully created a new keyboard markup");
+
+        try {
+            return replyKeyboardMarkup;
+        } catch (Exception e) {
+            log.error("An error occurred while creating the keyboard markup", e);
+            throw e;
+        }
+    }
+
+    public static ReplyKeyboardMarkup getAdminReplyKeyboardMarkup() {
+        log.debug("Start creating a new keyboard markup for admin");
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+
+        replyKeyboardMarkup.setSelective(true);
+        replyKeyboardMarkup.setResizeKeyboard(true);
+        replyKeyboardMarkup.setOneTimeKeyboard(false);
+
+        List<KeyboardRow> keyboardRowList = new ArrayList<>();
+        KeyboardRow keyboardFirstRow = new KeyboardRow();
+
+        keyboardFirstRow.add(new KeyboardButton(AdminTextComandsEnum.REVIEW_NEW_WORD.getCommand()));
+
+        keyboardRowList.add(keyboardFirstRow);
 
         replyKeyboardMarkup.setKeyboard(keyboardRowList);
 

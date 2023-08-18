@@ -26,9 +26,14 @@ public class MessageService {
     private final DeleteMessageForUser deleteMessageForUser;
 
 
-    public CompletableFuture<Message> sendMessage(Long chatId, String messageText) {
+    public CompletableFuture<Message> sendMessageToUser(Long chatId, String messageText) {
         log.trace("Sending message: {}", messageText);
-        return sendMessageForUser.sendMessage(chatId, messageText);
+        return sendMessageForUser.sendMessageToUserWithKeyboard(chatId, messageText);
+    }
+
+    public CompletableFuture<Message> sendMessageToAdmin(Long chatId, String messageText) {
+        log.trace("Sending message: {}", messageText);
+        return sendMessageForUser.sendMessageToAdminWithKeyboard(chatId, messageText);
     }
 
     public CompletableFuture<Message> sendMessageWithKeyboard(Long chatId, String messageText, ReplyKeyboard keyboard) {

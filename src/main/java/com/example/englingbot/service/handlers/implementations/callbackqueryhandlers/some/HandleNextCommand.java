@@ -29,7 +29,7 @@ public class HandleNextCommand implements SomeCallbackQueryHandler {
             case LEARNING -> sendWordForUser(botEvent.getId(), appUser, UserWordState.LEARNING);
             case REPETITION -> sendWordForUser(botEvent.getId(), appUser, UserWordState.REPETITION);
             case MIXED -> sendWordForUser(botEvent.getId(), appUser, UserWordState.LEARNING, UserWordState.REPETITION);
-            default -> messageService.sendMessage(botEvent.getId(), "Для изучения слов выберите пожалуйста соответствующее меню");
+            default -> messageService.sendMessageToUser(botEvent.getId(), "Для изучения слов выберите пожалуйста соответствующее меню");
         }
     }
 

@@ -42,7 +42,7 @@ public class HandleAnswerMenu implements SomeDefaultMessageHandler {
 
     private CompletableFuture<Message> sendInitialMessage(BotEvent botEvent) {
         log.debug("Sending initial message for bot event: {}", botEvent.getId());
-        return messageService.sendMessage(botEvent.getId(), "Формируется ответ на ваш вопрос. Пожалуйста ожидайте...");
+        return messageService.sendMessageToUser(botEvent.getId(), "Формируется ответ на ваш вопрос. Пожалуйста ожидайте...");
     }
 
     private void handlePreviousMessage(BotEvent botEvent, CompletableFuture<Message> messageFuture) {
@@ -58,7 +58,7 @@ public class HandleAnswerMenu implements SomeDefaultMessageHandler {
 
     private void sendResponseMessage(BotEvent botEvent, String response) {
         log.debug("Sending response message for bot event: {}", botEvent.getId());
-        messageService.sendMessage(botEvent.getId(), response);
+        messageService.sendMessageToUser(botEvent.getId(), response);
     }
 
     private void saveQuestionAndResponse(AppUser appUser, String question, String response) {

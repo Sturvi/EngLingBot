@@ -21,7 +21,7 @@ public class HandleDeleteCommand implements SomeMessageHandler {
         log.trace("Entering handle method");
         appUser.setUserState(UserStateEnum.DELETE_MENU);
 
-        messageService.sendMessage(botEvent.getId(),
+        messageService.sendMessageToUser(botEvent.getId(),
                 "Отправьте в виде сообщения слово, которое вы хотите удалить из вашего словаря!");
 
         log.trace("Exiting handle method");

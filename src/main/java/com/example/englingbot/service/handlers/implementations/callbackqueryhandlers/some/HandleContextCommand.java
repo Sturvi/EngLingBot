@@ -31,7 +31,7 @@ public class HandleContextCommand implements SomeCallbackQueryHandler {
             if (word.getContext() == null) {
                 wordService.addWordContext(word);
             }
-            messageService.sendMessage(botEvent.getId(), word.getContext());
+            messageService.sendMessageToUser(botEvent.getId(), word.getContext());
         } else {
             log.error("Failed to find the word '{}' in the database", wordId);
             templateMessagesSender.sendErrorMessage(botEvent.getId());

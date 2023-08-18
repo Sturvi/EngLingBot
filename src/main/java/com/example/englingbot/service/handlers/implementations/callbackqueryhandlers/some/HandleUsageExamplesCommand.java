@@ -39,7 +39,7 @@ public class HandleUsageExamplesCommand implements SomeCallbackQueryHandler {
                 wordService.addUsageExamples(word);
             }
 
-            messageService.sendMessage(botEvent.getId(), word.getUsageExamples());
+            messageService.sendMessageToUser(botEvent.getId(), word.getUsageExamples());
         } else {
             log.warn("Word not found for text: {}. Sending error message.", wordId);
             templateMessagesSender.sendErrorMessage(botEvent.getId());

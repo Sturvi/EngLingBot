@@ -29,7 +29,7 @@ public class HandleTranslatorCommand implements SomeCallbackQueryHandler {
         var newWordsList = wordService.addNewWordFromExternalApi(wordString);
 
         if (newWordsList.isEmpty()){
-            messageService.sendMessage(botEvent.getId(), "Не получено новых переводов слов.");
+            messageService.sendMessageToUser(botEvent.getId(), "Не получено новых переводов слов.");
             return;
         }
 

@@ -36,7 +36,7 @@ public class HandleDeleteMenu implements SomeDefaultMessageHandler {
 
         if (userVocabularyList.isEmpty()) {
             log.debug("No matching words found in user's vocabulary");
-            messageService.sendMessage(botEvent.getId(), "Такого слова не нашлось в вашем словаре");
+            messageService.sendMessageToUser(botEvent.getId(), "Такого слова не нашлось в вашем словаре");
         } else {
             for (UserVocabulary userVocabulary : userVocabularyList) {
                 var word = userVocabulary.getWord();

@@ -32,7 +32,7 @@ public class HandleStudyWordsListCommand implements SomeMessageHandler {
         var messageText = textMessageComposer.LearningWordsMessageText(wordList);
         log.debug("Composed user learning word list message: {}", messageText);
 
-        messageService.sendMessage(botEvent.getId(), messageText);
+        messageService.sendMessageToUser(botEvent.getId(), messageText);
         log.trace("Exiting handle method");
     }
 

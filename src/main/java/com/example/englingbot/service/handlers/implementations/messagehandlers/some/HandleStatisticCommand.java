@@ -26,7 +26,7 @@ public class HandleStatisticCommand implements SomeMessageHandler {
 
         String messageText = userVocabularyService.getUserStatistics(appUser);
 
-        messageService.sendMessage(botEvent.getId(), messageText);
+        messageService.sendMessageToUser(botEvent.getId(), messageText);
         log.trace("Exiting handle method");
     }
 

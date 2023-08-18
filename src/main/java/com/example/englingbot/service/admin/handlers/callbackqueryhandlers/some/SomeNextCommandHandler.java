@@ -13,34 +13,32 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
-@Slf4j
 @RequiredArgsConstructor
-public class SomeYesCommandHandler implements SomeAdminCallbackQueryHandler {
+@Slf4j
+public class SomeNextCommandHandler implements SomeAdminCallbackQueryHandler {
     private final WordReviewService wordReviewService;
     private final MessageService messageService;
 
+
     @Override
     public void handle(BotEvent botEvent, AppUser appUser) {
-        if (appUser.getUserState() == UserStateEnum.WORD_REVIEW) {
-            Long wordReviewId = KeyboardDataEnum.getWordId(botEvent.getData());
+        var wordReviewOpt = wordReviewService.getWordReview();
 
-            var wordReviewOpt = wordReviewService.getWordReviewById(wordReviewId);
+        if (wordReviewOpt.isPresent()) {
+            var wordReview = wordReviewOpt.get();
 
-            if (wordReviewOpt.isPresent()){
-                var wordReview = wordReviewOpt.get();
-                wordReviewService.deleteWordReview(wordReview);
+            var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard(wordReview.getId().toString());
 
-                var keyboard = InlineKeyboardMarkupFactory.getNextKeyboard();
-                String newMessageText = "Cлово " + wordReview.getWord() + " принято!";
+            String messageText = "Слово для проверки:\n\n" + wordReview;
 
-                messageService.editMessageWithInlineKeyboard(botEvent, newMessageText, keyboard);
-            }
+            messageService.sendMessageWithKeyboard(botEvent.getId(), messageText, keyboard);
+        } else {
+            messageService.sendMessageToAdmin(botEvent.getId(), "На данный момент нет слов для проверки");
         }
     }
 
-
     @Override
     public KeyboardDataEnum availableFor() {
-        return KeyboardDataEnum.YES;
+        return KeyboardDataEnum.NEXT;
     }
 }
