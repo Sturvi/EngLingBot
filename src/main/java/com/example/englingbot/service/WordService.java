@@ -1,9 +1,10 @@
 package com.example.englingbot.service;
 
-import com.example.englingbot.dto.WordDto;
-import com.example.englingbot.dto.converter.WordConverter;
+import com.example.englingbot.model.dto.WordDto;
+import com.example.englingbot.model.dto.converter.WordConverter;
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.Word;
+import com.example.englingbot.model.dto.converter.WordReviewConverter;
 import com.example.englingbot.repository.WordRepository;
 import com.example.englingbot.repository.WordReviewRepository;
 import com.example.englingbot.service.externalapi.chatgpt.ChatGptWordUtils;
@@ -159,7 +160,8 @@ public class WordService {
 
     private void sendToReview(Word word) {
         Runnable runnable = () -> {
-            var wordReview = chatGptWordUtils.reviewWordWithChatGpt(word);
+            var wordReviewDTO = chatGptWordUtils.reviewWordWithChatGpt(word);
+            var wordReview = WordReviewConverter.toEntity(wordReviewDTO);
             wordReviewRepository.save(wordReview);
         };
 

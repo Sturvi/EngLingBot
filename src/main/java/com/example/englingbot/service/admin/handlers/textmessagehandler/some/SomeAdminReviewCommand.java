@@ -3,9 +3,10 @@ package com.example.englingbot.service.admin.handlers.textmessagehandler.some;
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.enums.UserStateEnum;
 import com.example.englingbot.service.admin.WordReviewService;
-import com.example.englingbot.service.admin.comandsenums.AdminTextComandsEnum;
+import com.example.englingbot.service.comandsenums.AdminTextComandsEnum;
 import com.example.englingbot.service.admin.handlers.textmessagehandler.SomeAdminMessageHandler;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
+import com.example.englingbot.service.keyboards.AdminInlineKeyboardMarkupFactory;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
 import com.example.englingbot.service.message.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 public class SomeAdminReviewCommand implements SomeAdminMessageHandler {
     private final WordReviewService wordReviewService;
     private final MessageService messageService;
+    private final AdminInlineKeyboardMarkupFactory adminInlineKeyboardMarkupFactory;
 
 
     @Override
@@ -28,7 +30,7 @@ public class SomeAdminReviewCommand implements SomeAdminMessageHandler {
         if (wordReviewOpt.isPresent()) {
             var wordReview = wordReviewOpt.get();
 
-            var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard(wordReview.getId().toString());
+            var keyboard = adminInlineKeyboardMarkupFactory.getYesNoAndReReviewKeyboard(wordReview.getId().toString());
 
             String messageText = "Слово для проверки:\n\n" + wordReview;
 

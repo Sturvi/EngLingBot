@@ -2,7 +2,7 @@ package com.example.englingbot.service.externalapi.telegram;
 
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.service.AppUserService;
-import com.example.englingbot.service.handlers.interfaces.Handler;
+import com.example.englingbot.service.user.handlers.interfaces.Handler;
 import com.example.englingbot.service.message.MessageEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;

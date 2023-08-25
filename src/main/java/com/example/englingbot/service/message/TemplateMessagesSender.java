@@ -21,6 +21,7 @@ import java.util.Optional;
 public class TemplateMessagesSender {
     private final MessageService messageService;
     private final WordSpeaker wordSpeaker;
+    private final InlineKeyboardMarkupFactory inlineKeyboardMarkupFactory;
 
     /**
      * Sends a start and help message to the specified chat.
@@ -122,7 +123,7 @@ public class TemplateMessagesSender {
             log.warn("Audio file not found for word: {}", userWord.getWord());
         }
 
-        var keyboard = InlineKeyboardMarkupFactory.getKeyboardForCurrentWordInUserWordList(userWord, userWord.getWord().getId().toString());
+        var keyboard = inlineKeyboardMarkupFactory.getKeyboardForCurrentWordInUserWordList(userWord, userWord.getWord().getId().toString());
 
         messageService.sendMessageWithKeyboard(chatId, messageText, keyboard);
 

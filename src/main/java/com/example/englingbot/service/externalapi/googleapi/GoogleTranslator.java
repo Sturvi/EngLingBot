@@ -1,6 +1,6 @@
 package com.example.englingbot.service.externalapi.googleapi;
 
-import com.example.englingbot.dto.WordDto;
+import com.example.englingbot.model.dto.WordDto;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

@@ -5,7 +5,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="4" author="Sturvi">
+    <changeSet id="5" author="Sturvi">
         <dropForeignKeyConstraint baseTableName="users_vocabulary" constraintName="fk_user_vocabulary_word_id"/>
 
         <addForeignKeyConstraint baseTableName="users_vocabulary"

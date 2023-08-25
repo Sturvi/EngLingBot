@@ -1,11 +1,11 @@
 package com.example.englingbot.service.admin.handlers.callbackqueryhandlers.some;
 
 import com.example.englingbot.model.AppUser;
-import com.example.englingbot.model.enums.UserStateEnum;
 import com.example.englingbot.service.admin.WordReviewService;
 import com.example.englingbot.service.admin.handlers.callbackqueryhandlers.SomeAdminCallbackQueryHandler;
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
+import com.example.englingbot.service.keyboards.AdminInlineKeyboardMarkupFactory;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
 import com.example.englingbot.service.message.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 public class SomeNextCommandHandler implements SomeAdminCallbackQueryHandler {
     private final WordReviewService wordReviewService;
     private final MessageService messageService;
+    private final AdminInlineKeyboardMarkupFactory adminInlineKeyboardMarkupFactory;
 
 
     @Override
@@ -27,7 +28,7 @@ public class SomeNextCommandHandler implements SomeAdminCallbackQueryHandler {
         if (wordReviewOpt.isPresent()) {
             var wordReview = wordReviewOpt.get();
 
-            var keyboard = InlineKeyboardMarkupFactory.getYesOrNoKeyboard(wordReview.getId().toString());
+            var keyboard = adminInlineKeyboardMarkupFactory.getYesNoAndReReviewKeyboard(wordReview.getId().toString());
 
             String messageText = "Слово для проверки:\n\n" + wordReview;
 

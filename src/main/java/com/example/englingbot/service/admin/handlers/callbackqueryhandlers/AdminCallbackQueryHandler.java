@@ -4,7 +4,7 @@ import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.enums.UserRoleEnum;
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
-import com.example.englingbot.service.handlers.interfaces.Handler;
+import com.example.englingbot.service.user.handlers.interfaces.Handler;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

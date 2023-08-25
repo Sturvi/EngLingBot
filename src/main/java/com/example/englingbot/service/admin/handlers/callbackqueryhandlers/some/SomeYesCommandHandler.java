@@ -6,6 +6,7 @@ import com.example.englingbot.service.admin.WordReviewService;
 import com.example.englingbot.service.admin.handlers.callbackqueryhandlers.SomeAdminCallbackQueryHandler;
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
+import com.example.englingbot.service.keyboards.AdminInlineKeyboardMarkupFactory;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
 import com.example.englingbot.service.message.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 public class SomeYesCommandHandler implements SomeAdminCallbackQueryHandler {
     private final WordReviewService wordReviewService;
     private final MessageService messageService;
+    private final AdminInlineKeyboardMarkupFactory adminInlineKeyboardMarkupFactory;
 
     @Override
     public void handle(BotEvent botEvent, AppUser appUser) {
@@ -30,7 +32,7 @@ public class SomeYesCommandHandler implements SomeAdminCallbackQueryHandler {
                 var wordReview = wordReviewOpt.get();
                 wordReviewService.deleteWordReview(wordReview);
 
-                var keyboard = InlineKeyboardMarkupFactory.getNextKeyboard();
+                var keyboard = adminInlineKeyboardMarkupFactory.getNextKeyboard();
                 String newMessageText = "Cлово " + wordReview.getWord() + " принято!";
 
                 messageService.editMessageWithInlineKeyboard(botEvent, newMessageText, keyboard);

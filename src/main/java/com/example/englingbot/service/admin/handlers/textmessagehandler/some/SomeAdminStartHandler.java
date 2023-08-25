@@ -1,7 +1,7 @@
 package com.example.englingbot.service.admin.handlers.textmessagehandler.some;
 
 import com.example.englingbot.model.AppUser;
-import com.example.englingbot.service.admin.comandsenums.AdminTextComandsEnum;
+import com.example.englingbot.service.comandsenums.AdminTextComandsEnum;
 import com.example.englingbot.service.admin.handlers.textmessagehandler.SomeAdminMessageHandler;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.message.MessageService;

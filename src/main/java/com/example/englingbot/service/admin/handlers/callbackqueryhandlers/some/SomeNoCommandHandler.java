@@ -2,7 +2,6 @@ package com.example.englingbot.service.admin.handlers.callbackqueryhandlers.some
 
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.Word;
-import com.example.englingbot.model.WordReview;
 import com.example.englingbot.model.enums.UserStateEnum;
 import com.example.englingbot.service.UserVocabularyService;
 import com.example.englingbot.service.WordService;
@@ -10,6 +9,7 @@ import com.example.englingbot.service.admin.WordReviewService;
 import com.example.englingbot.service.admin.handlers.callbackqueryhandlers.SomeAdminCallbackQueryHandler;
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
+import com.example.englingbot.service.keyboards.AdminInlineKeyboardMarkupFactory;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
 import com.example.englingbot.service.message.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +24,7 @@ public class SomeNoCommandHandler implements SomeAdminCallbackQueryHandler {
     private final WordService wordService;
     private final UserVocabularyService userVocabularyService;
     private final MessageService messageService;
+    private final AdminInlineKeyboardMarkupFactory adminInlineKeyboardMarkupFactory;
 
 
     @Override
@@ -51,7 +52,7 @@ public class SomeNoCommandHandler implements SomeAdminCallbackQueryHandler {
 
     private void sendUpdateMessage(BotEvent botEvent, Word word) {
         String newMessageText = "Слово " + word + " удалено";
-        var keyboard = InlineKeyboardMarkupFactory.getNextKeyboard();
+        var keyboard = adminInlineKeyboardMarkupFactory.getNextKeyboard();
         messageService.editMessageWithInlineKeyboard(botEvent, newMessageText, keyboard);
     }
 

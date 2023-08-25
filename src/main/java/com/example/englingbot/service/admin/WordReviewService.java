@@ -1,7 +1,10 @@
 package com.example.englingbot.service.admin;
 
+import com.example.englingbot.model.Word;
 import com.example.englingbot.model.WordReview;
+import com.example.englingbot.model.dto.converter.WordReviewConverter;
 import com.example.englingbot.repository.WordReviewRepository;
+import com.example.englingbot.service.externalapi.chatgpt.ChatGptWordUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class WordReviewService {
     private final WordReviewRepository wordReviewRepository;
+    private final ChatGptWordUtils chatGptWordUtils;
 
     public Optional<WordReview> getWordReview (){
         return wordReviewRepository.findTopBy();
@@ -28,5 +32,19 @@ public class WordReviewService {
 
     public void deleteWordReview (WordReview wordReview) {
         wordReviewRepository.delete(wordReview);
+    }
+
+    public Long countOfWordInReview (){
+        return wordReviewRepository.count();
+    }
+
+    public void resendWordToReview (WordReview wordReview) {
+        Word word = wordReview.getWord();
+
+        var newReviewDTO = chatGptWordUtils.reviewWordWithChatGpt(word);
+
+        WordReviewConverter.updateEntityFromDTO(wordReview, newReviewDTO);
+
+        saveWordReview(wordReview);
     }
 }

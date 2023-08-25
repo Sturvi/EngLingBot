@@ -1,6 +1,6 @@
 package com.example.englingbot.service;
 
-import com.example.englingbot.mapper.UserVocabularyMapper;
+import com.example.englingbot.model.mapper.UserVocabularyMapper;
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.UserVocabulary;
 import com.example.englingbot.model.Word;

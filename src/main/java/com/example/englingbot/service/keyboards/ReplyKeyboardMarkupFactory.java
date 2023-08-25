@@ -1,7 +1,7 @@
 package com.example.englingbot.service.keyboards;
 
-import com.example.englingbot.service.admin.comandsenums.AdminTextComandsEnum;
-import com.example.englingbot.service.comandsenums.TextCommandsEnum;
+import com.example.englingbot.service.comandsenums.AdminTextComandsEnum;
+import com.example.englingbot.service.comandsenums.UserTextCommandsEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
@@ -34,15 +34,15 @@ public class ReplyKeyboardMarkupFactory {
         KeyboardRow keyboardSecondRow = new KeyboardRow();
         KeyboardRow keyboardThirdRow = new KeyboardRow();
 
-        keyboardFirstRow.add(new KeyboardButton(TextCommandsEnum.ADD_WORD.getCommand()));
-        keyboardFirstRow.add(new KeyboardButton(TextCommandsEnum.ADD_RANDOM_WORDS.getCommand()));
+        keyboardFirstRow.add(new KeyboardButton(UserTextCommandsEnum.ADD_WORD.getCommand()));
+        keyboardFirstRow.add(new KeyboardButton(UserTextCommandsEnum.ADD_RANDOM_WORDS.getCommand()));
 
-        keyboardSecondRow.add(new KeyboardButton(TextCommandsEnum.LIST_REPETITION_WORDS.getCommand()));
-        keyboardSecondRow.add(new KeyboardButton(TextCommandsEnum.LIST_STUDY_WORDS.getCommand()));
+        keyboardSecondRow.add(new KeyboardButton(UserTextCommandsEnum.LIST_REPETITION_WORDS.getCommand()));
+        keyboardSecondRow.add(new KeyboardButton(UserTextCommandsEnum.LIST_STUDY_WORDS.getCommand()));
 
-        keyboardThirdRow.add(new KeyboardButton(TextCommandsEnum.REPEAT_WORD.getCommand()));
-        keyboardThirdRow.add(new KeyboardButton(TextCommandsEnum.MIXED_MODE.getCommand()));
-        keyboardThirdRow.add(new KeyboardButton(TextCommandsEnum.LEARN_WORD.getCommand()));
+        keyboardThirdRow.add(new KeyboardButton(UserTextCommandsEnum.REPEAT_WORD.getCommand()));
+        keyboardThirdRow.add(new KeyboardButton(UserTextCommandsEnum.MIXED_MODE.getCommand()));
+        keyboardThirdRow.add(new KeyboardButton(UserTextCommandsEnum.LEARN_WORD.getCommand()));
 
         keyboardRowList.add(keyboardFirstRow);
         keyboardRowList.add(keyboardSecondRow);

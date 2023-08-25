@@ -2,8 +2,10 @@ package com.example.englingbot.service.keyboards;
 
 import com.example.englingbot.model.UserVocabulary;
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
+@Component
 public class InlineKeyboardMarkupFactory extends AbstractInlineKeyboardMarkupFactory {
 
     /**
@@ -12,7 +14,7 @@ public class InlineKeyboardMarkupFactory extends AbstractInlineKeyboardMarkupFac
      * @param identifierInData The specific identifierInData to be used.
      * @return A keyboard with "Yes" and "No" options.
      */
-    public static InlineKeyboardMarkup getYesOrNoKeyboard(String identifierInData) {
+    public InlineKeyboardMarkup getYesOrNoKeyboard(String identifierInData) {
         var keyboard = creatNewInlineKeyboard();
 
         addButtonToNewLine(keyboard, KeyboardDataEnum.YES, identifierInData);
@@ -27,7 +29,7 @@ public class InlineKeyboardMarkupFactory extends AbstractInlineKeyboardMarkupFac
      * @param identifierInData The specific identifierInData to be used.
      * @return A keyboard with the translated identifierInData.
      */
-    public static InlineKeyboardMarkup getWordFromTranslatorKeyboard(String identifierInData) {
+    public InlineKeyboardMarkup getWordFromTranslatorKeyboard(String identifierInData) {
         var keyboard = creatNewInlineKeyboard();
 
         addButtonToNewLine(keyboard, KeyboardDataEnum.TRANSLATOR, identifierInData);
@@ -42,7 +44,7 @@ public class InlineKeyboardMarkupFactory extends AbstractInlineKeyboardMarkupFac
      * @param identifierInData           The specific identifierInData to be used.
      * @return A keyboard with options related to the current identifierInData in the user's identifierInData list.
      */
-    public static InlineKeyboardMarkup getKeyboardForCurrentWordInUserWordList(UserVocabulary userVocabulary, String identifierInData) {
+    public InlineKeyboardMarkup getKeyboardForCurrentWordInUserWordList(UserVocabulary userVocabulary, String identifierInData) {
         var timerValue = userVocabulary.getTimerValue();
         var keyboard = creatNewInlineKeyboard();
 
@@ -64,7 +66,7 @@ public class InlineKeyboardMarkupFactory extends AbstractInlineKeyboardMarkupFac
      *
      * @return A keyboard with the "Next" option.
      */
-    public static InlineKeyboardMarkup getNextKeyboard() {
+    public InlineKeyboardMarkup getNextKeyboard() {
         var keyboard = creatNewInlineKeyboard();
 
         addButtonToNewLine(keyboard, KeyboardDataEnum.NEXT);

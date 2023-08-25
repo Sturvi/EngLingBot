@@ -2,9 +2,10 @@ package com.example.englingbot.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Cascade;
 
 import java.util.List;
 import java.util.Objects;
@@ -15,7 +16,8 @@ import java.util.Objects;
 })
 @NoArgsConstructor
 @SuperBuilder
-@Data
+@Getter
+@Setter
 public class Word extends AbstractEntity {
 
     @OneToOne(mappedBy = "word", cascade = CascadeType.REMOVE)

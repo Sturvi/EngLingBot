@@ -1,10 +1,10 @@
 package com.example.englingbot.service.message;
 
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
-import com.example.englingbot.service.message.publishers.implementations.DeleteMessageForUser;
-import com.example.englingbot.service.message.publishers.implementations.EditMessageForUser;
-import com.example.englingbot.service.message.publishers.implementations.SendAudioForUser;
-import com.example.englingbot.service.message.publishers.implementations.SendMessageForUser;
+import com.example.englingbot.service.message.publishers.implementations.DeleteMessage;
+import com.example.englingbot.service.message.publishers.implementations.EditMessage;
+import com.example.englingbot.service.message.publishers.implementations.SendAudio;
+import com.example.englingbot.service.message.publishers.implementations.SendMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,44 +20,44 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 @Slf4j
 public class MessageService {
-    private final EditMessageForUser editMessageForUser;
-    private final SendAudioForUser sendAudioForUser;
-    private final SendMessageForUser sendMessageForUser;
-    private final DeleteMessageForUser deleteMessageForUser;
+    private final EditMessage editMessage;
+    private final SendAudio sendAudio;
+    private final SendMessage sendMessage;
+    private final DeleteMessage deleteMessage;
 
 
     public CompletableFuture<Message> sendMessageToUser(Long chatId, String messageText) {
         log.trace("Sending message: {}", messageText);
-        return sendMessageForUser.sendMessageToUserWithKeyboard(chatId, messageText);
+        return sendMessage.sendMessageToUserWithKeyboard(chatId, messageText);
     }
 
     public CompletableFuture<Message> sendMessageToAdmin(Long chatId, String messageText) {
         log.trace("Sending message: {}", messageText);
-        return sendMessageForUser.sendMessageToAdminWithKeyboard(chatId, messageText);
+        return sendMessage.sendMessageToAdminWithKeyboard(chatId, messageText);
     }
 
     public CompletableFuture<Message> sendMessageWithKeyboard(Long chatId, String messageText, ReplyKeyboard keyboard) {
         log.trace("Sending message with inline keyboard: {}", messageText);
-        return sendMessageForUser.sendMessageWithInlineKeyboard(chatId, messageText, keyboard);
+        return sendMessage.sendMessageWithInlineKeyboard(chatId, messageText, keyboard);
     }
 
     public void editMessageWithInlineKeyboard(BotEvent botEvent, String messageText, InlineKeyboardMarkup keyboard) {
-        editMessageForUser.editMessageWithInlineKeyboard(botEvent.getId(), botEvent.getMessageId(), messageText, keyboard);
+        editMessage.editMessageWithInlineKeyboard(botEvent.getId(), botEvent.getMessageId(), messageText, keyboard);
     }
 
     public void deleteInlineKeyboard(BotEvent botEvent) {
-        editMessageForUser.editTextAndDeleteInlineKeyboard(botEvent.getId(), botEvent.getMessageId(), botEvent.getText());
+        editMessage.editTextAndDeleteInlineKeyboard(botEvent.getId(), botEvent.getMessageId(), botEvent.getText());
     }
 
     public void editTextAndDeleteInlineKeyboard(BotEvent botEvent, String messageText) {
-        editMessageForUser.editTextAndDeleteInlineKeyboard(botEvent.getId(), botEvent.getMessageId(), messageText);
+        editMessage.editTextAndDeleteInlineKeyboard(botEvent.getId(), botEvent.getMessageId(), messageText);
     }
 
     public void deleteMessage (Long chatId, Integer messageId) {
-        deleteMessageForUser.deleteMessage(chatId, messageId);
+        deleteMessage.deleteMessage(chatId, messageId);
     }
 
     public CompletableFuture<Message> sendAudio(Long chatId, String title, File audioFile) {
-        return sendAudioForUser.sendAudio(chatId, title, audioFile);
+        return sendAudio.sendAudio(chatId, title, audioFile);
     }
 }

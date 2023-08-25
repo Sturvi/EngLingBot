@@ -12,7 +12,8 @@ public enum KeyboardDataEnum {
     NOT_REMEMBERED("not remembered ", "⛔️ Не вспомнил"),
     NEXT ("next ", "➡ Следующее слово"),
     YES ("YES ", "✅"),
-    NO ("NO ", "⛔️"),;
+    NO ("NO ", "⛔️"),
+    RE_REVIEW ("Re-review", "Заново проверить в GPT");
 
     private final String data;
     private final String text;
