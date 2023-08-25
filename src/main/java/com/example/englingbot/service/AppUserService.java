@@ -1,7 +1,8 @@
 package com.example.englingbot.service;
 
-import com.example.englingbot.mapper.UserMapper;
+import com.example.englingbot.model.mapper.UserMapper;
 import com.example.englingbot.model.AppUser;
+import com.example.englingbot.model.enums.UserRoleEnum;
 import com.example.englingbot.repository.AppUserRepository;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -64,17 +66,15 @@ public class AppUserService {
     /**
      * Updates an existing user in the database.
      *
-     * @param user        The user to update.
-     * @param userEntity  The user entity to update.
-     * @return The updated user.
+     * @param user       The user to update.
+     * @param userEntity The user entity to update.
      */
-    private AppUser updateAppUserInDataBase(User user, AppUser userEntity) {
+    private void updateAppUserInDataBase(User user, AppUser userEntity) {
         log.trace("Updating AppUser in the database");
         log.debug("Updating user entity from Telegram user: {}", user);
         userMapper.updateExistingUserEntityFromTelegramUser(user, userEntity);
         log.debug("Updated user entity: {}", userEntity);
         log.trace("AppUser updated successfully");
-        return userEntity;
     }
 
     /**
@@ -122,5 +122,9 @@ public class AppUserService {
         appUserRepository.save(appUser);
         log.trace("Exiting save method");
         return appUser;
+    }
+
+    public List<AppUser> getAppUserListByRole (UserRoleEnum userRoleEnum){
+        return appUserRepository.findAllByRole(userRoleEnum);
     }
 }

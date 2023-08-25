@@ -1,10 +1,12 @@
 package com.example.englingbot.service;
 
-import com.example.englingbot.dto.WordDto;
-import com.example.englingbot.dto.converter.WordConverter;
+import com.example.englingbot.model.dto.WordDto;
+import com.example.englingbot.model.dto.converter.WordConverter;
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.Word;
+import com.example.englingbot.model.dto.converter.WordReviewConverter;
 import com.example.englingbot.repository.WordRepository;
+import com.example.englingbot.repository.WordReviewRepository;
 import com.example.englingbot.service.externalapi.chatgpt.ChatGptWordUtils;
 import com.example.englingbot.service.externalapi.googleapi.GoogleTranslator;
 import lombok.extern.slf4j.Slf4j;
@@ -26,16 +28,18 @@ public class WordService {
 
     private final ExecutorService chatGPTExecutorService;
     private final WordRepository wordRepository;
+    private final WordReviewRepository wordReviewRepository;
 
     public WordService(GoogleTranslator googleTranslator,
                        ChatGptWordUtils chatGptWordUtils,
                        @Qualifier("chatGPTExecutorService")
                        ExecutorService chatGPTExecutorService,
-                       WordRepository wordRepository) {
+                       WordRepository wordRepository, WordReviewRepository wordReviewRepository) {
         this.googleTranslator = googleTranslator;
         this.chatGptWordUtils = chatGptWordUtils;
         this.chatGPTExecutorService = chatGPTExecutorService;
         this.wordRepository = wordRepository;
+        this.wordReviewRepository = wordReviewRepository;
     }
 
     public List<Word> addNewWordFromExternalApi(String incomingWord) {
@@ -139,6 +143,8 @@ public class WordService {
                 var wordFromDB = wordRepository.findByRussianWordAndEnglishWord(word.getRussianWord(), word.getEnglishWord());
                 if (wordFromDB.isPresent()) continue;
 
+                sendToReview(word);
+
                 wordRepository.save(word);
                 addExtraInformation(word);
 
@@ -150,6 +156,16 @@ public class WordService {
         }
 
         log.info("Finished saving new words.");
+    }
+
+    private void sendToReview(Word word) {
+        Runnable runnable = () -> {
+            var wordReviewDTO = chatGptWordUtils.reviewWordWithChatGpt(word);
+            var wordReview = WordReviewConverter.toEntity(wordReviewDTO);
+            wordReviewRepository.save(wordReview);
+        };
+
+        chatGPTExecutorService.submit(runnable);
     }
 
     private Word translateGoogle(String incomingWord) {
@@ -329,5 +345,9 @@ public class WordService {
 
     public List<Word> getTenRandomNewWord(AppUser appUser) {
         return wordRepository.findTenRandomWordsNotInUserVocabulary(appUser.getId());
+    }
+
+    public void deleteWord (Word word) {
+        wordRepository.delete(word);
     }
 }

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="6" author="Sturvi">
+        <createTable tableName="word_review">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="word_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="chat_gpt_response" type="BOOLEAN"/>
+            <column name="chat_gpt_response_text" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="word_review"
+                                 baseColumnNames="word_id"
+                                 constraintName="fk_word_review_word"
+                                 referencedTableName="words"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <createIndex tableName="word_review" indexName="idx_word_review_word_id">
+            <column name="word_id"/>
+        </createIndex>
+    </changeSet>
+
+
+</databaseChangeLog>

@@ -33,4 +33,8 @@ public interface UserVocabularyRepository extends JpaRepository<UserVocabulary, 
 
     @Query("SELECT uwl FROM UserVocabulary uwl WHERE uwl.listType IN :types")
     List<UserVocabulary> findByListTypeIn(@Param("types") List<UserWordState> types);
+
+
+    @Query("SELECT uv.user FROM UserVocabulary uv WHERE uv.word = :word")
+    List<AppUser> findUsersByWord(@Param("word") Word word);
 }

@@ -1,6 +1,9 @@
 package com.example.englingbot.service.externalapi.chatgpt;
 
-import com.example.englingbot.dto.WordDto;
+import com.example.englingbot.model.dto.WordDto;
+import com.example.englingbot.model.Word;
+import com.example.englingbot.model.WordReview;
+import com.example.englingbot.model.dto.WordReviewDTO;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -94,6 +97,23 @@ public class ChatGptWordUtils extends ChatGpt {
 
         return chat(promt);
     }
+
+    public WordReviewDTO reviewWordWithChatGpt (Word word){
+        String promtEnglishWord = constructPrompt(word.getEnglishWord(), ChatGptPromptsEnum.WORD_REVIEW);
+        String promtRussianWord = constructPrompt(word.getRussianWord(), ChatGptPromptsEnum.WORD_REVIEW);
+
+        String responseEnglishWord = chat(promtEnglishWord);
+        String responseRussianWord = chat(promtRussianWord);
+
+        WordReviewDTO wordReviewDTO = new WordReviewDTO();
+        wordReviewDTO.setChatGptResponse(responseEnglishWord.contains("true") && responseRussianWord.contains("true"));
+
+        wordReviewDTO.setChatGptResponseText(responseEnglishWord + "\n" + responseRussianWord);
+        wordReviewDTO.setWord(word);
+
+        return wordReviewDTO;
+    }
+
 
     /**
      * Constructs a prompt for the ChatGPT API based on the provided word and prompt type.

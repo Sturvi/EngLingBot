@@ -2,6 +2,7 @@ package com.example.englingbot.service.keyboards;
 
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
@@ -19,7 +20,7 @@ public abstract class AbstractInlineKeyboardMarkupFactory {
      *
      * @return new InlineKeyboardMarkup object.
      */
-    protected static InlineKeyboardMarkup creatNewInlineKeyboard() {
+    protected InlineKeyboardMarkup creatNewInlineKeyboard() {
         log.debug("Creating new empty InlineKeyboardMarkup");
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
@@ -37,7 +38,7 @@ public abstract class AbstractInlineKeyboardMarkupFactory {
      * @param identifierInData                 Word for the button text.
      * @param isNewLine            Whether to add the button to a new line.
      */
-    protected static void addButton(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum, String identifierInData, boolean isNewLine) {
+    private void addButton(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum, String identifierInData, boolean isNewLine) {
         var data = identifierInData != null ? keyboardDataEnum.getData() + " " + identifierInData : keyboardDataEnum.getData();
         var text = keyboardDataEnum.getText();
         log.debug("Adding button to {} line: text={}, data={}", isNewLine ? "new" : "current", text, data);
@@ -55,7 +56,7 @@ public abstract class AbstractInlineKeyboardMarkupFactory {
      * @param keyboardDataEnum     Enum representing the data for the button.
      * @param word                 Word for the button text.
      */
-    protected static void addButtonToNewLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum, String word) {
+    protected void addButtonToNewLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum, String word) {
         addButton(inlineKeyboardMarkup, keyboardDataEnum, word, true);
     }
 
@@ -65,7 +66,7 @@ public abstract class AbstractInlineKeyboardMarkupFactory {
      * @param inlineKeyboardMarkup InlineKeyboardMarkup object to add the button to.
      * @param keyboardDataEnum     Enum representing the data for the button.
      */
-    protected static void addButtonToNewLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum) {
+    protected void addButtonToNewLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum) {
         addButton(inlineKeyboardMarkup, keyboardDataEnum, null, true);
     }
 
@@ -75,7 +76,7 @@ public abstract class AbstractInlineKeyboardMarkupFactory {
      * @param inlineKeyboardMarkup InlineKeyboardMarkup object to add the button to.
      * @param keyboardDataEnum     Enum representing the data for the button.
      */
-    protected static void addButtonToCurrentLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum) {
+    protected void addButtonToCurrentLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum) {
         addButton(inlineKeyboardMarkup, keyboardDataEnum, null, false);
     }
 
@@ -86,7 +87,7 @@ public abstract class AbstractInlineKeyboardMarkupFactory {
      * @param keyboardDataEnum     Enum representing the data for the button.
      * @param word                 Word for the button text.
      */
-    protected static void addButtonToCurrentLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum, String word) {
+    protected void addButtonToCurrentLine(InlineKeyboardMarkup inlineKeyboardMarkup, KeyboardDataEnum keyboardDataEnum, String word) {
         addButton(inlineKeyboardMarkup, keyboardDataEnum, word, false);
     }
 
@@ -96,7 +97,7 @@ public abstract class AbstractInlineKeyboardMarkupFactory {
      * @param inlineKeyboardMarkup InlineKeyboardMarkup object to get the new row for.
      * @return new keyboard row.
      */
-    private static List<InlineKeyboardButton> getNewKeyboardRoad(InlineKeyboardMarkup inlineKeyboardMarkup) {
+    private List<InlineKeyboardButton> getNewKeyboardRoad(InlineKeyboardMarkup inlineKeyboardMarkup) {
         log.debug("Getting new keyboard row");
         List<InlineKeyboardButton> keyboardRoad = new ArrayList<>();
         inlineKeyboardMarkup.getKeyboard().add(keyboardRoad);
@@ -109,7 +110,7 @@ public abstract class AbstractInlineKeyboardMarkupFactory {
      * @param inlineKeyboardMarkup InlineKeyboardMarkup object to get the current row for.
      * @return current keyboard row.
      */
-    private static List<InlineKeyboardButton> getCurrentKeyboardRoad(InlineKeyboardMarkup inlineKeyboardMarkup) {
+    private List<InlineKeyboardButton> getCurrentKeyboardRoad(InlineKeyboardMarkup inlineKeyboardMarkup) {
         log.debug("Getting current keyboard row");
         var keyboard = inlineKeyboardMarkup.getKeyboard();
         return keyboard.get(keyboard.size() - 1);

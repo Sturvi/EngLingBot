@@ -21,6 +21,7 @@ import java.util.Optional;
 public class TemplateMessagesSender {
     private final MessageService messageService;
     private final WordSpeaker wordSpeaker;
+    private final InlineKeyboardMarkupFactory inlineKeyboardMarkupFactory;
 
     /**
      * Sends a start and help message to the specified chat.
@@ -52,7 +53,7 @@ public class TemplateMessagesSender {
 
                 Если у вас возникли вопросы, жалобы или предложения, свяжитесь с администратором: @SturviBots
                 """;
-        messageService.sendMessage(chatId, startAndHelpMessage);
+        messageService.sendMessageToUser(chatId, startAndHelpMessage);
     }
 
     /**
@@ -69,7 +70,7 @@ public class TemplateMessagesSender {
                 Можете отправлять также словосочетания
 
                 Учтите, что слова переводятся автоматически, с помощью сервисов онлайн перевода и никак не проходят дополнительные проверки орфографии. Поэтому даже при небольших ошибках, перевод также будет ошибочный.""";
-        messageService.sendMessage(chatId, message);
+        messageService.sendMessageToUser(chatId, message);
     }
 
     /**
@@ -81,12 +82,12 @@ public class TemplateMessagesSender {
         log.debug("Sending no word to send message to chat ID {}, types {}", chatId, types);
         if (types.length == 1) {
             if (types[0] == UserWordState.LEARNING) {
-                messageService.sendMessage(
+                messageService.sendMessageToUser(
                         chatId,
                         "У вас нет слов для изучения в данный момент. Пожалуйста, " +
                                 "добавьте новые слова, или воспользуйтесь нашим банком слов.");
             } else if (types[0] == UserWordState.REPETITION) {
-                messageService.sendMessage(
+                messageService.sendMessageToUser(
                         chatId,
                         "У вас нет слов на повторении в данный момент. Пожалуйста, " +
                                 "воспользуйтесь меню \"\uD83D\uDC68\uD83C\uDFFB\u200D\uD83C\uDF93 Учить слова\"");
@@ -94,7 +95,7 @@ public class TemplateMessagesSender {
         } else if (types.length == 2
                 && Arrays.asList(types).contains(UserWordState.LEARNING)
                 && Arrays.asList(types).contains(UserWordState.REPETITION)) {
-            messageService.sendMessage(
+            messageService.sendMessageToUser(
                     chatId,
                     "У вас нет слов для изучения или повторения в данный момент. Пожалуйста, " +
                             "добавьте новые слова, или воспользуйтесь нашим банком слов.");
@@ -107,7 +108,7 @@ public class TemplateMessagesSender {
      */
     public void sendErrorMessage(Long chatId) {
         log.error("Sending error message to chat ID {}", chatId);
-        messageService.sendMessage(chatId, "Произошла непредвиденная ошибка. Постараемся решить ее в ближайшее время!");
+        messageService.sendMessageToUser(chatId, "Произошла непредвиденная ошибка. Постараемся решить ее в ближайшее время!");
     }
 
     public void sendAudioWithWord(Long chatId, UserVocabulary userWord, String messageText) {
@@ -122,9 +123,9 @@ public class TemplateMessagesSender {
             log.warn("Audio file not found for word: {}", userWord.getWord());
         }
 
-        var keyboard = InlineKeyboardMarkupFactory.getKeyboardForCurrentWordInUserWordList(userWord, userWord.getWord().getId().toString());
+        var keyboard = inlineKeyboardMarkupFactory.getKeyboardForCurrentWordInUserWordList(userWord, userWord.getWord().getId().toString());
 
-        messageService.sendMessageWithInlineKeyboard(chatId, messageText, keyboard);
+        messageService.sendMessageWithKeyboard(chatId, messageText, keyboard);
 
         log.trace("Exiting sendAudioWithWord method");
 

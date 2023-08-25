@@ -5,7 +5,18 @@ services:
     volumes:
       - ./data/db:/var/lib/postgresql/data
     ports:
-      - 5433:5432
+      - "5435:5432"
+    environment:
+      - POSTGRES_DB=mydatabase
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+
+  db2:
+    image: postgres:13
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    ports:
+      - 5434:5432
     environment:
       - POSTGRES_DB=mydatabase
       - POSTGRES_USER=myuser
