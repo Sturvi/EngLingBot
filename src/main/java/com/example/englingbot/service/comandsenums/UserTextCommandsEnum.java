@@ -16,7 +16,10 @@ public enum UserTextCommandsEnum {
     LIST_REPETITION_WORDS("\uD83D\uDCD3 Список слов на повторении"),
     ADD_RANDOM_WORDS("\uD83D\uDCD6 Добавить случайные слова"),
     STATISTIC("/statistic"),
-    DELETE("/delete");
+    DELETE("/delete"),
+    CHAT_WITH_TUTOR ("/tutor"),
+    NEW_CHAT ("\uD83E\uDDF9 Начать новый чат"),
+    HOME ("\uD83C\uDFE0 Домой");
 
     private final String command;
 

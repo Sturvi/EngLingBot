@@ -14,5 +14,6 @@ public enum UserStateEnum {
     STATISTICS,
     DELETE_MENU,
     ALL_FALSE,
-    WORD_REVIEW
+    WORD_REVIEW,
+    CHAT_WITH_TUTOR
 }

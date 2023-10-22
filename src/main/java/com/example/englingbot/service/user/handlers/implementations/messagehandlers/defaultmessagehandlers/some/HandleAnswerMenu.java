@@ -3,8 +3,8 @@ package com.example.englingbot.service.user.handlers.implementations.messagehand
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.enums.UserStateEnum;
 import com.example.englingbot.service.QuestionsForChatGptService;
-import com.example.englingbot.service.externalapi.chatgpt.ChatGpt;
-import com.example.englingbot.service.externalapi.chatgpt.ChatGptPromptsEnum;
+import com.example.englingbot.service.externalapi.openai.ChatGpt;
+import com.example.englingbot.service.externalapi.openai.enums.ChatGptPromptsEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.user.handlers.interfaces.SomeDefaultMessageHandler;
 import com.example.englingbot.service.message.MessageService;

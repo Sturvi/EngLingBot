@@ -1,5 +1,7 @@
-package com.example.englingbot.service.externalapi.chatgpt;
+package com.example.englingbot.service.externalapi.openai;
 
+import com.example.englingbot.model.Message;
+import com.example.englingbot.service.externalapi.openai.enums.Role;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -17,65 +19,54 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * ChatGpt class for interacting with OpenAI ChatGPT API.
- */
 @Slf4j
 @Component
 public class ChatGpt {
 
     @Value("${openai.api.key}")
     private String apiKey;
+
     private final WebClient webClient;
     private final Gson gson;
 
-
-    /**
-     * Constructs a ChatGpt instance.
-     *
-     * @param webClient WebClient used for HTTP requests
-     * @param gson      Gson instance for JSON parsing
-     */
     @Autowired
     public ChatGpt(WebClient webClient, Gson gson) {
         this.webClient = webClient;
         this.gson = gson;
     }
 
-    /**
-     * Sends chat prompt to OpenAI API and returns the response.
-     *
-     * @param promt The prompt to be sent
-     * @return The response from the OpenAI API
-     */
-    public String chat(String promt) {
-        log.info("Sending word {} to OpenAI ChatGPT API", promt);
-        var requestEntity = createRequestEntity(promt);
+    public String chat(String prompt) {
+        Message message = Message
+                .builder()
+                .role(Role.USER)
+                .content(prompt)
+                .build();
+
+        return chat(List.of(message));
+    }
+
+    public String chat(List<Message> messages) {
+        log.info("Sending chat to OpenAI ChatGPT API: {}", messages);
+        var requestEntity = createRequestEntity(messages);
         Mono<String> response = sendHttpRequest(requestEntity);
         return parseResponse(response.block());
     }
 
-    /**
-     * Creates a request entity for sending to the OpenAI API.
-     *
-     * @param promt The prompt to be sent
-     * @return A map representing the request entity
-     */
-    private Map<String, Object> createRequestEntity(String promt) {
-        log.debug("Creating request entity for promt: {}", promt);
-        Map<String, String> messageContent = Map.of("role", "system", "content", promt);
-        List<Map<String, String>> messages = new ArrayList<>();
-        messages.add(messageContent);
+    private Map<String, Object> createRequestEntity(List<Message> messages) {
+        log.debug("Creating request entity for chat: {}", messages);
 
-        return Map.of("model", "gpt-3.5-turbo", "messages", messages);
+        List<Map<String, String>> serializedMessages = new ArrayList<>();
+        for (Message message : messages) {
+            serializedMessages.add(Map.of(
+                    "role", message.getRole().getJsonValue(),
+                    "content", message.getContent()
+            ));
+        }
+
+        return Map.of("model", "gpt-3.5-turbo", "messages", serializedMessages);
     }
 
-    /**
-     * Sends an HTTP request with the given entity and returns the response.
-     *
-     * @param entity The entity to be sent in the request
-     * @return A Mono representing the response
-     */
+
     private Mono<String> sendHttpRequest(Map<String, Object> entity) {
         try {
             log.debug("Start sendHttpRequest method for {}", entity);
@@ -101,12 +92,6 @@ public class ChatGpt {
         }
     }
 
-    /**
-     * Parses the response from the OpenAI API.
-     *
-     * @param response The response to be parsed
-     * @return The parsed response
-     */
     private String parseResponse(String response) {
         log.debug("Parsing response: {}", response);
         JsonObject root = gson.fromJson(response, JsonObject.class);

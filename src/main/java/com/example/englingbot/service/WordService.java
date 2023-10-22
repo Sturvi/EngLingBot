@@ -7,7 +7,7 @@ import com.example.englingbot.model.Word;
 import com.example.englingbot.model.dto.converter.WordReviewConverter;
 import com.example.englingbot.repository.WordRepository;
 import com.example.englingbot.repository.WordReviewRepository;
-import com.example.englingbot.service.externalapi.chatgpt.ChatGptWordUtils;
+import com.example.englingbot.service.externalapi.openai.ChatGptWordUtils;
 import com.example.englingbot.service.externalapi.googleapi.GoogleTranslator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;

@@ -8,82 +8,99 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
- * ReplyKeyboardMarkupFactory is a class responsible for creating a predefined keyboard markup for Telegram bot.
+ * ReplyKeyboardMarkupFactory is a class responsible for creating
+ * predefined keyboard markups for a Telegram bot.
  */
 @Slf4j
 public class ReplyKeyboardMarkupFactory {
 
+
     /**
-     * Creates a ReplyKeyboardMarkup object which holds the keyboard layout to be shown to the Telegram users.
+     * Create a keyboard layout for normal users.
      *
-     * @return a ReplyKeyboardMarkup object representing a specific keyboard layout.
+     * @return A new ReplyKeyboardMarkup object designed for normal users.
      */
     public static ReplyKeyboardMarkup getUserReplyKeyboardMarkup() {
-        log.debug("Start creating a new keyboard markup");
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        log.trace("Generating user keyboard layout");
 
-        replyKeyboardMarkup.setSelective(true);
-        replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setOneTimeKeyboard(false);
+        List<KeyboardRow> rows = new ArrayList<>();
+        rows.add(createRow(EnumSet.of(UserTextCommandsEnum.ADD_WORD, UserTextCommandsEnum.ADD_RANDOM_WORDS)));
+        rows.add(createRow(EnumSet.of(UserTextCommandsEnum.LIST_REPETITION_WORDS, UserTextCommandsEnum.LIST_STUDY_WORDS)));
+        rows.add(createRow(EnumSet.of(UserTextCommandsEnum.REPEAT_WORD, UserTextCommandsEnum.MIXED_MODE, UserTextCommandsEnum.LEARN_WORD)));
 
-        List<KeyboardRow> keyboardRowList = new ArrayList<>();
-        KeyboardRow keyboardFirstRow = new KeyboardRow();
-        KeyboardRow keyboardSecondRow = new KeyboardRow();
-        KeyboardRow keyboardThirdRow = new KeyboardRow();
-
-        keyboardFirstRow.add(new KeyboardButton(UserTextCommandsEnum.ADD_WORD.getCommand()));
-        keyboardFirstRow.add(new KeyboardButton(UserTextCommandsEnum.ADD_RANDOM_WORDS.getCommand()));
-
-        keyboardSecondRow.add(new KeyboardButton(UserTextCommandsEnum.LIST_REPETITION_WORDS.getCommand()));
-        keyboardSecondRow.add(new KeyboardButton(UserTextCommandsEnum.LIST_STUDY_WORDS.getCommand()));
-
-        keyboardThirdRow.add(new KeyboardButton(UserTextCommandsEnum.REPEAT_WORD.getCommand()));
-        keyboardThirdRow.add(new KeyboardButton(UserTextCommandsEnum.MIXED_MODE.getCommand()));
-        keyboardThirdRow.add(new KeyboardButton(UserTextCommandsEnum.LEARN_WORD.getCommand()));
-
-        keyboardRowList.add(keyboardFirstRow);
-        keyboardRowList.add(keyboardSecondRow);
-        keyboardRowList.add(keyboardThirdRow);
-
-        replyKeyboardMarkup.setKeyboard(keyboardRowList);
-
-        log.debug("Successfully created a new keyboard markup");
-
-        try {
-            return replyKeyboardMarkup;
-        } catch (Exception e) {
-            log.error("An error occurred while creating the keyboard markup", e);
-            throw e;
-        }
+        return createKeyboardMarkup(rows);
     }
 
+    /**
+     * Create a keyboard layout for admin users.
+     *
+     * @return A new ReplyKeyboardMarkup object designed for admin users.
+     */
     public static ReplyKeyboardMarkup getAdminReplyKeyboardMarkup() {
-        log.debug("Start creating a new keyboard markup for admin");
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        log.trace("Generating admin keyboard layout");
 
-        replyKeyboardMarkup.setSelective(true);
-        replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setOneTimeKeyboard(false);
+        List<KeyboardRow> rows = new ArrayList<>();
+        rows.add(createRow(EnumSet.of(AdminTextComandsEnum.REVIEW_NEW_WORD)));
 
-        List<KeyboardRow> keyboardRowList = new ArrayList<>();
-        KeyboardRow keyboardFirstRow = new KeyboardRow();
+        return createKeyboardMarkup(rows);
+    }
 
-        keyboardFirstRow.add(new KeyboardButton(AdminTextComandsEnum.REVIEW_NEW_WORD.getCommand()));
+    /**
+     * Create a keyboard layout for tutor chat.
+     *
+     * @return A new ReplyKeyboardMarkup object designed for tutor chat.
+     */
+    public static ReplyKeyboardMarkup getTutorChatKeyboard() {
+        log.trace("Generating tutor chat keyboard layout");
 
-        keyboardRowList.add(keyboardFirstRow);
+        List<KeyboardRow> rows = new ArrayList<>();
+        rows.add(createRow(EnumSet.of(UserTextCommandsEnum.NEW_CHAT)));
+        rows.add(createRow(EnumSet.of(UserTextCommandsEnum.HOME)));
 
-        replyKeyboardMarkup.setKeyboard(keyboardRowList);
+        return createKeyboardMarkup(rows);
+    }
+
+
+    /**
+     * Creates a new ReplyKeyboardMarkup based on the provided list of KeyboardRows.
+     *
+     * @param keyboardRows List of KeyboardRow objects that define the keyboard layout.
+     * @return A new ReplyKeyboardMarkup object.
+     */
+    private static ReplyKeyboardMarkup createKeyboardMarkup(List<KeyboardRow> keyboardRows) {
+        log.trace("Entering createKeyboardMarkup method");
+
+        log.debug("Start creating a new keyboard markup");
+        ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
+
+        markup.setSelective(true);
+        markup.setResizeKeyboard(true);
+        markup.setOneTimeKeyboard(false);
+        markup.setKeyboard(keyboardRows);
 
         log.debug("Successfully created a new keyboard markup");
+        log.trace("Exiting createKeyboardMarkup method");
 
-        try {
-            return replyKeyboardMarkup;
-        } catch (Exception e) {
-            log.error("An error occurred while creating the keyboard markup", e);
-            throw e;
-        }
+        return markup;
+    }
+
+    /**
+     * Create a KeyboardRow based on the given set of commands.
+     *
+     * @param commands An EnumSet of commands to be added to the KeyboardRow.
+     * @return A new KeyboardRow object.
+     */
+    private static KeyboardRow createRow(EnumSet<? extends Enum<?>> commands) {
+        log.trace("Entering createRow method");
+
+        KeyboardRow row = new KeyboardRow();
+        commands.forEach(command -> row.add(new KeyboardButton(command.toString())));
+
+        log.trace("Exiting createRow method");
+        return row;
     }
 }

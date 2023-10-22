@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- New changeSet for tables 'chats' and 'messages' -->
+    <changeSet id="7" author="Sturvi">
+        <!-- Create table for 'chats' -->
+        <createTable tableName="chats">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="app_user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_active" type="BOOLEAN"/>
+        </createTable>
+
+        <!-- Create table for 'messages' -->
+        <createTable tableName="messages">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="chat_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="VARCHAR(255)"/>
+            <column name="content" type="TEXT"/>
+        </createTable>
+
+        <!-- Add foreign key constraints -->
+        <addForeignKeyConstraint baseTableName="chats"
+                                 baseColumnNames="app_user_id"
+                                 constraintName="fk_chats_app_user"
+                                 referencedTableName="app_users"  <!-- Change this to your actual user table -->
+        referencedColumnNames="id"
+        onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="messages"
+                                 baseColumnNames="chat_id"
+                                 constraintName="fk_messages_chat"
+                                 referencedTableName="chats"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>
