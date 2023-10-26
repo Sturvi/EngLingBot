@@ -6,7 +6,7 @@ import com.example.englingbot.service.UserVocabularyService;
 import com.example.englingbot.service.comandsenums.UserTextCommandsEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.user.handlers.interfaces.SomeMessageHandler;
-import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TelegramMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @RequiredArgsConstructor
 public class HandleStatisticCommand implements SomeMessageHandler {
-    private final MessageService messageService;
+    private final TelegramMessageService telegramMessageService;
     private final UserVocabularyService userVocabularyService;
 
 
@@ -26,7 +26,7 @@ public class HandleStatisticCommand implements SomeMessageHandler {
 
         String messageText = userVocabularyService.getUserStatistics(appUser);
 
-        messageService.sendMessageToUser(botEvent.getId(), messageText);
+        telegramMessageService.sendMessageToUser(botEvent.getId(), messageText);
         log.trace("Exiting handle method");
     }
 

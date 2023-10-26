@@ -17,7 +17,7 @@ public class ChatService {
 
 
     public void cleanChatHistory (AppUser appUser) {
-        Optional<Chat> chatOpt = chatRepository.findFirstByAppUserAndActiveIs(appUser, true);
+        Optional<Chat> chatOpt = chatRepository.findFirstByAppUserAndIsActive(appUser, true);
 
         chatOpt.ifPresent(chat -> {
             chat.setActive(false);
@@ -26,7 +26,7 @@ public class ChatService {
     }
 
     public Optional<Chat> getActiveChat (AppUser appUser) {
-        return chatRepository.findFirstByAppUserAndActiveIs(appUser, true);
+        return chatRepository.findFirstByAppUserAndIsActive(appUser, true);
     }
 
     public void save (Chat chat) {

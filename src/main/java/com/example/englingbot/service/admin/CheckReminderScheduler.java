@@ -2,7 +2,7 @@ package com.example.englingbot.service.admin;
 
 import com.example.englingbot.model.enums.UserRoleEnum;
 import com.example.englingbot.service.AppUserService;
-import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TelegramMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,7 +18,7 @@ public class CheckReminderScheduler {
 
     private final AppUserService appUserService;
     private final WordReviewService wordReviewService;
-    private final MessageService messageService;
+    private final TelegramMessageService telegramMessageService;
 
     /**
      * Scheduled method that runs every day at 17:00 Baku time. It checks if there are words
@@ -45,7 +45,7 @@ public class CheckReminderScheduler {
             log.info("Sending reminders to admins about {} words awaiting review", count);
 
             administratorsList.forEach(admin -> {
-                messageService.sendMessageToAdmin(admin.getTelegramChatId(), messageText);
+                telegramMessageService.sendMessageToAdmin(admin.getTelegramChatId(), messageText);
                 log.trace("Reminder sent to admin with Telegram Chat ID: {}", admin.getTelegramChatId());
             });
         } else {

@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface ChatRepository extends JpaRepository<Chat, Long> {
-    List<Chat> findAllByAppUserAndActiveIs(AppUser appUser, boolean isActive);
+    List<Chat> findAllByAppUserAndIsActive(AppUser appUser, boolean isActive);
 
-    Optional<Chat> findFirstByAppUserAndActiveIs (AppUser appUser, boolean isActive);
+    Optional<Chat> findFirstByAppUserAndIsActive (AppUser appUser, boolean isActive);
 }

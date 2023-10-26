@@ -7,7 +7,7 @@ import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.user.handlers.interfaces.SomeCallbackQueryHandler;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
-import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TelegramMessageService;
 import com.example.englingbot.service.message.TemplateMessagesSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class HandleRememberedCommand implements SomeCallbackQueryHandler {
     private final WordService wordService;
     private final UserVocabularyService userVocabularyService;
-    private final MessageService messageService;
+    private final TelegramMessageService telegramMessageService;
     private final TemplateMessagesSender templateMessagesSender;
     private final InlineKeyboardMarkupFactory inlineKeyboardMarkupFactory;
 
@@ -36,7 +36,7 @@ public class HandleRememberedCommand implements SomeCallbackQueryHandler {
 
             var keyboard = inlineKeyboardMarkupFactory.getNextKeyboard();
 
-            messageService.editMessageWithInlineKeyboard(botEvent, botEvent.getText(), keyboard);
+            telegramMessageService.editMessageWithInlineKeyboard(botEvent, botEvent.getText(), keyboard);
         } else {
             templateMessagesSender.sendErrorMessage(botEvent.getId());
         }

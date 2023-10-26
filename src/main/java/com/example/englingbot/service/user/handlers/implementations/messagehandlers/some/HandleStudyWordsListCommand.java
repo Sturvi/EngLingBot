@@ -7,7 +7,7 @@ import com.example.englingbot.service.UserVocabularyService;
 import com.example.englingbot.service.comandsenums.UserTextCommandsEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.user.handlers.interfaces.SomeMessageHandler;
-import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TelegramMessageService;
 import com.example.englingbot.service.message.TextMessageComposer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class HandleStudyWordsListCommand implements SomeMessageHandler {
     private final UserVocabularyService userVocabularyService;
     private final TextMessageComposer textMessageComposer;
-    private final MessageService messageService;
+    private final TelegramMessageService telegramMessageService;
 
     @Override
     public void handle(BotEvent botEvent, AppUser appUser) {
@@ -32,7 +32,7 @@ public class HandleStudyWordsListCommand implements SomeMessageHandler {
         var messageText = textMessageComposer.LearningWordsMessageText(wordList);
         log.debug("Composed user learning word list message: {}", messageText);
 
-        messageService.sendMessageToUser(botEvent.getId(), messageText);
+        telegramMessageService.sendMessageToUser(botEvent.getId(), messageText);
         log.trace("Exiting handle method");
     }
 

@@ -7,7 +7,7 @@ import com.example.englingbot.service.WordService;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.user.handlers.interfaces.SomeDefaultMessageHandler;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
-import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TelegramMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class HandleAddMenu implements SomeDefaultMessageHandler {
     private final WordService wordService;
-    private final MessageService messageService;
+    private final TelegramMessageService telegramMessageService;
     private final InlineKeyboardMarkupFactory inlineKeyboardMarkupFactory;
 
     @Override
@@ -30,17 +30,17 @@ public class HandleAddMenu implements SomeDefaultMessageHandler {
         if (!wordList.isEmpty()) {
             for (Word word : wordList) {
                 var keyboard = inlineKeyboardMarkupFactory.getYesOrNoKeyboard(word.getId().toString());
-                messageService
+                telegramMessageService
                         .sendMessageWithKeyboard(botEvent.getId(), word.toString(), keyboard);
             }
 
             var keyboard = inlineKeyboardMarkupFactory.getWordFromTranslatorKeyboard(incomingWord);
-            messageService.sendMessageWithKeyboard(botEvent.getId(),
+            telegramMessageService.sendMessageWithKeyboard(botEvent.getId(),
                     "Нет нужного перевода?",
                     keyboard);
         } else {
             var keyboard = inlineKeyboardMarkupFactory.getWordFromTranslatorKeyboard(incomingWord);
-            messageService
+            telegramMessageService
                     .sendMessageWithKeyboard(
                             botEvent.getId(),
                             "К сожалению у нас в базе не нашлось слова '" + botEvent.getText() + "'.",

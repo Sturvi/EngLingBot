@@ -8,7 +8,7 @@ import com.example.englingbot.service.WordService;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.user.handlers.interfaces.SomeDefaultMessageHandler;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
-import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TelegramMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class HandleDeleteMenu implements SomeDefaultMessageHandler {
     private final UserVocabularyService userVocabularyService;
     private final WordService wordService;
-    private final MessageService messageService;
+    private final TelegramMessageService telegramMessageService;
     private final InlineKeyboardMarkupFactory inlineKeyboardMarkupFactory;
 
 
@@ -37,13 +37,13 @@ public class HandleDeleteMenu implements SomeDefaultMessageHandler {
 
         if (userVocabularyList.isEmpty()) {
             log.debug("No matching words found in user's vocabulary");
-            messageService.sendMessageToUser(botEvent.getId(), "Такого слова не нашлось в вашем словаре");
+            telegramMessageService.sendMessageToUser(botEvent.getId(), "Такого слова не нашлось в вашем словаре");
         } else {
             for (UserVocabulary userVocabulary : userVocabularyList) {
                 var word = userVocabulary.getWord();
                 var keyboard = inlineKeyboardMarkupFactory.getYesOrNoKeyboard(word.getId().toString());
                 log.debug("Sending message with inline keyboard for word: {}", word);
-                messageService.sendMessageWithKeyboard(botEvent.getId(), word.toString(), keyboard);
+                telegramMessageService.sendMessageWithKeyboard(botEvent.getId(), word.toString(), keyboard);
             }
         }
     }

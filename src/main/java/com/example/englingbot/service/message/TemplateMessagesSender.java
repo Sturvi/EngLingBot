@@ -19,7 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class TemplateMessagesSender {
-    private final MessageService messageService;
+    private final TelegramMessageService telegramMessageService;
     private final WordSpeaker wordSpeaker;
     private final InlineKeyboardMarkupFactory inlineKeyboardMarkupFactory;
 
@@ -53,7 +53,7 @@ public class TemplateMessagesSender {
 
                 Если у вас возникли вопросы, жалобы или предложения, свяжитесь с администратором: @SturviBots
                 """;
-        messageService.sendMessageToUser(chatId, startAndHelpMessage);
+        telegramMessageService.sendMessageToUser(chatId, startAndHelpMessage);
     }
 
     /**
@@ -70,7 +70,7 @@ public class TemplateMessagesSender {
                 Можете отправлять также словосочетания
 
                 Учтите, что слова переводятся автоматически, с помощью сервисов онлайн перевода и никак не проходят дополнительные проверки орфографии. Поэтому даже при небольших ошибках, перевод также будет ошибочный.""";
-        messageService.sendMessageToUser(chatId, message);
+        telegramMessageService.sendMessageToUser(chatId, message);
     }
 
     /**
@@ -82,12 +82,12 @@ public class TemplateMessagesSender {
         log.debug("Sending no word to send message to chat ID {}, types {}", chatId, types);
         if (types.length == 1) {
             if (types[0] == UserWordState.LEARNING) {
-                messageService.sendMessageToUser(
+                telegramMessageService.sendMessageToUser(
                         chatId,
                         "У вас нет слов для изучения в данный момент. Пожалуйста, " +
                                 "добавьте новые слова, или воспользуйтесь нашим банком слов.");
             } else if (types[0] == UserWordState.REPETITION) {
-                messageService.sendMessageToUser(
+                telegramMessageService.sendMessageToUser(
                         chatId,
                         "У вас нет слов на повторении в данный момент. Пожалуйста, " +
                                 "воспользуйтесь меню \"\uD83D\uDC68\uD83C\uDFFB\u200D\uD83C\uDF93 Учить слова\"");
@@ -95,7 +95,7 @@ public class TemplateMessagesSender {
         } else if (types.length == 2
                 && Arrays.asList(types).contains(UserWordState.LEARNING)
                 && Arrays.asList(types).contains(UserWordState.REPETITION)) {
-            messageService.sendMessageToUser(
+            telegramMessageService.sendMessageToUser(
                     chatId,
                     "У вас нет слов для изучения или повторения в данный момент. Пожалуйста, " +
                             "добавьте новые слова, или воспользуйтесь нашим банком слов.");
@@ -108,7 +108,7 @@ public class TemplateMessagesSender {
      */
     public void sendErrorMessage(Long chatId) {
         log.error("Sending error message to chat ID {}", chatId);
-        messageService.sendMessageToUser(chatId, "Произошла непредвиденная ошибка. Постараемся решить ее в ближайшее время!");
+        telegramMessageService.sendMessageToUser(chatId, "Произошла непредвиденная ошибка. Постараемся решить ее в ближайшее время!");
     }
 
     public void sendAudioWithWord(Long chatId, UserVocabulary userWord, String messageText) {
@@ -118,14 +118,14 @@ public class TemplateMessagesSender {
 
         if (audio.isPresent()) {
             log.debug("Audio file found for word: {}", userWord.getWord());
-            messageService.sendAudio(chatId, "Произношение слова", audio.get());
+            telegramMessageService.sendAudio(chatId, "Произношение слова", audio.get());
         } else {
             log.warn("Audio file not found for word: {}", userWord.getWord());
         }
 
         var keyboard = inlineKeyboardMarkupFactory.getKeyboardForCurrentWordInUserWordList(userWord, userWord.getWord().getId().toString());
 
-        messageService.sendMessageWithKeyboard(chatId, messageText, keyboard);
+        telegramMessageService.sendMessageWithKeyboard(chatId, messageText, keyboard);
 
         log.trace("Exiting sendAudioWithWord method");
 

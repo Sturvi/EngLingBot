@@ -7,7 +7,7 @@ import com.example.englingbot.service.comandsenums.UserTextCommandsEnum;
 import com.example.englingbot.service.externalapi.openai.TutorService;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.keyboards.ReplyKeyboardMarkupFactory;
-import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TelegramMessageService;
 import com.example.englingbot.service.user.handlers.interfaces.SomeMessageHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class HandleChatWIthTutorCommand implements SomeMessageHandler {
-    private final MessageService messageService;
+    private final TelegramMessageService telegramMessageService;
     private final TutorService tutorService;
 
     @Override
@@ -26,11 +26,14 @@ public class HandleChatWIthTutorCommand implements SomeMessageHandler {
         appUser.setUserState(UserStateEnum.CHAT_WITH_TUTOR);
 
         var keyboard = ReplyKeyboardMarkupFactory.getTutorChatKeyboard();
-        Chat chat = tutorService.getNewChat(appUser);
+        Chat chat = tutorService.getOrCreateChat(appUser);
 
-        messageService.sendMessageWithKeyboard(
+        String messageText = chat.getMessages().size() > 2 ? "Last message in our chat: " : "";
+        messageText += chat.getMessages().get(1).getContent();
+
+        telegramMessageService.sendMessageWithKeyboard(
                 botEvent.getId(),
-                chat.getMessages().get(1).getContent(),
+                messageText,
                 keyboard);
     }
 

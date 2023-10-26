@@ -8,7 +8,7 @@ import com.example.englingbot.service.comandsenums.UserTextCommandsEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.user.handlers.interfaces.SomeMessageHandler;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
-import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TelegramMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class HandleAddRandomWordsCommand implements SomeMessageHandler {
     private final WordService wordService;
-    private final MessageService messageService;
+    private final TelegramMessageService telegramMessageService;
     private final InlineKeyboardMarkupFactory inlineKeyboardMarkupFactory;
 
     @Override
@@ -29,7 +29,7 @@ public class HandleAddRandomWordsCommand implements SomeMessageHandler {
         for (Word word :
                 newWordList) {
             var keyboard = inlineKeyboardMarkupFactory.getYesOrNoKeyboard(word.getId().toString());
-            messageService.sendMessageWithKeyboard(botEvent.getId(), word.toString(), keyboard);
+            telegramMessageService.sendMessageWithKeyboard(botEvent.getId(), word.toString(), keyboard);
         }
     }
 
