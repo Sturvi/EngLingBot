@@ -6,8 +6,7 @@ import com.example.englingbot.service.admin.handlers.callbackqueryhandlers.SomeA
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.keyboards.AdminInlineKeyboardMarkupFactory;
-import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
-import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TelegramMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class SomeNextCommandHandler implements SomeAdminCallbackQueryHandler {
     private final WordReviewService wordReviewService;
-    private final MessageService messageService;
+    private final TelegramMessageService telegramMessageService;
     private final AdminInlineKeyboardMarkupFactory adminInlineKeyboardMarkupFactory;
 
 
@@ -32,9 +31,9 @@ public class SomeNextCommandHandler implements SomeAdminCallbackQueryHandler {
 
             String messageText = "Слово для проверки:\n\n" + wordReview;
 
-            messageService.sendMessageWithKeyboard(botEvent.getId(), messageText, keyboard);
+            telegramMessageService.sendMessageWithKeyboard(botEvent.getId(), messageText, keyboard);
         } else {
-            messageService.sendMessageToAdmin(botEvent.getId(), "На данный момент нет слов для проверки");
+            telegramMessageService.sendMessageToAdmin(botEvent.getId(), "На данный момент нет слов для проверки");
         }
     }
 

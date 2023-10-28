@@ -4,7 +4,7 @@ import com.example.englingbot.model.Word;
 import com.example.englingbot.model.WordReview;
 import com.example.englingbot.model.dto.converter.WordReviewConverter;
 import com.example.englingbot.repository.WordReviewRepository;
-import com.example.englingbot.service.externalapi.chatgpt.ChatGptWordUtils;
+import com.example.englingbot.service.externalapi.openai.ChatGptWordUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

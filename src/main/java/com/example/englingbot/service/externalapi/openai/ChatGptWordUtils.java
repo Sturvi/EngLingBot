@@ -1,9 +1,9 @@
-package com.example.englingbot.service.externalapi.chatgpt;
+package com.example.englingbot.service.externalapi.openai;
 
 import com.example.englingbot.model.dto.WordDto;
 import com.example.englingbot.model.Word;
-import com.example.englingbot.model.WordReview;
 import com.example.englingbot.model.dto.WordReviewDTO;
+import com.example.englingbot.service.externalapi.openai.enums.ChatGptPromptsEnum;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

@@ -3,11 +3,11 @@ package com.example.englingbot.service.user.handlers.implementations.messagehand
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.enums.UserStateEnum;
 import com.example.englingbot.service.QuestionsForChatGptService;
-import com.example.englingbot.service.externalapi.chatgpt.ChatGpt;
-import com.example.englingbot.service.externalapi.chatgpt.ChatGptPromptsEnum;
+import com.example.englingbot.service.externalapi.openai.ChatGpt;
+import com.example.englingbot.service.externalapi.openai.enums.ChatGptPromptsEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.user.handlers.interfaces.SomeDefaultMessageHandler;
-import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TelegramMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class HandleAnswerMenu implements SomeDefaultMessageHandler {
     private final ChatGpt chatGpt;
-    private final MessageService messageService;
+    private final TelegramMessageService telegramMessageService;
     private final QuestionsForChatGptService questionsForChatGptService;
 
 
@@ -42,13 +42,13 @@ public class HandleAnswerMenu implements SomeDefaultMessageHandler {
 
     private CompletableFuture<Message> sendInitialMessage(BotEvent botEvent) {
         log.debug("Sending initial message for bot event: {}", botEvent.getId());
-        return messageService.sendMessageToUser(botEvent.getId(), "Формируется ответ на ваш вопрос. Пожалуйста ожидайте...");
+        return telegramMessageService.sendMessageToUser(botEvent.getId(), "Формируется ответ на ваш вопрос. Пожалуйста ожидайте...");
     }
 
     private void handlePreviousMessage(BotEvent botEvent, CompletableFuture<Message> messageFuture) {
         messageFuture.thenAccept(message -> {
             if (message != null) {
-                messageService.deleteMessage(botEvent.getId(), message.getMessageId());
+                telegramMessageService.deleteMessage(botEvent.getId(), message.getMessageId());
             }
         }).exceptionally(e -> {
             log.error("Error handling bot event", e);
@@ -58,7 +58,7 @@ public class HandleAnswerMenu implements SomeDefaultMessageHandler {
 
     private void sendResponseMessage(BotEvent botEvent, String response) {
         log.debug("Sending response message for bot event: {}", botEvent.getId());
-        messageService.sendMessageToUser(botEvent.getId(), response);
+        telegramMessageService.sendMessageToUser(botEvent.getId(), response);
     }
 
     private void saveQuestionAndResponse(AppUser appUser, String question, String response) {
@@ -68,6 +68,6 @@ public class HandleAnswerMenu implements SomeDefaultMessageHandler {
 
     @Override
     public UserStateEnum availableFor() {
-        return UserStateEnum.ANSWER;
+        return null;
     }
 }

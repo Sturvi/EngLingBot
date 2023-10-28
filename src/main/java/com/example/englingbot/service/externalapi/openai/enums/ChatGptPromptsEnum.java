@@ -1,4 +1,4 @@
-package com.example.englingbot.service.externalapi.chatgpt;
+package com.example.englingbot.service.externalapi.openai.enums;
 
 public enum ChatGptPromptsEnum {
 

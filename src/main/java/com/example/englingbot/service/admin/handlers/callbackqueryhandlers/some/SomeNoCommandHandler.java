@@ -10,8 +10,7 @@ import com.example.englingbot.service.admin.handlers.callbackqueryhandlers.SomeA
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.keyboards.AdminInlineKeyboardMarkupFactory;
-import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
-import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TelegramMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -23,7 +22,7 @@ public class SomeNoCommandHandler implements SomeAdminCallbackQueryHandler {
     private final WordReviewService wordReviewService;
     private final WordService wordService;
     private final UserVocabularyService userVocabularyService;
-    private final MessageService messageService;
+    private final TelegramMessageService telegramMessageService;
     private final AdminInlineKeyboardMarkupFactory adminInlineKeyboardMarkupFactory;
 
 
@@ -47,13 +46,13 @@ public class SomeNoCommandHandler implements SomeAdminCallbackQueryHandler {
     private void notifyUsersAboutWordError(Word word) {
         var appUserList = userVocabularyService.getAppUserListByWord(word);
         String errorMessage = "К сожалению в слове " + word + " была найдена ошибка и она удалена.";
-        appUserList.forEach(user -> messageService.sendMessageToUser(user.getTelegramChatId(), errorMessage));
+        appUserList.forEach(user -> telegramMessageService.sendMessageToUser(user.getTelegramChatId(), errorMessage));
     }
 
     private void sendUpdateMessage(BotEvent botEvent, Word word) {
         String newMessageText = "Слово " + word + " удалено";
         var keyboard = adminInlineKeyboardMarkupFactory.getNextKeyboard();
-        messageService.editMessageWithInlineKeyboard(botEvent, newMessageText, keyboard);
+        telegramMessageService.editMessageWithInlineKeyboard(botEvent, newMessageText, keyboard);
     }
 
 

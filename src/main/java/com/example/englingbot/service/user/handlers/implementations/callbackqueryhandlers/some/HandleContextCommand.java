@@ -6,7 +6,7 @@ import com.example.englingbot.service.WordService;
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.user.handlers.interfaces.SomeCallbackQueryHandler;
-import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TelegramMessageService;
 import com.example.englingbot.service.message.TemplateMessagesSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class HandleContextCommand implements SomeCallbackQueryHandler {
     private final WordService wordService;
-    private final MessageService messageService;
+    private final TelegramMessageService telegramMessageService;
     private final TemplateMessagesSender templateMessagesSender;
 
     public void handle(BotEvent botEvent, AppUser appUser) {
@@ -31,7 +31,7 @@ public class HandleContextCommand implements SomeCallbackQueryHandler {
             if (word.getContext() == null) {
                 wordService.addWordContext(word);
             }
-            messageService.sendMessageToUser(botEvent.getId(), word.getContext());
+            telegramMessageService.sendMessageToUser(botEvent.getId(), word.getContext());
         } else {
             log.error("Failed to find the word '{}' in the database", wordId);
             templateMessagesSender.sendErrorMessage(botEvent.getId());

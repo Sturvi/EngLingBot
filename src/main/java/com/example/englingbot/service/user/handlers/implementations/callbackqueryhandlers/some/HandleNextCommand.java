@@ -6,7 +6,7 @@ import com.example.englingbot.service.UserVocabularyService;
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.user.handlers.interfaces.SomeCallbackQueryHandler;
-import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TelegramMessageService;
 import com.example.englingbot.service.message.TemplateMessagesSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class HandleNextCommand implements SomeCallbackQueryHandler {
     private final UserVocabularyService userVocabularyService;
-    private final MessageService messageService;
+    private final TelegramMessageService telegramMessageService;
     private final TemplateMessagesSender templateMessagesSender;
 
     @Override
@@ -29,7 +29,7 @@ public class HandleNextCommand implements SomeCallbackQueryHandler {
             case LEARNING -> sendWordForUser(botEvent.getId(), appUser, UserWordState.LEARNING);
             case REPETITION -> sendWordForUser(botEvent.getId(), appUser, UserWordState.REPETITION);
             case MIXED -> sendWordForUser(botEvent.getId(), appUser, UserWordState.LEARNING, UserWordState.REPETITION);
-            default -> messageService.sendMessageToUser(botEvent.getId(), "Для изучения слов выберите пожалуйста соответствующее меню");
+            default -> telegramMessageService.sendMessageToUser(botEvent.getId(), "Для изучения слов выберите пожалуйста соответствующее меню");
         }
     }
 

@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MessageService {
+public class TelegramMessageService {
     private final EditMessage editMessage;
     private final SendAudio sendAudio;
     private final SendMessage sendMessage;

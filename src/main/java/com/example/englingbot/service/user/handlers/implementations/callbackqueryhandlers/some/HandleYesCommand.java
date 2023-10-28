@@ -7,7 +7,7 @@ import com.example.englingbot.service.WordService;
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.user.handlers.interfaces.SomeCallbackQueryHandler;
-import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TelegramMessageService;
 import com.example.englingbot.service.message.TemplateMessagesSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class HandleYesCommand implements SomeCallbackQueryHandler {
     private final WordService wordService;
-    private final MessageService messageService;
+    private final TelegramMessageService telegramMessageService;
     private final UserVocabularyService userVocabularyService;
     private final TemplateMessagesSender templateMessagesSender;
 
@@ -68,7 +68,7 @@ public class HandleYesCommand implements SomeCallbackQueryHandler {
         log.debug("{} word to user's vocabulary: {}", action, word.toString());
 
         String newTextForMessage = "Слово: " + word.toString() + (isAdd ? " добавлено в Ваш словарь." : " удалено из вашего словаря.");
-        messageService.editTextAndDeleteInlineKeyboard(botEvent, newTextForMessage);
+        telegramMessageService.editTextAndDeleteInlineKeyboard(botEvent, newTextForMessage);
     }
 
 

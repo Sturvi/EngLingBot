@@ -7,7 +7,7 @@ import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.user.handlers.interfaces.SomeCallbackQueryHandler;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
-import com.example.englingbot.service.message.MessageService;
+import com.example.englingbot.service.message.TelegramMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class HandleTranslatorCommand implements SomeCallbackQueryHandler {
 
     private final WordService wordService;
-    private final MessageService messageService;
+    private final TelegramMessageService telegramMessageService;
     private final InlineKeyboardMarkupFactory inlineKeyboardMarkupFactory;
 
 
@@ -30,13 +30,13 @@ public class HandleTranslatorCommand implements SomeCallbackQueryHandler {
         var newWordsList = wordService.addNewWordFromExternalApi(wordString);
 
         if (newWordsList.isEmpty()){
-            messageService.sendMessageToUser(botEvent.getId(), "Не получено новых переводов слов.");
+            telegramMessageService.sendMessageToUser(botEvent.getId(), "Не получено новых переводов слов.");
             return;
         }
 
         for (Word word : newWordsList) {
             var keyboard = inlineKeyboardMarkupFactory.getYesOrNoKeyboard(word.getId().toString());
-            messageService.sendMessageWithKeyboard(botEvent.getId(), word.toString(), keyboard);
+            telegramMessageService.sendMessageWithKeyboard(botEvent.getId(), word.toString(), keyboard);
         }
     }
 
