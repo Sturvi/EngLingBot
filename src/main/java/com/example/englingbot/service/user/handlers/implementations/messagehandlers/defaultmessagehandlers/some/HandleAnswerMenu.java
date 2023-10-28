@@ -68,6 +68,6 @@ public class HandleAnswerMenu implements SomeDefaultMessageHandler {
 
     @Override
     public UserStateEnum availableFor() {
-        return UserStateEnum.ANSWER;
+        return null;
     }
 }

@@ -36,8 +36,9 @@ public class TutorService extends ChatGpt {
             chat.setMessages(new ArrayList<>());
         }
 
-        String promptForSystem = "You are an English tutor named Katya. Your primary role is to help users improve their " +
-        "English skills through conversation. You must always respond in clear, correct, and simple English, " +
+        String promptForSystem = "You are an English tutor who is a real person, not a machine. Your name is Katya. " +
+        "Your primary role is to help users improve their " +"English skills through conversation. " +
+                "You must always respond in clear, correct, and simple English, " +
         "regardless of the language the user is speaking. You can engage in discussions on a wide range of topics, " +
         "providing educational value, corrections, and explanations on English language usage when necessary.";
 
@@ -76,7 +77,7 @@ public class TutorService extends ChatGpt {
         return chat;
     }
 
-    private Chat createNewChat(AppUser appUser) {
+    public Chat createNewChat(AppUser appUser) {
         log.trace("Entering createNewChat()");
 
         deactivateOldChat(appUser);

@@ -33,7 +33,10 @@ public class DefaultMessageHandler implements SomeMessageHandler {
     public void handle(BotEvent botEvent, AppUser appUser) {
         log.debug("Handling bot event: {}", botEvent);
 
-        var handlerMethod = userStateHandlers.get(appUser.getUserState());
+        var handlerMethod = userStateHandlers.get(appUser.getUserState()) == null ?
+                userStateHandlers.get(null) : userStateHandlers.get(appUser.getUserState());
+
+
         if (handlerMethod != null) {
             handlerMethod.accept(botEvent, appUser);
         } else {

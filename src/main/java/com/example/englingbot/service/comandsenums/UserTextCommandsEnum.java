@@ -17,7 +17,7 @@ public enum UserTextCommandsEnum {
     ADD_RANDOM_WORDS("\uD83D\uDCD6 Добавить случайные слова"),
     STATISTIC("/statistic"),
     DELETE("/delete"),
-    CHAT_WITH_TUTOR ("/tutor"),
+    CHAT_WITH_TUTOR ("\uD83D\uDC69 Чат-бот \"Катя\""),
     NEW_CHAT ("\uD83E\uDDF9 Начать новый чат"),
     HOME ("\uD83C\uDFE0 Домой");
 

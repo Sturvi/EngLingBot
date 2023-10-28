@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "questions_for_chatGpt")
+@Table(name = "questions_for_chat_gpt")
 @Setter
 @Getter
 @NoArgsConstructor

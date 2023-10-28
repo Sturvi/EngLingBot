@@ -7,9 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * ReplyKeyboardMarkupFactory is a class responsible for creating
@@ -44,7 +42,7 @@ public class ReplyKeyboardMarkupFactory {
      * @param commands EnumSet of commands.
      * @return KeyboardRow object.
      */
-    private static <T extends Enum<T>> KeyboardRow createRow(EnumSet<T> commands) {
+    private static <T extends Enum<T>> KeyboardRow createRow(List<T> commands) {
         log.trace("Entering createRow method");
 
         KeyboardRow row = new KeyboardRow();
@@ -68,9 +66,10 @@ public class ReplyKeyboardMarkupFactory {
         log.info("Generating user keyboard layout");
 
         List<KeyboardRow> rows = new ArrayList<>();
-        rows.add(createRow(EnumSet.of(UserTextCommandsEnum.ADD_WORD, UserTextCommandsEnum.ADD_RANDOM_WORDS)));
-        rows.add(createRow(EnumSet.of(UserTextCommandsEnum.LIST_REPETITION_WORDS, UserTextCommandsEnum.LIST_STUDY_WORDS)));
-        rows.add(createRow(EnumSet.of(UserTextCommandsEnum.REPEAT_WORD, UserTextCommandsEnum.MIXED_MODE, UserTextCommandsEnum.LEARN_WORD)));
+        rows.add(createRow(List.of(UserTextCommandsEnum.CHAT_WITH_TUTOR)));
+        rows.add(createRow(List.of(UserTextCommandsEnum.ADD_WORD, UserTextCommandsEnum.ADD_RANDOM_WORDS)));
+        rows.add(createRow(List.of(UserTextCommandsEnum.LIST_REPETITION_WORDS, UserTextCommandsEnum.LIST_STUDY_WORDS)));
+        rows.add(createRow(List.of(UserTextCommandsEnum.REPEAT_WORD, UserTextCommandsEnum.MIXED_MODE, UserTextCommandsEnum.LEARN_WORD)));
 
         return createKeyboardMarkup(rows);
     }
@@ -83,7 +82,7 @@ public class ReplyKeyboardMarkupFactory {
         log.info("Generating admin keyboard layout");
 
         List<KeyboardRow> rows = new ArrayList<>();
-        rows.add(createRow(EnumSet.of(AdminTextComandsEnum.REVIEW_NEW_WORD)));
+        rows.add(createRow(List.of(AdminTextComandsEnum.REVIEW_NEW_WORD)));
 
         return createKeyboardMarkup(rows);
     }
@@ -96,8 +95,8 @@ public class ReplyKeyboardMarkupFactory {
         log.info("Generating tutor chat keyboard layout");
 
         List<KeyboardRow> rows = new ArrayList<>();
-        rows.add(createRow(EnumSet.of(UserTextCommandsEnum.NEW_CHAT)));
-        rows.add(createRow(EnumSet.of(UserTextCommandsEnum.HOME)));
+        rows.add(createRow(List.of(UserTextCommandsEnum.NEW_CHAT)));
+        rows.add(createRow(List.of(UserTextCommandsEnum.HOME)));
 
         return createKeyboardMarkup(rows);
     }
