@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, of = {"appUser", "isActive"})
 @Entity
 @Table(name = "chats")
 @Getter

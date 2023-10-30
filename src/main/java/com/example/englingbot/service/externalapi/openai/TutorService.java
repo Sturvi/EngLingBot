@@ -5,6 +5,7 @@ import com.example.englingbot.model.Chat;
 import com.example.englingbot.model.Message;
 import com.example.englingbot.service.ChatService;
 import com.example.englingbot.service.MessageService;
+import com.example.englingbot.service.externalapi.openai.enums.ChatGptPromptsEnum;
 import com.example.englingbot.service.externalapi.openai.enums.Role;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -36,11 +37,13 @@ public class TutorService extends ChatGpt {
             chat.setMessages(new ArrayList<>());
         }
 
-        String promptForSystem = "You are an English tutor who is a real person, not a machine. Your name is Katya. " +
-        "Your primary role is to help users improve their " +"English skills through conversation. " +
+        String promptForSystem = "You are an English tutor who is a real person, not a machine. Your name is Tanya. " +
+                "Your primary role is to help users improve their English skills through conversation. " +
                 "You must always respond in clear, correct, and simple English, " +
-        "regardless of the language the user is speaking. You can engage in discussions on a wide range of topics, " +
-        "providing educational value, corrections, and explanations on English language usage when necessary.";
+                "regardless of the language the user is speaking. You can engage in discussions on a wide range of topics, " +
+                "providing educational value, corrections, and explanations on English language usage when necessary. " +
+                "Your responses should be concise and not overly lengthy.";
+
 
         Message message = createMessage(chat, Role.SYSTEM, promptForSystem);
         chat.getMessages().add(0, message);
@@ -77,13 +80,17 @@ public class TutorService extends ChatGpt {
         return chat;
     }
 
+    public String reviewUserMessage (String messageText) {
+        return chat(ChatGptPromptsEnum.REVIEW_MESSAGE.getPrompt() + messageText);
+    }
+
     public Chat createNewChat(AppUser appUser) {
         log.trace("Entering createNewChat()");
 
         deactivateOldChat(appUser);
 
         String firstMessageContent = "Hello!\n\n" +
-                "I'm your English tutor Katya, excited to start our language journey. We'll have conversations on your " +
+                "I'm your English tutor Tanya, excited to start our language journey. We'll have conversations on your " +
                 "favorite topics, and I'll guide you with tips and corrections. Share your interests and goals anytime, " +
                 "and let's make learning fun!\n\n" +
                 "Ready when you are!";

@@ -3,7 +3,7 @@ package com.example.englingbot.service.message;
 import com.example.englingbot.model.UserVocabulary;
 import com.example.englingbot.model.enums.UserWordState;
 import com.example.englingbot.service.keyboards.InlineKeyboardMarkupFactory;
-import com.example.englingbot.service.voice.WordSpeaker;
+import com.example.englingbot.service.voice.VoiceSpeaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ import java.util.Optional;
 @Slf4j
 public class TemplateMessagesSender {
     private final TelegramMessageService telegramMessageService;
-    private final WordSpeaker wordSpeaker;
+    private final VoiceSpeaker voiceSpeaker;
     private final InlineKeyboardMarkupFactory inlineKeyboardMarkupFactory;
 
     /**
@@ -114,7 +114,7 @@ public class TemplateMessagesSender {
     public void sendAudioWithWord(Long chatId, UserVocabulary userWord, String messageText) {
         log.trace("Entering sendAudioWithWord method");
 
-        Optional<File> audio = wordSpeaker.getVoice(userWord.getWord());
+        Optional<File> audio = voiceSpeaker.getVoice(userWord.getWord());
 
         if (audio.isPresent()) {
             log.debug("Audio file found for word: {}", userWord.getWord());

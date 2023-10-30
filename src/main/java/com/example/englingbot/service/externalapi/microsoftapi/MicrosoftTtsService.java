@@ -10,6 +10,8 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,6 +45,27 @@ public class MicrosoftTtsService {
         byte[] audioData = getAudioData(text).block();
         saveAudioDataToFile(audioData, outputFilePath);
         log.debug("Text to speech conversion completed.");
+    }
+
+    public File textToSpeechFile(String text) {
+        log.debug("Converting text to speech and returning as File...");
+
+        byte[] audioData  = getAudioData(text).block();
+
+        File tempFile;
+        try {
+            // Create a temporary file
+            tempFile = File.createTempFile("audio", ".wav");
+            try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                fos.write(audioData);
+            }
+        } catch (IOException e) {
+            log.error("Failed to write to temp file.", e);
+            throw new RuntimeException("Failed to write to temp file.", e);
+        }
+
+        log.debug("Text to speech conversion to File completed.");
+        return tempFile;
     }
 
     private Mono<byte[]> getAudioData(String text) {

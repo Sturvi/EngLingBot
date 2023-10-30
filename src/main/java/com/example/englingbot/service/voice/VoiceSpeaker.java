@@ -20,7 +20,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class WordSpeaker {
+public class VoiceSpeaker {
     private File directory;
     private final MicrosoftTtsService microsoftTtsService;
 
@@ -39,6 +39,15 @@ public class WordSpeaker {
 
         log.trace("Returning voice file: {}", voice.getAbsolutePath());
         return Optional.of(voice);
+    }
+
+    public Optional<File> getVoiceFileFromString(String text) {
+        log.trace("Creating voice file for the string: {}", text);
+
+        File voiceFile = microsoftTtsService.textToSpeechFile(text);
+
+        log.trace("Voice file created for the string: {}", text);
+        return Optional.of(voiceFile);
     }
 
     /**
