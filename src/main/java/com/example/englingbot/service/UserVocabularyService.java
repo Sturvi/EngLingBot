@@ -1,11 +1,14 @@
 package com.example.englingbot.service;
 
-import com.example.englingbot.model.mapper.UserVocabularyMapper;
+import com.example.englingbot.dto.UserStatisticsDTO;
+import com.example.englingbot.dto.UserStatisticsDTOConverter;
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.UserVocabulary;
 import com.example.englingbot.model.Word;
 import com.example.englingbot.model.enums.UserWordState;
+import com.example.englingbot.model.mapper.UserVocabularyMapper;
 import com.example.englingbot.repository.UserVocabularyRepository;
+import jakarta.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,7 @@ public class UserVocabularyService {
 
     private final UserVocabularyRepository userVocabularyRepository;
     private final UserVocabularyMapper userVocabularyMapper;
+    private final UserStatisticsDTOConverter userStatisticsDTOConverter;
     private final Random random = new Random();
 
     /**
@@ -155,31 +159,28 @@ public class UserVocabularyService {
 
     public String getUserStatistics(AppUser user) {
         log.trace("Fetching statistics for user: {}", user.getId());
+        Tuple tuple = userVocabularyRepository.getUserStatisticsTuple(user.getId());
+        UserStatisticsDTO userStatistics = userStatisticsDTOConverter.convert(tuple);
 
         StringBuilder statistics = new StringBuilder();
 
-        long learningCount = userVocabularyRepository.countByUserAndListType(user, UserWordState.LEARNING);
-        long learnedCount = userVocabularyRepository.countByUserAndListType(user, UserWordState.LEARNED);
-        statistics.append("Слова на изучении: ").append(learningCount).append("\n");
+        statistics.append("Слова на изучении: ").append(userStatistics.getLearningCount()).append("\n\n");
+        statistics.append("Cлова на повторении: ").append(userStatistics.getRepetitionCount()).append("\n");
+        statistics.append("Доступные слова для повторения: ").append(userStatistics.getAvailableWordCount()).append("\n\n");
+        statistics.append("Изученные слова: ").append(userStatistics.getLearnedCount()).append("\n\n");
 
-        Optional<Integer> maxTimerValueOpt = userVocabularyRepository.findTopTimerValueByUserAndListType(user, UserWordState.REPETITION);
+        userStatistics.getRepetitionLevelCounts().forEach(e ->
+                statistics.append("Слова на повторении ")
+                        .append(e.getLevel())
+                        .append(" уровня: ")
+                        .append(e.getCount())
+                        .append("\n"));
 
-        int maxTimerValue = maxTimerValueOpt.orElse(0);
-        for (int i = 1; i <= maxTimerValue; i++) {
-            long repetitionCount = userVocabularyRepository.countByUserAndListTypeAndTimerValue(user, UserWordState.REPETITION, i);
-
-            if (repetitionCount != 0) {
-                statistics.append("Слова на повторении ").append(i).append(" уровня: ").append(repetitionCount).append("\n");
-            }
-
-        }
-
-        statistics.append("Изученные слова: ").append(learnedCount);
 
         log.trace("Statistics for user {} fetched successfully", user.getId());
-
         return statistics.toString();
     }
+
 
     public List<UserVocabulary> getUserVocabularies(AppUser user, List<Word> words) {
         return userVocabularyRepository.findByUserAndWordIn(user, words);
