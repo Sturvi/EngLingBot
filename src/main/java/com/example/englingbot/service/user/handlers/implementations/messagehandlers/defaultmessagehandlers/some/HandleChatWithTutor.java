@@ -8,6 +8,7 @@ import com.example.englingbot.service.externalapi.telegram.BotEvent;
 import com.example.englingbot.service.keyboards.ReplyKeyboardMarkupFactory;
 import com.example.englingbot.service.message.TelegramMessageService;
 import com.example.englingbot.service.user.handlers.interfaces.SomeDefaultMessageHandler;
+import com.example.englingbot.service.voice.VoiceSpeaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,14 +19,21 @@ import org.springframework.stereotype.Service;
 public class HandleChatWithTutor implements SomeDefaultMessageHandler {
     private final TutorService tutorService;
     private final TelegramMessageService telegramMessageService;
+    private final VoiceSpeaker voiceSpeaker;
 
     @Override
     public void handle(BotEvent botEvent, AppUser appUser) {
         var keyboard = ReplyKeyboardMarkupFactory.getTutorChatKeyboard();
 
         String response = tutorService.sendMessage(appUser, botEvent.getText());
+        String reviewResponse = tutorService.reviewUserMessage(botEvent.getText());
 
-        telegramMessageService.sendMessageWithKeyboard(botEvent.getId(), response, keyboard);
+        var responseVoice = voiceSpeaker.getVoiceFileFromString(response);
+        responseVoice.ifPresent(voice -> telegramMessageService.sendAudio(botEvent.getId(), "Response", voice));
+
+        String messageText = response + "\n\n<b>Text Review and Correction:</b>\n".toUpperCase() + reviewResponse;
+
+        telegramMessageService.sendMessageWithKeyboard(botEvent.getId(), messageText, keyboard);
     }
 
     @Override
