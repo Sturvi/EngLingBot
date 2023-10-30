@@ -1,9 +1,11 @@
 package com.example.englingbot.repository;
 
+import com.example.englingbot.dto.UserStatisticsDTO;
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.model.UserVocabulary;
 import com.example.englingbot.model.Word;
 import com.example.englingbot.model.enums.UserWordState;
+import jakarta.persistence.Tuple;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,25 +22,50 @@ public interface UserVocabularyRepository extends JpaRepository<UserVocabulary, 
 
     UserVocabulary findByUserAndWord(AppUser user, Word word);
 
-    Long countByUserAndListType(AppUser user, UserWordState listType);
-
-    Long countByUserAndListTypeAndTimerValue(AppUser user, UserWordState listType, Integer timerValue);
-
-    @Query("SELECT MAX(uv.timerValue) FROM UserVocabulary uv WHERE uv.user = :user AND uv.listType = :listType")
-    Optional<Integer> findTopTimerValueByUserAndListType(AppUser user, UserWordState listType);
-
     List<UserVocabulary> findByUserAndWordIn(AppUser user, List<Word> words);
 
     void deleteByUserAndWord(AppUser user, Word word);
-
-    @Query("SELECT uwl FROM UserVocabulary uwl WHERE uwl.listType IN :types")
-    List<UserVocabulary> findByListTypeIn(@Param("types") List<UserWordState> types);
 
 
     @Query("SELECT uv.user FROM UserVocabulary uv WHERE uv.word = :word")
     List<AppUser> findUsersByWord(@Param("word") Word word);
 
-    @Query(value = "SELECT COUNT(uv) FROM users_vocabulary uv WHERE uv.user_id = :userId AND uv.list_type = :listType " +
-            "AND (uv.updated_at + CAST(uv.timer_value || ' days' AS INTERVAL)) < CURRENT_TIMESTAMP", nativeQuery = true)
-    Long countByUserAndListTypeAndTimerCondition(@Param("userId") Long userId, @Param("listType") String listType);
+    @Query(value = "WITH stats AS (" +
+            "    SELECT " +
+            "        COUNT(*) FILTER (WHERE uv.list_type = 'LEARNING') AS learning_count, " +
+            "        COUNT(*) FILTER (WHERE uv.list_type = 'LEARNED') AS learned_count, " +
+            "        COUNT(*) FILTER (WHERE uv.list_type = 'REPETITION') AS repetition_count, " +
+            "        COUNT(*) FILTER (WHERE uv.list_type = 'REPETITION' AND (uv.updated_at + CAST(uv.timer_value || ' days' AS INTERVAL)) < CURRENT_TIMESTAMP) AS available_word_count " +
+            "    FROM " +
+            "        users_vocabulary uv " +
+            "    WHERE " +
+            "        uv.user_id = :userId " +
+            "), rep_counts AS (" +
+            "    SELECT " +
+            "        uv.timer_value, " +
+            "        COUNT(*) AS count " +
+            "    FROM " +
+            "        users_vocabulary uv " +
+            "    WHERE " +
+            "        uv.user_id = :userId AND uv.list_type = 'REPETITION' " +
+            "    GROUP BY " +
+            "        uv.timer_value" +
+            ") " +
+            "SELECT " +
+            "    s.learning_count, " +
+            "    s.learned_count, " +
+            "    s.repetition_count, " +
+            "    s.available_word_count, " +
+            "    json_agg(json_build_object('level', rc.timer_value, 'count', rc.count)) AS repetition_level_counts " +
+            "FROM " +
+            "    stats s " +
+            "CROSS JOIN " +
+            "    rep_counts rc " +
+            "GROUP BY " +
+            "    s.learning_count, " +
+            "    s.learned_count, " +
+            "    s.repetition_count, " +
+            "    s.available_word_count;", nativeQuery = true)
+    Tuple getUserStatisticsTuple(@Param("userId") Long userId);
+
 }
