@@ -160,21 +160,29 @@ public class UserVocabularyService {
 
         long learningCount = userVocabularyRepository.countByUserAndListType(user, UserWordState.LEARNING);
         long learnedCount = userVocabularyRepository.countByUserAndListType(user, UserWordState.LEARNED);
-        statistics.append("Слова на изучении: ").append(learningCount).append("\n");
+        long repetitionCount = userVocabularyRepository.countByUserAndListType(user, UserWordState.REPETITION);
+
+        long avaibleWordCount = userVocabularyRepository.countByUserAndListTypeAndTimerCondition(user.getId(), UserWordState.REPETITION.toString());
+
+        statistics.append("Слова на изучении: ").append(learningCount).append("\n\n");
 
         Optional<Integer> maxTimerValueOpt = userVocabularyRepository.findTopTimerValueByUserAndListType(user, UserWordState.REPETITION);
 
+        statistics.append("Cлова на повторении: ").append(repetitionCount).append("\n");
+        statistics.append("Доступные слова для повторения: ").append(avaibleWordCount).append("\n\n");
+
+        statistics.append("Изученные слова: ").append(learnedCount).append("\n\n");
+
         int maxTimerValue = maxTimerValueOpt.orElse(0);
         for (int i = 1; i <= maxTimerValue; i++) {
-            long repetitionCount = userVocabularyRepository.countByUserAndListTypeAndTimerValue(user, UserWordState.REPETITION, i);
+            long currentRepetitionCount = userVocabularyRepository.countByUserAndListTypeAndTimerValue(user, UserWordState.REPETITION, i);
 
-            if (repetitionCount != 0) {
-                statistics.append("Слова на повторении ").append(i).append(" уровня: ").append(repetitionCount).append("\n");
+            if (currentRepetitionCount != 0) {
+                statistics.append("Слова на повторении ").append(i).append(" уровня: ").append(currentRepetitionCount).append("\n");
             }
 
         }
 
-        statistics.append("Изученные слова: ").append(learnedCount);
 
         log.trace("Statistics for user {} fetched successfully", user.getId());
 

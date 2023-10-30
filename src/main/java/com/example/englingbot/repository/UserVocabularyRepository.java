@@ -37,4 +37,8 @@ public interface UserVocabularyRepository extends JpaRepository<UserVocabulary, 
 
     @Query("SELECT uv.user FROM UserVocabulary uv WHERE uv.word = :word")
     List<AppUser> findUsersByWord(@Param("word") Word word);
+
+    @Query(value = "SELECT COUNT(uv) FROM users_vocabulary uv WHERE uv.user_id = :userId AND uv.list_type = :listType " +
+            "AND (uv.updated_at + CAST(uv.timer_value || ' days' AS INTERVAL)) < CURRENT_TIMESTAMP", nativeQuery = true)
+    Long countByUserAndListTypeAndTimerCondition(@Param("userId") Long userId, @Param("listType") String listType);
 }
