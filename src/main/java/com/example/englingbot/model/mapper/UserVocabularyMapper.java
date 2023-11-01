@@ -7,6 +7,8 @@ import com.example.englingbot.model.enums.UserWordState;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 /**
  * Mapper class responsible for mapping user's word list.
  */
@@ -29,6 +31,8 @@ public class UserVocabularyMapper {
                 .timerValue(0)
                 .user(appUser)
                 .word(word)
+                .lastRetry(LocalDateTime.now())
+                .failedAttempts(0)
                 .build();
     }
 }

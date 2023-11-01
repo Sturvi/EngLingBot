@@ -54,8 +54,9 @@ public class UserVocabularyService {
         }
 
         userVocabularies = userVocabularies.stream()
-                .filter(u -> u.getUpdatedAt().plusDays(u.getTimerValue()).isBefore(LocalDateTime.now()))
+                .filter(u -> u.getListType() != UserWordState.REPETITION || u.getLastRetry().plusDays(u.getTimerValue()).isBefore(LocalDateTime.now()))
                 .toList();
+
 
         if (userVocabularies.isEmpty()) {
             log.debug("No user vocabularies found");
@@ -122,6 +123,8 @@ public class UserVocabularyService {
 
         userVocabulary.setTimerValue(userVocabulary.getTimerValue() + 1);
         log.debug("Incremented timer value to: {}", userVocabulary.getTimerValue());
+        userVocabulary.setLastRetry(LocalDateTime.now());
+        userVocabulary.setFailedAttempts(0);
 
         userVocabularyRepository.save(userVocabulary);
         log.debug("Saved user vocabulary: {}", userVocabulary);
@@ -144,6 +147,9 @@ public class UserVocabularyService {
 
         userVocabulary.setTimerValue(userVocabulary.getTimerValue() + 1);
         log.debug("Incremented timer value to: {}", userVocabulary.getTimerValue());
+
+        userVocabulary.setLastRetry(LocalDateTime.now());
+        userVocabulary.setFailedAttempts(0);
 
         userVocabularyRepository.save(userVocabulary);
         log.debug("Saved updated user vocabulary");
@@ -193,6 +199,7 @@ public class UserVocabularyService {
      * @return a string representation of the UserWordList
      */
     private String getWordWithStatus(UserVocabulary userVocabulary) {
+
         log.trace("Entering getWordWithStatus method");
 
         StringBuilder sb = new StringBuilder();
@@ -231,11 +238,19 @@ public class UserVocabularyService {
         return sb.toString();
     }
 
+    public void save (UserVocabulary userVocabulary) {
+        userVocabularyRepository.save(userVocabulary);
+    }
+
     private String formatSpoiler(String content) {
         return "<span class='tg-spoiler'>" + content + "</span>";
     }
 
     public List<AppUser>  getAppUserListByWord (Word word) {
         return userVocabularyRepository.findUsersByWord(word);
+    }
+
+    public Optional<UserVocabulary> getUserVocabulary (AppUser appUser, Long wordId) {
+        return userVocabularyRepository.findByUserAndWordId(appUser, wordId);
     }
 }

@@ -9,6 +9,8 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDateTime;
+
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "users_vocabulary",
@@ -35,4 +37,10 @@ public class UserVocabulary extends AbstractEntity {
     @NotNull
     @JoinColumn(name = "word_id", referencedColumnName = "id")
     private Word word;
+
+    @Column(name = "last_retry", nullable = false)
+    private LocalDateTime lastRetry;
+
+    @Column(name = "failed_attempts", nullable = false)
+    private Integer failedAttempts;
 }

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="9" author="Sturvi">
+
+        <addColumn tableName="users_vocabulary">
+            <column name="last_retry" type="TIMESTAMP">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+
+        <addColumn tableName="users_vocabulary">
+            <column name="failed_attempts" type="INT" defaultValue="0">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+
+        <update tableName="users_vocabulary">
+            <column name="last_retry" valueComputed="updated_at" />
+            <where>last_retry IS NULL</where>
+        </update>
+
+        <addNotNullConstraint tableName="users_vocabulary"
+                              columnName="last_retry"
+                              columnDataType="TIMESTAMP" />
+    </changeSet>
+
+</databaseChangeLog>
+
+
+

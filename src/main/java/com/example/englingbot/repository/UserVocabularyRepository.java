@@ -26,6 +26,7 @@ public interface UserVocabularyRepository extends JpaRepository<UserVocabulary, 
 
     void deleteByUserAndWord(AppUser user, Word word);
 
+    Optional<UserVocabulary> findByUserAndWordId(AppUser user, Long wordId);
 
     @Query("SELECT uv.user FROM UserVocabulary uv WHERE uv.word = :word")
     List<AppUser> findUsersByWord(@Param("word") Word word);
@@ -35,7 +36,7 @@ public interface UserVocabularyRepository extends JpaRepository<UserVocabulary, 
             "        COUNT(*) FILTER (WHERE uv.list_type = 'LEARNING') AS learning_count, " +
             "        COUNT(*) FILTER (WHERE uv.list_type = 'LEARNED') AS learned_count, " +
             "        COUNT(*) FILTER (WHERE uv.list_type = 'REPETITION') AS repetition_count, " +
-            "        COUNT(*) FILTER (WHERE uv.list_type = 'REPETITION' AND (uv.updated_at + CAST(uv.timer_value || ' days' AS INTERVAL)) < CURRENT_TIMESTAMP) AS available_word_count " +
+            "        COUNT(*) FILTER (WHERE uv.list_type = 'REPETITION' AND (uv.last_retry + CAST(uv.timer_value || ' days' AS INTERVAL)) < CURRENT_TIMESTAMP) AS available_word_count " +
             "    FROM " +
             "        users_vocabulary uv " +
             "    WHERE " +
