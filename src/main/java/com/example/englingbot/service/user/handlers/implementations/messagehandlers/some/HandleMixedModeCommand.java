@@ -1,6 +1,7 @@
 package com.example.englingbot.service.user.handlers.implementations.messagehandlers.some;
 
 import com.example.englingbot.model.AppUser;
+import com.example.englingbot.model.UserVocabulary;
 import com.example.englingbot.model.enums.UserStateEnum;
 import com.example.englingbot.model.enums.UserWordState;
 import com.example.englingbot.service.UserVocabularyService;
@@ -11,6 +12,9 @@ import com.example.englingbot.service.message.TemplateMessagesSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.Random;
 
 @Slf4j
 @Service
@@ -23,7 +27,18 @@ public class HandleMixedModeCommand implements SomeMessageHandler {
     public void handle(BotEvent botEvent, AppUser appUser) {
         appUser.setUserState(UserStateEnum.MIXED);
 
-        var userVocabularyOpt = userVocabularyService.getRandomUserVocabulary(appUser, UserWordState.LEARNING, UserWordState.REPETITION);
+        Random random = new Random();
+        int randomNumber = random.nextInt(10);
+        Optional<UserVocabulary> userVocabularyOpt = Optional.empty();
+
+        if (randomNumber == 0) {
+            userVocabularyOpt = userVocabularyService.getRandomUserVocabulary(appUser, UserWordState.LEARNED);
+        }
+
+        if (userVocabularyOpt.isEmpty()){
+            userVocabularyOpt = userVocabularyService.getRandomUserVocabulary(appUser, UserWordState.LEARNING, UserWordState.REPETITION);
+        }
+
         var messageText = userVocabularyService.getMessageText(userVocabularyOpt);
 
         if (messageText.isPresent() && userVocabularyOpt.isPresent()){

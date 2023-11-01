@@ -1,6 +1,7 @@
 package com.example.englingbot.service.keyboards;
 
 import com.example.englingbot.model.UserVocabulary;
+import com.example.englingbot.model.enums.UserWordState;
 import com.example.englingbot.service.comandsenums.KeyboardDataEnum;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -48,7 +49,7 @@ public class InlineKeyboardMarkupFactory extends AbstractInlineKeyboardMarkupFac
         var timerValue = userVocabulary.getTimerValue();
         var keyboard = creatNewInlineKeyboard();
 
-        if (timerValue > 7) {
+        if (timerValue > 7 && userVocabulary.getListType() == UserWordState.REPETITION) {
             addButtonToNewLine(keyboard, KeyboardDataEnum.LEARNED, identifierInData);
         }
 
