@@ -35,8 +35,7 @@ public interface UserVocabularyRepository extends JpaRepository<UserVocabulary, 
             "    SELECT " +
             "        COUNT(*) FILTER (WHERE uv.list_type = 'LEARNING') AS learning_count, " +
             "        COUNT(*) FILTER (WHERE uv.list_type = 'LEARNED') AS learned_count, " +
-            "        COUNT(*) FILTER (WHERE uv.list_type = 'REPETITION') AS repetition_count, " +
-            "        COUNT(*) FILTER (WHERE uv.list_type = 'REPETITION' AND (uv.last_retry + CAST(uv.timer_value || ' days' AS INTERVAL)) < CURRENT_TIMESTAMP) AS available_word_count " +
+            "        COUNT(*) FILTER (WHERE uv.list_type = 'LEARNING' AND (uv.last_retry + CAST(uv.timer_value || ' days' AS INTERVAL)) < CURRENT_TIMESTAMP) AS available_word_count " +
             "    FROM " +
             "        users_vocabulary uv " +
             "    WHERE " +
@@ -48,14 +47,13 @@ public interface UserVocabularyRepository extends JpaRepository<UserVocabulary, 
             "    FROM " +
             "        users_vocabulary uv " +
             "    WHERE " +
-            "        uv.user_id = :userId AND uv.list_type = 'REPETITION' " +
+            "        uv.user_id = :userId AND uv.list_type = 'LEARNING' " +
             "    GROUP BY " +
             "        uv.timer_value" +
             ") " +
             "SELECT " +
             "    s.learning_count, " +
             "    s.learned_count, " +
-            "    s.repetition_count, " +
             "    s.available_word_count, " +
             "    json_agg(json_build_object('level', rc.timer_value, 'count', rc.count)) AS repetition_level_counts " +
             "FROM " +
@@ -65,7 +63,6 @@ public interface UserVocabularyRepository extends JpaRepository<UserVocabulary, 
             "GROUP BY " +
             "    s.learning_count, " +
             "    s.learned_count, " +
-            "    s.repetition_count, " +
             "    s.available_word_count;", nativeQuery = true)
     Tuple getUserStatisticsTuple(@Param("userId") Long userId);
 

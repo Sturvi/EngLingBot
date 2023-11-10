@@ -54,7 +54,7 @@ public class UserVocabularyService {
         }
 
         userVocabularies = userVocabularies.stream()
-                .filter(u -> u.getListType() != UserWordState.REPETITION || u.getLastRetry().plusDays(u.getTimerValue()).isBefore(LocalDateTime.now()))
+                .filter(u -> u.getLastRetry().plusDays(u.getTimerValue()).isBefore(LocalDateTime.now()))
                 .toList();
 
 
@@ -116,11 +116,6 @@ public class UserVocabularyService {
         var userVocabulary = userVocabularyRepository.findByUserAndWord(appUser, word);
         log.debug("Retrieved user vocabulary: {}", userVocabulary);
 
-        if (userVocabulary.getTimerValue() == 0) {
-            log.debug("Timer value is 0. Setting list type to REPETITION.");
-            userVocabulary.setListType(UserWordState.REPETITION);
-        }
-
         userVocabulary.setTimerValue(userVocabulary.getTimerValue() + 1);
         log.debug("Incremented timer value to: {}", userVocabulary.getTimerValue());
         userVocabulary.setLastRetry(LocalDateTime.now());
@@ -171,12 +166,11 @@ public class UserVocabularyService {
         StringBuilder statistics = new StringBuilder();
 
         statistics.append("Слова на изучении: ").append(userStatistics.getLearningCount()).append("\n\n");
-        statistics.append("Cлова на повторении: ").append(userStatistics.getRepetitionCount()).append("\n");
         statistics.append("Доступные слова для повторения: ").append(userStatistics.getAvailableWordCount()).append("\n\n");
         statistics.append("Изученные слова: ").append(userStatistics.getLearnedCount()).append("\n\n");
 
         userStatistics.getRepetitionLevelCounts().forEach(e ->
-                statistics.append("Слова на повторении ")
+                statistics.append("Слова на изучении ")
                         .append(e.getLevel())
                         .append(" уровня: ")
                         .append(e.getCount())
@@ -206,11 +200,10 @@ public class UserVocabularyService {
         sb.append("Слово из словаря \"");
 
         switch (userVocabulary.getListType()) {
-            case LEARNING -> sb.append("Изучаемые слова");
-            case REPETITION -> sb.append("Слова на повторении ").append(userVocabulary.getTimerValue()).append(" уровня");
+            case LEARNING -> sb.append("Слово ").append(userVocabulary.getTimerValue()).append(" уровня");
             case LEARNED -> sb.append("Изученное слово");
             default -> {
-                log.error("Invalid list type encountered: " + userVocabulary.getListType());
+                log.error("Invalid list type encountered: " + userVocabulary.getListType() + "\n\n" + userVocabulary);
             }
         }
 
