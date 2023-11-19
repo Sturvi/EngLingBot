@@ -10,7 +10,6 @@ import java.util.List;
 public class UserStatisticsDTO {
     private Long learningCount;
     private Long learnedCount;
-    private Long repetitionCount;
     private Long availableWordCount;
     private List<RepetitionLevelCount> repetitionLevelCounts;
 

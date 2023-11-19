@@ -6,8 +6,6 @@ public enum UserStateEnum {
     ANSWER,
     ADD_MENU,
     LEARNING,
-    REPETITION,
-    MIXED,
     LIST_LEARNING_WORDS,
     LIST_REPETITION_WORDS,
     ADD_RANDOM_WORDS,

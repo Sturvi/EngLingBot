@@ -54,8 +54,9 @@ public class UserVocabularyService {
         }
 
         userVocabularies = userVocabularies.stream()
-                .filter(u -> u.getUpdatedAt().plusDays(u.getTimerValue()).isBefore(LocalDateTime.now()))
+                .filter(u -> u.getLastRetry().plusDays(u.getTimerValue()).isBefore(LocalDateTime.now()))
                 .toList();
+
 
         if (userVocabularies.isEmpty()) {
             log.debug("No user vocabularies found");
@@ -115,13 +116,10 @@ public class UserVocabularyService {
         var userVocabulary = userVocabularyRepository.findByUserAndWord(appUser, word);
         log.debug("Retrieved user vocabulary: {}", userVocabulary);
 
-        if (userVocabulary.getTimerValue() == 0) {
-            log.debug("Timer value is 0. Setting list type to REPETITION.");
-            userVocabulary.setListType(UserWordState.REPETITION);
-        }
-
         userVocabulary.setTimerValue(userVocabulary.getTimerValue() + 1);
         log.debug("Incremented timer value to: {}", userVocabulary.getTimerValue());
+        userVocabulary.setLastRetry(LocalDateTime.now());
+        userVocabulary.setFailedAttempts(0);
 
         userVocabularyRepository.save(userVocabulary);
         log.debug("Saved user vocabulary: {}", userVocabulary);
@@ -145,6 +143,9 @@ public class UserVocabularyService {
         userVocabulary.setTimerValue(userVocabulary.getTimerValue() + 1);
         log.debug("Incremented timer value to: {}", userVocabulary.getTimerValue());
 
+        userVocabulary.setLastRetry(LocalDateTime.now());
+        userVocabulary.setFailedAttempts(0);
+
         userVocabularyRepository.save(userVocabulary);
         log.debug("Saved updated user vocabulary");
     }
@@ -165,12 +166,11 @@ public class UserVocabularyService {
         StringBuilder statistics = new StringBuilder();
 
         statistics.append("Слова на изучении: ").append(userStatistics.getLearningCount()).append("\n\n");
-        statistics.append("Cлова на повторении: ").append(userStatistics.getRepetitionCount()).append("\n");
         statistics.append("Доступные слова для повторения: ").append(userStatistics.getAvailableWordCount()).append("\n\n");
         statistics.append("Изученные слова: ").append(userStatistics.getLearnedCount()).append("\n\n");
 
         userStatistics.getRepetitionLevelCounts().forEach(e ->
-                statistics.append("Слова на повторении ")
+                statistics.append("Слова на изучении ")
                         .append(e.getLevel())
                         .append(" уровня: ")
                         .append(e.getCount())
@@ -193,17 +193,17 @@ public class UserVocabularyService {
      * @return a string representation of the UserWordList
      */
     private String getWordWithStatus(UserVocabulary userVocabulary) {
+
         log.trace("Entering getWordWithStatus method");
 
         StringBuilder sb = new StringBuilder();
         sb.append("Слово из словаря \"");
 
         switch (userVocabulary.getListType()) {
-            case LEARNING -> sb.append("Изучаемые слова");
-            case REPETITION -> sb.append("Слова на повторении ").append(userVocabulary.getTimerValue()).append(" уровня");
+            case LEARNING -> sb.append("Слово ").append(userVocabulary.getTimerValue()).append(" уровня");
             case LEARNED -> sb.append("Изученное слово");
             default -> {
-                log.error("Invalid list type encountered: " + userVocabulary.getListType());
+                log.error("Invalid list type encountered: " + userVocabulary.getListType() + "\n\n" + userVocabulary);
             }
         }
 
@@ -231,11 +231,19 @@ public class UserVocabularyService {
         return sb.toString();
     }
 
+    public void save (UserVocabulary userVocabulary) {
+        userVocabularyRepository.save(userVocabulary);
+    }
+
     private String formatSpoiler(String content) {
         return "<span class='tg-spoiler'>" + content + "</span>";
     }
 
     public List<AppUser>  getAppUserListByWord (Word word) {
         return userVocabularyRepository.findUsersByWord(word);
+    }
+
+    public Optional<UserVocabulary> getUserVocabulary (AppUser appUser, Long wordId) {
+        return userVocabularyRepository.findByUserAndWordId(appUser, wordId);
     }
 }

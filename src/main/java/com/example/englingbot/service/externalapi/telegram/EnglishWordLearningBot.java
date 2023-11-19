@@ -2,8 +2,8 @@ package com.example.englingbot.service.externalapi.telegram;
 
 import com.example.englingbot.model.AppUser;
 import com.example.englingbot.service.AppUserService;
-import com.example.englingbot.service.user.handlers.interfaces.Handler;
-import com.example.englingbot.service.message.MessageEvent;
+import com.example.englingbot.service.telegrambot.handlers.interfaces.Handler;
+import com.example.englingbot.service.telegrambot.message.MessageEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -110,6 +110,10 @@ public class EnglishWordLearningBot extends TelegramLongPollingBot {
                 case DELETE_MESSAGE -> {
                     log.trace("Processing DELETE_MESSAGE");
                     execute(event.getDeleteMessage());
+                }
+                case SEND_DOCUMENT -> {
+                    log.trace("Processing SEND_DOCUMENT");
+                    event.setResponse(execute(event.getSendDocument()));
                 }
             }
         } catch (TelegramApiException e) {

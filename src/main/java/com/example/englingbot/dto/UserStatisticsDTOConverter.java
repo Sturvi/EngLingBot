@@ -20,7 +20,6 @@ public class UserStatisticsDTOConverter {
         UserStatisticsDTO userStatisticsDTO = new UserStatisticsDTO();
         userStatisticsDTO.setLearningCount((Long) tuple.get("learning_count"));
         userStatisticsDTO.setLearnedCount((Long) tuple.get("learned_count"));
-        userStatisticsDTO.setRepetitionCount((Long) tuple.get("repetition_count"));
         userStatisticsDTO.setAvailableWordCount((Long) tuple.get("available_word_count"));
 
         String repetitionLevelCountsJson = (String) tuple.get("repetition_level_counts");
