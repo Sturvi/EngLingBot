@@ -11,7 +11,6 @@ public enum UserStateEnum {
     ADD_RANDOM_WORDS,
     STATISTICS,
     DELETE_MENU,
-    MIXED,
     ALL_FALSE,
     WORD_REVIEW,
     CHAT_WITH_TUTOR

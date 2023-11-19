@@ -19,13 +19,13 @@ import java.util.Random;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class HandleMixedModeCommand implements SomeMessageHandler {
+public class HandleLeaningModeCommand implements SomeMessageHandler {
     private final UserVocabularyService userVocabularyService;
     private final TemplateMessagesSender templateMessagesSender;
 
     @Override
     public void handle(BotEvent botEvent, AppUser appUser) {
-        appUser.setUserState(UserStateEnum.MIXED);
+        appUser.setUserState(UserStateEnum.LEARNING);
 
         Random random = new Random();
         int randomNumber = random.nextInt(10);

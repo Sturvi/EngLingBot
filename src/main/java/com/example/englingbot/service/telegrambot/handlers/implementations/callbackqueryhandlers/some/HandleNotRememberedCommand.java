@@ -30,9 +30,18 @@ public class HandleNotRememberedCommand implements SomeCallbackQueryHandler {
         var wordId = KeyboardDataEnum.getWordId(botEvent.getData());
         var userVocabularyOpt = userVocabularyService.getUserVocabulary(appUser, wordId);
 
-        userVocabularyOpt.ifPresent(this::updateUserVocabulary);
+        if (userVocabularyOpt.isPresent()) {
+            var userVocabulary = userVocabularyOpt.get();
 
-        telegramMessageService.editMessageWithInlineKeyboard(botEvent, botEvent.getText(), keyboard);
+            boolean isChanged = updateUserVocabulary(userVocabulary);
+
+            if (isChanged) {
+                String messageText =  "Слово " + userVocabulary.getWord() + " понижено в уровне.";
+                telegramMessageService.editMessageWithInlineKeyboard(botEvent, messageText, keyboard);
+            } else {
+                telegramMessageService.editMessageWithInlineKeyboard(botEvent, botEvent.getText(), keyboard);
+            }
+        }
     }
 
     @Override
@@ -40,18 +49,29 @@ public class HandleNotRememberedCommand implements SomeCallbackQueryHandler {
         return KeyboardDataEnum.NOT_REMEMBERED;
     }
 
-    private void updateUserVocabulary(UserVocabulary userVocabulary) {
-        if (userVocabulary.getFailedAttempts() > 4) {
-            userVocabulary.setTimerValue(userVocabulary.getTimerValue() - 1);
-            userVocabulary.setFailedAttempts(0);
-        } else {
-            userVocabulary.setFailedAttempts(userVocabulary.getFailedAttempts() + 1);
-            if (userVocabulary.getListType() == UserWordState.LEARNED) {
-                userVocabulary.setListType(UserWordState.LEARNING);
+    private boolean updateUserVocabulary(UserVocabulary userVocabulary) {
+        boolean isChanged = false;
+
+        if (userVocabulary.getTimerValue() > 0) {
+            if (userVocabulary.getFailedAttempts() > 4) {
+                userVocabulary.setTimerValue(userVocabulary.getTimerValue() - 1);
+                userVocabulary.setFailedAttempts(0);
+
+                isChanged = true;
+            } else {
+                if (userVocabulary.getListType() == UserWordState.LEARNED) {
+                    userVocabulary.setListType(UserWordState.LEARNING);
+                    userVocabulary.setFailedAttempts(1);
+
+                    isChanged = true;
+                } else {
+                    userVocabulary.setFailedAttempts(userVocabulary.getFailedAttempts() + 1);
+                }
             }
         }
 
         userVocabularyService.save(userVocabulary);
+        return isChanged;
     }
 
 }

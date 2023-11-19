@@ -10,7 +10,7 @@ public enum UserTextCommandsEnum {
     ANSWER("/answer"),
     ADD_WORD("\uD83D\uDDD2 Добавить слова"),
     LEARN_WORD("\uD83D\uDC68\uD83C\uDFFB\u200D\uD83C\uDF93 Учить слова"),
-    LIST_REPETITION_WORDS("/getVocabulary"),
+    LIST_REPETITION_WORDS("/vocabulary"),
     STATISTIC("/statistic"),
     DELETE("/delete"),
     CHAT_WITH_TUTOR ("\uD83D\uDC69 Чат-бот \"Таня\""),
