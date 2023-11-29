@@ -19,6 +19,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+/**
+ * This class provides various methods for managing words in the system.
+ */
 @Slf4j
 @Service
 public class WordService {
@@ -42,22 +45,31 @@ public class WordService {
         this.wordReviewRepository = wordReviewRepository;
     }
 
+    /**
+     * Adds a new word from an external API to the repository.
+     *
+     * @param incomingWord The incoming word to be processed.
+     * @return The list of new words added to the repository.
+     */
     public List<Word> addNewWordFromExternalApi(String incomingWord) {
         log.debug("Processing incomingWord: {}", incomingWord);
         incomingWord = capitalizeFirstLetter(incomingWord);
 
         Set<Word> newWordsSet = new HashSet<>();
 
-        Word googleResponse = translateGoogle(incomingWord);
-        if (googleResponse == null) {
-            log.warn("No response received from Google translate for word: {}", incomingWord);
-        } else {
+        try {
+            Word googleResponse = translateGoogle(incomingWord);
             newWordsSet.add(googleResponse);
+        } catch (Exception e) {
+            log.warn("No response received from Google translate for word: {}. Error: {}", incomingWord, e.getMessage());
         }
 
-        List<Word> wordsFromChatGpt = translateChatGpt(incomingWord);
-
-        newWordsSet.addAll(wordsFromChatGpt);
+        try {
+            List<Word> wordsFromChatGpt = translateChatGpt(incomingWord);
+            newWordsSet.addAll(wordsFromChatGpt);
+        } catch (Exception e) {
+            log.warn("No response received from ChatGpt for word: {}. Error: {}", incomingWord, e.getMessage());
+        }
 
         var newWordsList = new ArrayList<>(newWordsSet);
         log.info("Saving {} new words to the repository", newWordsList.size());
@@ -66,12 +78,25 @@ public class WordService {
         return newWordsList;
     }
 
+    /**
+     * Fetches a list of words from the repository based on the provided word.
+     *
+     * @param word The word to search for in the repository.
+     * @return The list of words found in the repository that match the provided word.
+     */
     public List<Word> fetchWordList(String word) {
         word = capitalizeFirstLetter(word);
         log.trace("Fetching word list for word: {}", word);
         return wordRepository.findByRussianWordOrEnglishWord(word);
     }
 
+    /**
+     * Retrieves a word from the repository based on the provided text message.
+     *
+     * @param textMessage The text message containing two words separated by ' - '.
+     * @return An Optional object containing the word found in the repository if it matches the provided text message,
+     *         or an empty Optional if the text message format is incorrect or no matching word is found.
+     */
     public Optional<Word> getWordByTextMessage(String textMessage) {
         log.trace("Getting word by text message: {}", textMessage);
 
@@ -107,6 +132,14 @@ public class WordService {
         return wordOpt;
     }
 
+    /**
+     * Retrieves a word from the repository based on the provided Russian and English combination.
+     *
+     * @param first  The Russian word.
+     * @param second The English word.
+     * @return An Optional object containing the word found in the repository if it matches the provided Russian and English combination,
+     *         or an empty Optional if no matching word is found.
+     */
     private Optional<Word> findWord(String first, String second) {
         log.trace("Finding word by Russian and English combination: {} and {}", first, second);
 
@@ -117,6 +150,11 @@ public class WordService {
                 });
     }
 
+    /**
+     * Adds extra information to a word if necessary.
+     *
+     * @param word The word to check and add extra information to.
+     */
     private void addExtraInformationIfNecessary(Word word) {
         log.trace("Checking if extra information needs to be added for word: {}", word);
 
@@ -130,6 +168,11 @@ public class WordService {
         }
     }
 
+    /**
+     * Saves a list of new words.
+     *
+     * @param newWordsList The list of new words to be saved.
+     */
     private void saveNewWords(List<Word> newWordsList) {
         if (newWordsList == null || newWordsList.isEmpty()) {
             log.warn("The newWordsList provided for saving is empty or null.");
@@ -158,6 +201,11 @@ public class WordService {
         log.info("Finished saving new words.");
     }
 
+    /**
+     * Sends a word for review.
+     *
+     * @param word The word to be sent for review.
+     */
     private void sendToReview(Word word) {
         Runnable runnable = () -> {
             var wordReviewDTO = chatGptWordUtils.reviewWordWithChatGpt(word);
@@ -168,6 +216,12 @@ public class WordService {
         chatGPTExecutorService.submit(runnable);
     }
 
+    /**
+     * Translates a word using Google Translate API.
+     *
+     * @param incomingWord The word to be translated.
+     * @return The translated word as a Word object, or null if the word already exists in the database.
+     */
     private Word translateGoogle(String incomingWord) {
         log.trace("Entering translateGoogle method");
 
@@ -187,6 +241,12 @@ public class WordService {
         }
     }
 
+    /**
+     * Translates a word using ChatGpt word translation service.
+     *
+     * @param incomingWord The word to be translated.
+     * @return A list of translated words as Word objects, or an empty list if no new words are found.
+     */
     private List<Word> translateChatGpt(String incomingWord) {
         log.trace("Entering translateChatGpt method");
 
@@ -313,6 +373,11 @@ public class WordService {
         }
     }
 
+    /**
+     * Adds the context information to the specified Word object.
+     *
+     * @param word The Word object to which the context information will be added.
+     */
     public void addWordContext(Word word) {
         log.trace("Entering addWordContext method");
         if (word.getContext() == null) {
@@ -329,6 +394,12 @@ public class WordService {
         log.trace("Exiting addWordContext method");
     }
 
+    /**
+     * Capitalizes the first letter of a given string.
+     *
+     * @param str the string to be capitalized
+     * @return the capitalized string if the input string is not null or empty; otherwise, returns the input string
+     */
     public static String capitalizeFirstLetter(String str) {
         log.trace("Entering capitalizeFirstLetter method");
         if (str == null || str.isEmpty()) {
@@ -343,10 +414,21 @@ public class WordService {
         return capitalizedStr;
     }
 
+    /**
+     * Retrieves ten random words that are not present in the user's vocabulary.
+     *
+     * @param appUser the user for which to retrieve the words
+     * @return a list of ten Word objects that are not present in the user's vocabulary
+     */
     public List<Word> getTenRandomNewWord(AppUser appUser) {
         return wordRepository.findTenRandomWordsNotInUserVocabulary(appUser.getId());
     }
 
+    /**
+     * Deletes a given word from the repository.
+     *
+     * @param word the word to be deleted
+     */
     public void deleteWord (Word word) {
         wordRepository.delete(word);
     }
