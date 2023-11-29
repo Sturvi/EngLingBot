@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+/**
+ * This class represents a service for managing user vocabularies.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -45,6 +48,13 @@ public class UserVocabularyService {
         return userVocabularies;
     }
 
+    /**
+     * Retrieves a random user vocabulary based on the given user and word state types.
+     *
+     * @param user  the user to search for
+     * @param types the word state types to filter by
+     * @return an Optional object containing the randomly selected user vocabulary, or empty if no user vocabularies are found
+     */
     public Optional<UserVocabulary> getRandomUserVocabulary(AppUser user, UserWordState... types) {
         log.trace("Entering getRandomUserVocabulary method");
         List<UserVocabulary> userVocabularies = getUserVocabularies(user, types);
@@ -72,10 +82,10 @@ public class UserVocabularyService {
     }
 
     /**
-     * Adds a word to user vocabulary.
+     * Adds a word to the user's vocabulary.
      *
-     * @param word    the word to add
-     * @param appUser the user to whom the word will be added
+     * @param word    the word to add to the vocabulary
+     * @param appUser the user to add the word to
      */
     public void addWordToUserVocabulary(Word word, AppUser appUser) {
         log.trace("Mapping new word in user word list");
@@ -87,6 +97,12 @@ public class UserVocabularyService {
         log.debug("Saved new word in user vocabulary repository");
     }
 
+    /**
+     * Deletes a word from the user's vocabulary.
+     *
+     * @param word    the word to delete from the vocabulary
+     * @param appUser the user from whose vocabulary the word will be deleted
+     */
     @Transactional
     public void deleteWordFromUserVocabulary (Word word, AppUser appUser){
         log.trace("Deleting word from user vocabulary: {}", word);
@@ -94,6 +110,12 @@ public class UserVocabularyService {
         log.debug("Word deleted successfully");
     }
 
+    /**
+     * Retrieves the message text for a given user vocabulary.
+     *
+     * @param userWordOpt the optional user vocabulary to retrieve the message text for
+     * @return the optional message text, or empty if the user vocabulary is empty
+     */
     public Optional<String> getMessageText (Optional<UserVocabulary> userWordOpt){
         if (userWordOpt.isEmpty()) {
             return Optional.empty();
@@ -150,6 +172,13 @@ public class UserVocabularyService {
         log.debug("Saved updated user vocabulary");
     }
 
+    /**
+     * Retrieves the list of words for a given user based on the specified word types.
+     *
+     * @param appUser the user whose word list will be retrieved
+     * @param types   the word types to filter the list by
+     * @return the list of words for the user based on the specified word types
+     */
     public List<Word> getUserWordListByType(AppUser appUser, UserWordState... types) {
         var userVocabularyList = userVocabularyRepository.findByUserAndListTypeIn(appUser, List.of(types));
 
@@ -158,6 +187,12 @@ public class UserVocabularyService {
                 .toList();
     }
 
+    /**
+     * Retrieves the statistics for a given user.
+     *
+     * @param user the user whose statistics will be retrieved
+     * @return a string representation of the user statistics
+     */
     public String getUserStatistics(AppUser user) {
         log.trace("Fetching statistics for user: {}", user.getId());
         Tuple tuple = userVocabularyRepository.getUserStatisticsTuple(user.getId());
@@ -182,6 +217,13 @@ public class UserVocabularyService {
     }
 
 
+    /**
+     * Retrieves the vocabularies of a given user for a list of words.
+     *
+     * @param user the user whose vocabularies will be retrieved
+     * @param words the list of words for which the vocabularies will be retrieved
+     * @return a list of UserVocabulary objects representing the user's vocabularies for the given words
+     */
     public List<UserVocabulary> getUserVocabularies(AppUser user, List<Word> words) {
         return userVocabularyRepository.findByUserAndWordIn(user, words);
     }
@@ -231,18 +273,42 @@ public class UserVocabularyService {
         return sb.toString();
     }
 
+    /**
+     * Saves the UserVocabulary object in the database.
+     *
+     * @param userVocabulary the UserVocabulary object to be saved
+     */
     public void save (UserVocabulary userVocabulary) {
         userVocabularyRepository.save(userVocabulary);
     }
 
+    /**
+     * Formats the given content as a spoiler and returns the formatted string.
+     *
+     * @param content the content to be formatted as a spoiler
+     * @return the formatted string with the content as a spoiler
+     */
     private String formatSpoiler(String content) {
         return "<span class='tg-spoiler'>" + content + "</span>";
     }
 
+    /**
+     * Returns a list of AppUser objects based on the given Word object.
+     *
+     * @param word the Word object to search for in the user vocabulary
+     * @return a list of AppUser objects that have the specified word in their vocabulary
+     */
     public List<AppUser>  getAppUserListByWord (Word word) {
         return userVocabularyRepository.findUsersByWord(word);
     }
 
+    /**
+     * Returns an optional UserVocabulary object based on the given AppUser and wordId.
+     *
+     * @param appUser the AppUser object to search for in the user vocabulary
+     * @param wordId the id of the word to search for in the user vocabulary
+     * @return an optional UserVocabulary object that matches the specified AppUser and wordId, or empty if no match is found
+     */
     public Optional<UserVocabulary> getUserVocabulary (AppUser appUser, Long wordId) {
         return userVocabularyRepository.findByUserAndWordId(appUser, wordId);
     }
