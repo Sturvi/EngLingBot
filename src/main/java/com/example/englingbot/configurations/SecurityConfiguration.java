@@ -22,12 +22,12 @@ public class SecurityConfiguration extends VaadinWebSecurity {
         super.configure(http);
         setLoginView(http, LoginView.class);
 
-        http.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"));
-
-        http.logout()
+        http.logout(logout -> logout
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                 .logoutSuccessUrl("/login") // URL для перенаправления после выхода
                 .invalidateHttpSession(true) // Инвалидация сессии при выходе
-                .deleteCookies("JSESSIONID"); // Удаление куки сессии
+                .deleteCookies("JSESSIONID") // Удаление куки сессии
+        );
     }
 
     @Bean
